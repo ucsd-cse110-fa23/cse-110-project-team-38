@@ -1,450 +1,510 @@
 package ContactManager;
 
-// Add necessary imports
 import javafx.application.Application;
-import javafx.event.Event;
-import javafx.stage.Stage;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.event.EventHandler;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.stream.Collectors;
 import java.util.List;
+import javafx.scene.layout.Region;
+import java.io.PrintWriter;
+import java.io.IOException;
+import javafx.scene.Node;
+import java.util.Collections;
+import java.util.ArrayList;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 
-
-class Header extends HBox {
-    Header() {
-        // this is COPY PASTE of TodoList Header except the title is different
-        this.setPrefSize(500, 60); // Size of the header
-        this.setStyle("-fx-background-color: #F0F8FF;");
-
-        Text titleText = new Text("Contact Manager"); // Text of the Header
-        titleText.setStyle("-fx-font-weight: bold; -fx-font-size: 20;");
-        this.getChildren().add(titleText);
-        this.setAlignment(Pos.CENTER); // Align the text to the Center
-    }
+class Constants {
+    public static final String PRIMARY_COLOR = "#2E4053";
+    public static final String SECONDARY_COLOR = "#D5D8DC";
+    public static final String BUTTON_HOVER_COLOR = "#566573";
 }
 
-/**
- * A contact's fields can be directly modified using the TextField datatype --->
- * NO!
- * 
- * OK change of plans. If we double click a portrait, we open a window where:
- * 1. we can change the email, name, phone, and portrait
- * 2. we can delete the user!
- */
-class Contact extends HBox {
-    private Label name;
-    private Label phone;
-    private Label email;
-    private Image img;
-    private boolean deleteFlag = false;
-    private Button selectButton;
+class ContactItem extends HBox {
+    private ImageView contactImageView;
+    private VBox detailsBox;
+    private Label contactNameLabel; 
+    private Label contactPhoneLabel; 
+    private Label contactEmailLabel; 
+    private Button editButton;
+    private Button deleteButton;
 
-    private ContactEditor ce;
-    private Scene ceScene;
-    
-    public Contact() {
-        this.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0; -fx-font-weight: bold;");
+    ContactItem() {
+        this.setPrefSize(500, 120); 
+        this.setPadding(new Insets(10));
+        this.setStyle("-fx-background-color: white; -fx-border-width: 0 0 1 0; -fx-border-color: " + Constants.SECONDARY_COLOR + "; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);");
 
+        contactImageView = new ImageView();
+        contactImageView.setFitHeight(100);
+        contactImageView.setFitWidth(100);
+        this.getChildren().add(contactImageView);
 
+        detailsBox = new VBox(5);
+        detailsBox.setAlignment(Pos.CENTER_LEFT);
+        detailsBox.setPadding(new Insets(0, 0, 0, 10)); 
 
-        this.name = new Label("placeholder");
-        this.name.setPrefSize(150, 50); // set size of name label
-        this.name.setTextAlignment(TextAlignment.CENTER); // Set alignment of name label
-        this.name.setPadding(new Insets(10, 0, 10, 0)); // adds some padding to the name label
+        contactNameLabel = new Label();
+        contactNameLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
+        contactNameLabel.setMaxWidth(250);
+        contactNameLabel.setEllipsisString("...");
+        detailsBox.getChildren().add(contactNameLabel);
 
-        this.phone = new Label("placeholder");
-        this.phone.setPrefSize(150, 50); // set size of name label
-        this.phone.setTextAlignment(TextAlignment.CENTER); // Set alignment of phone label
-        this.phone.setPadding(new Insets(10, 0, 10, 0)); // adds some padding to the phone label
+        contactPhoneLabel = new Label(); 
+        detailsBox.getChildren().add(contactPhoneLabel);
 
-        this.email = new Label("placeholder");
-        this.email.setPrefSize(150, 50); // set size of name label
-        this.email.setTextAlignment(TextAlignment.CENTER); // Set alignment of email label
-        this.email.setPadding(new Insets(10, 0, 10, 0)); // adds some padding to the email label
+        contactEmailLabel = new Label(); 
+        detailsBox.getChildren().add(contactEmailLabel);
 
-        this.img = new Image("file:src/ContactManager/rdj.jpg");
+        this.getChildren().add(detailsBox);
+        HBox buttonBox = new HBox(10); 
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        HBox.setHgrow(buttonBox, Priority.ALWAYS);
 
-        ImageView iv = new ImageView();
-        // iv.setViewport(new Rectangle2D(50, 50, 100, 100));
-        iv.setImage(img);
-        iv.setFitHeight(75);
-        iv.setFitWidth(75);
+        editButton = new Button("Edit");
+        editButton.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0;");
+        buttonBox.getChildren().add(editButton);
 
-        this.selectButton = new Button("", iv);
-        this.selectButton.setPrefSize(30, 50);
+        deleteButton = new Button("Delete");
+        deleteButton.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0;");
+        buttonBox.getChildren().add(deleteButton);
 
-        this.ce = new ContactEditor(this, selectButton);
-        this.ceScene = new Scene(ce,400,150);
+        this.getChildren().add(buttonBox);
 
-        // button double click function
-        this.selectButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY) && (mouseEvent.getClickCount() == 2)) {
-                    openContactEditor(ceScene,ce);
-                }
-            }
-        });
-        // to add elements to an Box type thing... add each element in order of which
-        // they should display (hbox is left to right)
-        this.getChildren().addAll(selectButton, name, phone, email);
-    }
-
-    public void refreshContact(){
-        if(!deleteFlag){
-            this.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0; -fx-font-weight: bold;");
-        } else{
-            this.setStyle("-fx-background-color: #E87485; -fx-border-width: 0; -fx-font-weight: bold;");
-        }
-    }
-
-    public void openContactEditor(Scene scene,ContactEditor ce) {
-        Parent root;
-        try {
-            /**
-             * make stage
-             * make a the frame
-             * make scene with frame
-             * put scene in stage
-             */
-            Stage stage = new Stage();
-            root = ce;
-            stage.setTitle("Contact Editor");
-            scene.setRoot(root);
-            stage.setScene(scene); //400, 150
-            stage.show();
-            stage.setOnCloseRequest(e ->{
-                ce.updateContactFields();
-                this.refreshContact();
-                System.out.println("contact editor closed!");
-            });
-
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-
-    }
-
-    // field getters
-    public Label getName() {
-        return this.name;
-    }
-
-    public Label getPhone() {
-        return this.phone;
-    }
-
-    public Label getEmail() {
-        return this.email;
-    }
-
-    public Image getImg() {
-        return this.img;
-    }
-
-    public Boolean getDeleteFlag(){
-        return this.deleteFlag;
-    }
-
-    public void flipDeleteFlag(){
-        this.deleteFlag = !this.deleteFlag;
-    }
-    
-}
-
-class ContactEditor extends VBox {
-    private FieldEditor editNameField;
-    private FieldEditor editEmailField;
-    private FieldEditor editPhoneField;
-    private Button editImageButton;
-    private Button deleteContactsButton;
-
-    public ContactEditor(Contact contact,Button imgButton) {
-        editNameField = new FieldEditor("New Name Entry", contact.getName());
-        editEmailField = new FieldEditor("New Email Entry", contact.getEmail());
-        editPhoneField = new FieldEditor("New Phone Entry", contact.getPhone());
-        editImageButton = new Button("Upload New Image");
-        editImageButton.setOnAction(e -> {
-            uploadImage(imgButton);
-        });
-        
-        deleteContactsButton = new Button("Toggle Delete? [  ]");
-        deleteContactsButton.setOnAction(e ->{
-            contact.flipDeleteFlag();
-            if(contact.getDeleteFlag()){
-            deleteContactsButton.setText("Toggle Delete? [x]");
-            } else{
-                deleteContactsButton.setText("Toggle Delete? [  ]");
+        deleteButton.setOnAction(e -> {
+            if (this.getParent() instanceof ContactList) {
+                ContactList parentList = (ContactList) this.getParent();
+                parentList.removeContact(this);
             }
         });
 
-        
-        
-        this.getChildren().addAll(editNameField, editEmailField, editPhoneField, editImageButton,deleteContactsButton);
-    }
-    /**
-     * uploadImage modified from Lab 1
-     */
-    private void uploadImage(Button target) {
-        FileChooser fileChooser = new FileChooser();
-        // Select which extensions are allowed
-        fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
-        Stage stage = new Stage();
-        File selectedFile = fileChooser.showOpenDialog(stage);
-
-        if (selectedFile != null) {
-            System.out.println("THIS IS MY URI: " + selectedFile.toURI().toString());
-            Image image = new Image(selectedFile.toURI().toString());
-            ImageView iv = new ImageView(image);
-            iv.setFitHeight(75);
-            iv.setFitWidth(75);
-            target.setGraphic(iv);
-        }
-    }
-
-    public void updateContactFields(){
-        //update if they ever got updated, and you didnt hit submit
-        editNameField.updateText();
-        editEmailField.updateText();
-        editPhoneField.updateText();
-    }
-
-}
-
-class FieldEditor extends HBox {
-    private TextField field;
-    private Label ref;
-    private Button submitButton;
-
-    public FieldEditor(String desc, Label ref) {
-        this.field = new TextField();
-        this.field.setText(ref.getText());
-        this.ref = ref;
-        this.submitButton = new Button("Submit");
-        this.submitButton.setOnAction(e -> {
-            updateText();
+        editButton.setOnAction(e -> {
+            AppFrame appFrame = (AppFrame) this.getScene().getRoot();
+            ContactDetailsPage detailsPage = new ContactDetailsPage(appFrame, this);
+            Stage stage = (Stage) this.getScene().getWindow();
+            stage.getScene().setRoot(detailsPage);
         });
-        this.getChildren().addAll(new Label(desc), field, submitButton);
     }
 
-    public void updateText() {
-        ref.setText(field.getText());
+    public void setContactName(String name) {
+        this.contactNameLabel.setText(name);
+    }
+
+    public void setContactPhone(String phone) {
+        this.contactPhoneLabel.setText("Phone: " + phone);
+    }
+
+    public void setContactEmail(String email) {
+        this.contactEmailLabel.setText("Email: " + email);
+    }
+
+    public String getContactName() {
+        return this.contactNameLabel.getText();
+    }
+
+    public String getContactEmail() {
+        String emailText = this.contactEmailLabel.getText();
+        return emailText.replace("Email: ", "");
+    }
+
+    public String getContactPhone() {
+        String phoneText = this.contactPhoneLabel.getText();
+        return phoneText.replace("Phone: ", "");
+    }
+
+    public Button getEditButton() {
+        return this.editButton;
+    }
+
+    public Button getDeleteButton() {
+        return this.deleteButton;
+    }
+
+    public void setContactImage(Image image) {
+        this.contactImageView.setImage(image);
+    }
+
+    public Image getContactImage() {
+        return this.contactImageView.getImage();
     }
 }
+
 
 class ContactList extends VBox {
-    // vbox must contain a list of contacts
-
-    // copy pasted from lab 1
-    public ContactList() {
-        this.setSpacing(5); // sets spacing between tasks
+    ContactList() {
+        this.setSpacing(5); 
         this.setPrefSize(500, 560);
-        this.setStyle("-fx-background-color: #F0F8FF;");
+        this.setStyle("-fx-background-color: white;");
     }
 
-    public void addContact() {
-        this.getChildren().add(new Contact());
+    public void removeContact(ContactItem contactItem) {
+        this.getChildren().remove(contactItem);
     }
 
-    public void deleteContacts() {
-        System.out.println("deleting selected contacts");
-        this.getChildren().removeIf(n -> n instanceof Contact && ((Contact) n).getDeleteFlag());
+    public void saveContacts() {
+        
     }
 
-    //Export to CSV file
-    public void saveData(){
-        String out = "contacts.csv";
-        try (FileWriter writer = new FileWriter(out)) {
-            writer.write("Name,Email,Phone,Image\n");//header
-            for (int i = 0; i < this.getChildren().size(); i++) {
-            if (this.getChildren().get(i) instanceof Contact) {
-                writer.write(((Contact) this.getChildren().get(i)).getName().getText() 
-                + "," + ((Contact) this.getChildren().get(i)).getEmail().getText() + "," 
-                + ((Contact) this.getChildren().get(i)).getPhone().getText() + 
-                "," + ((Contact) this.getChildren().get(i)).getImg().getUrl() + "\n");
-            
+    public void sortContacts() {
+        List<ContactItem> contacts = this.getChildren().stream()
+            .filter(node -> node instanceof ContactItem)
+            .map(node -> (ContactItem) node)
+            .collect(Collectors.toList());
+
+        List<String> lowercaseNames = contacts.stream()
+            .map(contact -> contact.getContactName().toLowerCase())
+            .collect(Collectors.toList());
+
+        Collections.sort(lowercaseNames);
+
+        List<ContactItem> sortedContacts = new ArrayList<>();
+        for (String name : lowercaseNames) {
+            for (ContactItem contact : contacts) {
+                if (contact.getContactName().equalsIgnoreCase(name)) {
+                    sortedContacts.add(contact);
+                    contacts.remove(contact);
+                    break;
+                }
             }
         }
-            System.out.println("Saved Complete");
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("save tasks failed");
+        this.getChildren().setAll(sortedContacts);
+    }
+
+    public void exportToCSV(File file) {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.println("Name,Email,Phone");
+            for (Node node : this.getChildren()) {
+                if (node instanceof ContactItem) {
+                    ContactItem contact = (ContactItem) node;
+                    writer.println(contact.getContactName() + "," + contact.getContactEmail() + "," + contact.getContactPhone());
+                }
+            }
+        } catch (IOException ex) {
+            System.err.println("Error writing to CSV: " + ex.getMessage());
+        }
+    }
+}
+
+class ContactDetailsPage extends VBox {
+    private TextField nameField;
+    private TextField emailField;
+    private TextField phoneField;
+    private ImageView contactImageView;
+    private Image contactImage;
+    private Button uploadButton;
+    private Button doneButton;
+    private Button backButton;
+    private ContactItem currentContactItem;
+    private AppFrame appFrame;
+    private Label nameLabel;
+    private Label emailLabel;
+    private Label phoneLabel;
+
+    public ContactDetailsPage(AppFrame appFrame) {
+        this.appFrame = appFrame;
+        this.setSpacing(10);
+        this.setPadding(new Insets(10, 20, 10, 20));
+        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
+
+        nameLabel = new Label("Name");
+        styleLabels(nameLabel);
+        emailLabel = new Label("Email");
+        styleLabels(emailLabel);
+        phoneLabel = new Label("Phone");
+        styleLabels(phoneLabel);
+
+        backButton = new Button("<-");
+        backButton.setPrefSize(50, 30);
+        backButton.setOnAction(e -> {
+            Stage stage = (Stage) this.getScene().getWindow();
+            stage.getScene().setRoot(appFrame);
+        });
+        styleBackButton(backButton);
+
+        nameField = new TextField();
+        nameField.setPromptText("Full Name");
+        styleTextField(nameField);
+
+        emailField = new TextField();
+        emailField.setPromptText("Email Address");
+        styleTextField(emailField);
+
+        phoneField = new TextField();
+        phoneField.setPromptText("Phone Number");
+        styleTextField(phoneField);
+
+        contactImageView = new ImageView();
+        contactImageView.setFitHeight(150);
+        contactImageView.setFitWidth(150);
+        contactImageView.setStyle("-fx-border-color: #B0B0B0; -fx-border-radius: 5; -fx-background-color: white;");
+
+        HBox imageBox = new HBox(contactImageView);
+        imageBox.setAlignment(Pos.CENTER);
+
+        uploadButton = new Button("Upload");
+        uploadButton.setPrefWidth(100);
+        uploadButton.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().add(
+                new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+            );
+            Stage stage = (Stage) ((Button) e.getSource()).getScene().getWindow();
+            File selectedFile = fileChooser.showOpenDialog(stage);
+            if (selectedFile != null) {
+                contactImage = new Image(selectedFile.toURI().toString());
+                contactImageView.setImage(contactImage);
+            }
+        });
+        styleUploadButton(uploadButton);
+
+        doneButton = new Button("Save Contact");
+        saveButton(doneButton);
+
+        this.getChildren().addAll(backButton, nameLabel, nameField, emailLabel, emailField, phoneLabel, phoneField, imageBox, uploadButton, doneButton);
+    }
+
+    // Overloaded constructor for showing the detail page after clicking on "edit"
+    public ContactDetailsPage(AppFrame appFrame, ContactItem contactItem) {
+        this(appFrame); 
+        currentContactItem = contactItem;
+        if (currentContactItem != null) {
+            nameField.setText(currentContactItem.getContactName());
+            emailField.setText(currentContactItem.getContactEmail());
+            phoneField.setText(currentContactItem.getContactPhone());
+            contactImageView.setImage(currentContactItem.getContactImage());
         }
     }
 
-    //sort contacts via names in alphabetical order 
-    public void sortContacts(){
-        List<Node> sl = this.getChildren().sorted((n1,n2) -> {return ((Contact)n1).getName().getText().compareTo(((Contact)n2).getName().getText()); }); //gives a SortedList
-        this.getChildren().setAll(sl); //im assuming this takes all entries in sl and puts it into the thingy....
-        System.out.println("Sorted Contacts!");
+    private void styleTextField(TextField textField) {
+        textField.setPrefHeight(40);
+        textField.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
     }
 
+    private void styleBackButton(Button button) {
+        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
+    }
+
+    private void styleUploadButton(Button button) {
+        button.setPrefHeight(30);
+        button.setStyle("-fx-font-size: 14px; -fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-border-radius: 5;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 14px; -fx-background-color: #A0A0A0; -fx-text-fill: black; -fx-border-radius: 5;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 14px; -fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-border-radius: 5;"));
+    }
+
+    private void styleLabels(Label label) {
+        label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
+    }
+
+    private void saveButton(Button button) {
+        button.setPrefHeight(40);
+        button.setPrefWidth(150);
+        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+
+        button.setOnAction(e -> {
+            if (emailField.getText().trim().isEmpty() && phoneField.getText().trim().isEmpty()) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setHeaderText("Incomplete Contact Details");
+                alert.setContentText("Please fill in the email address or phone number to save a new contact!");
+                alert.showAndWait();
+                return;
+            }
+
+            String phoneNumber = phoneField.getText().trim();
+            if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Warning");
+                alert.setHeaderText("Invalid Phone Number");
+                alert.setContentText("Phone Number must be numeric!");
+                alert.showAndWait();
+                return;
+            }
+
+            if (currentContactItem == null) {
+                ContactItem contactItem = new ContactItem();
+                contactItem.setContactName(nameField.getText());
+                contactItem.setContactEmail(emailField.getText());
+                contactItem.setContactPhone(phoneField.getText());
+                contactItem.setContactImage(contactImage);
+
+                appFrame.getContactList().getChildren().add(contactItem);
+            } else {
+                currentContactItem.setContactName(nameField.getText());
+                currentContactItem.setContactEmail(emailField.getText());
+                currentContactItem.setContactPhone(phoneField.getText());
+                currentContactItem.setContactImage(contactImage);
+            }
+
+            Stage stage = (Stage) this.getScene().getWindow();
+            stage.setScene(new Scene(appFrame, 500, 600));
+        });
+    }
+}
+
+class Header extends VBox {
+
+    private Button addButton;
+    private Button sortButton;
+
+    Header() {
+        this.setPrefSize(500, 60);
+        this.setStyle("-fx-background-color: white; -fx-alignment: center;");
+
+        HBox upperRow = new HBox();
+        upperRow.setAlignment(Pos.CENTER);
+
+        String addButtonStyle = "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 18px;";
+        addButton = new Button("+");
+        addButton.setStyle(addButtonStyle);
+        addButton.setPrefSize(30, 30);
+        upperRow.getChildren().add(addButton);
+        HBox.setMargin(addButton, new Insets(0, 10, 0, 10));
+
+        Region leftSpacer = new Region();
+        HBox.setHgrow(leftSpacer, Priority.ALWAYS);
+        upperRow.getChildren().add(leftSpacer);
+
+        Text titleText = new Text("Contact Manager");
+        titleText.setStyle("-fx-font-weight: bold; -fx-font-size: 20;");
+        upperRow.getChildren().add(titleText);
+
+        Region rightSpacer = new Region();
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+        upperRow.getChildren().add(rightSpacer);
+
+        sortButton = new Button("Sort");
+        sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        sortButton.setPrefSize(40, 25); 
+        sortButton.setOnAction(e -> {
+            if (this.getParent() instanceof AppFrame) {
+                AppFrame appFrame = (AppFrame) this.getParent();
+                appFrame.getContactList().sortContacts();
+            }
+        });
+        HBox.setMargin(sortButton, new Insets(0, 10, 0, 10));
+        upperRow.getChildren().add(sortButton);
+
+        this.getChildren().addAll(upperRow);
+    }
+
+    public Button getAddButton() {
+        return addButton;
+    }
+
+    public Button getSortButton() {
+        return sortButton;
+    }
 }
 
 class Footer extends HBox {
-    private Button addContactButton;
-    private Button deleteContactsButton;
-    private Button sortContactsButton;
-    private Button saveDataButton;
+    private Button saveToCSVButton;
 
-    public Footer() {
+    Footer() {
+        this.setPrefSize(500, 40);
+        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
 
-        // MODIFIED LAB 1 CODE
-        this.setPrefSize(500, 60);
-        this.setStyle("-fx-background-color: #F0F8FF;");
-        this.setSpacing(15);
+        saveToCSVButton = new Button("Save as CSV Files");
+        saveToCSVButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        saveToCSVButton.setPrefSize(140, 40);
 
-        // set a default style for buttons - background color, font size, italics
-        String defaultButtonStyle = "-fx-font-style: italic; -fx-background-color: #FFFFFF;  -fx-font-weight: bold; -fx-font: 11 arial;";
-
-        addContactButton = new Button("Add New Contact"); // text displayed on add button
-        addContactButton.setStyle(defaultButtonStyle); // styling the button
-
-        deleteContactsButton = new Button("Delete Marked Contacts"); // text displayed on clear tasks button
-        deleteContactsButton.setStyle(defaultButtonStyle);
-
-        sortContactsButton = new Button("Sort Contacts");
-        sortContactsButton.setStyle(defaultButtonStyle);
-
-        saveDataButton = new Button("Save all contacts"); //text displayed
-        saveDataButton.setStyle(defaultButtonStyle);
-
-        this.getChildren().addAll(addContactButton, deleteContactsButton, sortContactsButton, saveDataButton); // adding buttons to footer
-        this.setAlignment(Pos.CENTER); // aligning the buttons to center
+        saveToCSVButton.setOnAction(e -> {
+            if (this.getParent() instanceof AppFrame) {
+                AppFrame appFrame = (AppFrame) this.getParent();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Save Contacts");
+                fileChooser.getExtensionFilters().add(
+                    new ExtensionFilter("CSV Files", "*.csv")
+                );
+                File file = fileChooser.showSaveDialog(null);
+                if (file != null) {
+                    appFrame.getContactList().exportToCSV(file);
+                }
+            }
+        });
+        
+        this.getChildren().add(saveToCSVButton);
     }
 
-    // button getters
-
-    public Button getAddContactButton() {
-        return this.addContactButton;
-    }
-
-    public Button getDeleteContactsButton() {
-        return this.deleteContactsButton;
-    }
-
-    public Button getSortContactsButton(){
-        return this.sortContactsButton;
-    }
-
-    public Button getSaveDataButton(){
-        return this.saveDataButton;
+    public Button getSaveToCSVButton() {
+        return saveToCSVButton;
     }
 }
 
-/**
- * heres my plan: we get have a top header, center contactList, and bottom
- * footer
- * 
- * the header simply displays the header that says "contact manager" or
- * something
- * 
- * the contactList houses all the contacts. Each contact will show: image, name,
- * phone no., email address
- * 
- * the footer contains buttons to perform the CRUD operations (create, read ,
- * update, delete)
- * the delete mechanism will be dependant on perhaps a checkbox feature, where
- * you can choose which contacts to delete
- */
+
 class AppFrame extends BorderPane {
 
     private Header header;
     private ContactList contactList;
+    private Button addButton;
     private Footer footer;
 
-    private Button addContactButton;
-    private Button deleteContactsButton;
-    private Button sortContactsButton;
-    private Button saveDataButton;
-
     AppFrame() {
+        this.setStyle("-fx-background-color: linear-gradient(to bottom, " + Constants.PRIMARY_COLOR + ", " + Constants.SECONDARY_COLOR + ");");
         header = new Header();
         contactList = new ContactList();
-        footer = new Footer();
-
-        ScrollPane sp = new ScrollPane(contactList);
-        sp.setFitToHeight(true);
-        sp.setFitToWidth(true);
-
-        // Add header to the top of the BorderPane
+        
         this.setTop(header);
-        // Add scroller to the centre of the BorderPane
-        this.setCenter(sp);
 
-        this.setBottom(footer);
+        ScrollPane scroller = new ScrollPane();
+        scroller.setContent(contactList);
+        scroller.setFitToWidth(true);
+        scroller.setFitToHeight(true);
+        this.setCenter(scroller);
 
-        this.addContactButton = footer.getAddContactButton();
-        this.deleteContactsButton = footer.getDeleteContactsButton();
-        this.sortContactsButton = footer.getSortContactsButton();
-        this.saveDataButton = footer.getSaveDataButton();
+        addButton = header.getAddButton();
 
-
-        // Call Event Listeners for the Buttons
         addListeners();
+
+        footer = new Footer();
+        this.setBottom(footer);
     }
 
     public void addListeners() {
-        this.addContactButton.setOnAction(e -> {
-            contactList.addContact();
+        addButton.setOnAction(e -> {
+            ContactDetailsPage detailsPage = new ContactDetailsPage(this);
+            Stage stage = (Stage) this.getScene().getWindow();
+            stage.getScene().setRoot(detailsPage);
         });
-        this.deleteContactsButton.setOnAction(e -> {
-            contactList.deleteContacts();
-            System.out.println("BUTTON EVENT: delete button clicked!");
-        });
+    }
 
-        this.sortContactsButton.setOnAction(e ->{
-            contactList.sortContacts();
-            System.out.println("BUTTON EVENT: sort contacts button clicked!");
-        });
-
-        this.saveDataButton.setOnAction(e -> {
-            contactList.saveData();
-            System.out.println("SAVE BUTTON CLICKED");
-        });
+    public ContactList getContactList() {
+        return contactList;
     }
 }
 
-// JavaFX Application main entry point
 public class Main extends Application {
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {
 
         AppFrame root = new AppFrame();
-
-        // sets title of stage
         primaryStage.setTitle("Contact Manager");
         primaryStage.setScene(new Scene(root, 500, 600));
-        // Make window non-resizable
         primaryStage.setResizable(false);
         primaryStage.show();
+    }
 
+    public static void main(String[] args) {
+        launch(args);
     }
 }
