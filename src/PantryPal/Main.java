@@ -21,12 +21,16 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.File;
 import java.util.stream.Collectors;
 import java.util.List;
+import java.util.Scanner;
+
 import javafx.scene.layout.Region;
 import java.io.PrintWriter;
 import java.io.IOException;
 import javafx.scene.Node;
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -138,10 +142,6 @@ class RecipeList extends VBox {
         this.getChildren().remove(recipeItem);
     }
 
-    public void saveContacts() {
-        
-    }
-
     // public void sortContacts() {
     //     List<ContactItem> contacts = this.getChildren().stream()
     //         .filter(node -> node instanceof ContactItem)
@@ -166,14 +166,71 @@ class RecipeList extends VBox {
     //     }
     //     this.getChildren().setAll(sortedContacts);
     // }
+        public void loadRecipes(){
+            File file = new File("savedRecipes.csv");
+            Scanner scanner = new Scanner(file);
+            while(scanner.hasNext()){
+                RecipeItem recipe = new RecipeItem();
+                String line = scanner.nextLine();
+                String title = line.substring(0,line.indexOf(","));
+                
+                String half2 = line.substring(line.indexOf(","));
+                int[] arr = half2.split(" ");
+                String description =;
 
-    public void exportToCSV(File file) {
-        try (PrintWriter writer = new PrintWriter(file)) {
-            writer.println("Name,Email,Phone");
+
+                recipe.setRecipeTitle(title);
+                recipe.setRecipeDescription(description);
+
+                //add it to the children list
+                this.getChildren().add(recipe);
+            }
+
+
+        }
+
+        public void saveRecipes(){
+            File file = new File("savedRecipes.csv");
+            try (PrintWriter writer = new PrintWriter(file)) {
+            // writer.println("Title,Description");
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
-                    RecipeItem contact = (RecipeItem) node;
-                    writer.println(contact.getRecipeTitle());
+                    RecipeItem recipe = (RecipeItem) node;
+                    byte[] descriptionByte = recipe.getRecipeDescription().getBytes();
+                    for (int c : descriptionByte){
+                        System.out.println(c + " ");
+                    }
+
+                    writer.println(recipe.getRecipeTitle() + "," + Arrays.toString(descriptionByte)
+                    .replace("[","")
+                    .replace("]","")
+                    .replace(",","")
+                    );
+                }
+            }
+        } catch (IOException ex) {
+            System.err.println("Error writing to CSV: " + ex.getMessage());
+        }
+        }
+
+    /**
+     * How to save:
+     * save title as is
+     * encode description because description might have commas which mess up the CSV formatting
+     * save encoded description
+     * 
+     * thus the csv looks like
+     * titleOfMeal, 39 71 61 46 32 55 11 3 3 20 90
+     * titleOfMeal2,01010101010010010101010010101010101010010100000101010101
+     */
+    public void exportToCSV(File file) {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.println("Title,Description");
+            for (Node node : this.getChildren()) {
+                if (node instanceof RecipeItem) {
+                    RecipeItem recipe = (RecipeItem) node;
+                    byte[] descriptionByte = recipe.getRecipeDescription().getBytes();
+                    writer.println(recipe.getRecipeTitle() + "," + descriptionByte.toString());
                 }
             }
         } catch (IOException ex) {
@@ -356,6 +413,7 @@ class Header extends VBox {
 
 class Footer extends HBox {
     private Button saveToCSVButton;
+    private Button saveRecipesButton;
 
     Footer() {
         this.setPrefSize(500, 40);
@@ -380,11 +438,24 @@ class Footer extends HBox {
             }
         });
         
-        this.getChildren().add(saveToCSVButton);
+        saveRecipesButton = new Button("Save Recipes");
+        saveRecipesButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        saveRecipesButton.setPrefSize(140, 40);
+
+        saveRecipesButton.setOnAction(e -> {
+            AppFrame appFrame = (AppFrame) this.getParent();
+            appFrame.getRecipeList().saveRecipes();
+        });
+
+        this.getChildren().addAll(saveRecipesButton,saveToCSVButton);
     }
 
     public Button getSaveToCSVButton() {
         return saveToCSVButton;
+    }
+
+    public Button getSaveRecipesButton(){
+        return saveRecipesButton;
     }
 }
 
