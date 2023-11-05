@@ -37,40 +37,34 @@ class Constants {
     public static final String BUTTON_HOVER_COLOR = "#566573";
 }
 
-class ContactItem extends HBox {
-    private ImageView contactImageView;
+class RecipeItem extends HBox {
     private VBox detailsBox;
-    private Label contactNameLabel; 
-    private Label contactPhoneLabel; 
-    private Label contactEmailLabel; 
+    private Label recipeTitleLabel; 
+    private Label recipeDescriptionLabel;
     private Button editButton;
     private Button deleteButton;
 
-    ContactItem() {
+    RecipeItem() {
         this.setPrefSize(500, 120); 
         this.setPadding(new Insets(10));
         this.setStyle("-fx-background-color: white; -fx-border-width: 0 0 1 0; -fx-border-color: " + Constants.SECONDARY_COLOR + "; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);");
 
-        contactImageView = new ImageView();
-        contactImageView.setFitHeight(100);
-        contactImageView.setFitWidth(100);
-        this.getChildren().add(contactImageView);
 
         detailsBox = new VBox(5);
         detailsBox.setAlignment(Pos.CENTER_LEFT);
         detailsBox.setPadding(new Insets(0, 0, 0, 10)); 
 
-        contactNameLabel = new Label();
-        contactNameLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
-        contactNameLabel.setMaxWidth(250);
-        contactNameLabel.setEllipsisString("...");
-        detailsBox.getChildren().add(contactNameLabel);
+        recipeTitleLabel = new Label();
+        recipeTitleLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
+        recipeTitleLabel.setMaxWidth(250);
+        recipeTitleLabel.setEllipsisString("...");
+        detailsBox.getChildren().add(recipeTitleLabel);
 
-        contactPhoneLabel = new Label(); 
-        detailsBox.getChildren().add(contactPhoneLabel);
+        recipeDescriptionLabel = new Label();
+        recipeDescriptionLabel.setStyle("-fx-font-size: 16px;");
+        recipeDescriptionLabel.setWrapText(true);
+        detailsBox.getChildren().add(recipeDescriptionLabel);
 
-        contactEmailLabel = new Label(); 
-        detailsBox.getChildren().add(contactEmailLabel);
 
         this.getChildren().add(detailsBox);
         HBox buttonBox = new HBox(10); 
@@ -88,45 +82,38 @@ class ContactItem extends HBox {
         this.getChildren().add(buttonBox);
 
         deleteButton.setOnAction(e -> {
-            if (this.getParent() instanceof ContactList) {
-                ContactList parentList = (ContactList) this.getParent();
-                parentList.removeContact(this);
+            if (this.getParent() instanceof RecipeList) {
+                RecipeList parentList = (RecipeList) this.getParent();
+                parentList.removeRecipe(this);
             }
         });
 
         editButton.setOnAction(e -> {
             AppFrame appFrame = (AppFrame) this.getScene().getRoot();
-            ContactDetailsPage detailsPage = new ContactDetailsPage(appFrame, this);
+            RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this);
             Stage stage = (Stage) this.getScene().getWindow();
             stage.getScene().setRoot(detailsPage);
         });
     }
 
-    public void setContactName(String name) {
-        this.contactNameLabel.setText(name);
+    public void setRecipeTitle(String title) {
+        this.recipeTitleLabel.setText(title);
     }
 
-    public void setContactPhone(String phone) {
-        this.contactPhoneLabel.setText("Phone: " + phone);
+
+    public String getRecipeTitle() {
+        return this.recipeTitleLabel.getText();
     }
 
-    public void setContactEmail(String email) {
-        this.contactEmailLabel.setText("Email: " + email);
+    public void setRecipeDescription(String description){
+        this.recipeDescriptionLabel.setText(description);
     }
 
-    public String getContactName() {
-        return this.contactNameLabel.getText();
+    public String getRecipeDescription(){
+        return this.recipeDescriptionLabel.getText();
     }
 
-    public String getContactEmail() {
-        String emailText = this.contactEmailLabel.getText();
-        return emailText.replace("Email: ", "");
-    }
 
-    public String getContactPhone() {
-        String phoneText = this.contactPhoneLabel.getText();
-        return phoneText.replace("Phone: ", "");
-    }
 
     public Button getEditButton() {
         return this.editButton;
@@ -136,63 +123,57 @@ class ContactItem extends HBox {
         return this.deleteButton;
     }
 
-    public void setContactImage(Image image) {
-        this.contactImageView.setImage(image);
-    }
 
-    public Image getContactImage() {
-        return this.contactImageView.getImage();
-    }
 }
 
 
-class ContactList extends VBox {
-    ContactList() {
+class RecipeList extends VBox {
+    RecipeList() {
         this.setSpacing(5); 
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
     }
 
-    public void removeContact(ContactItem contactItem) {
-        this.getChildren().remove(contactItem);
+    public void removeRecipe(RecipeItem recipeItem) {
+        this.getChildren().remove(recipeItem);
     }
 
     public void saveContacts() {
         
     }
 
-    public void sortContacts() {
-        List<ContactItem> contacts = this.getChildren().stream()
-            .filter(node -> node instanceof ContactItem)
-            .map(node -> (ContactItem) node)
-            .collect(Collectors.toList());
+    // public void sortContacts() {
+    //     List<ContactItem> contacts = this.getChildren().stream()
+    //         .filter(node -> node instanceof ContactItem)
+    //         .map(node -> (ContactItem) node)
+    //         .collect(Collectors.toList());
 
-        List<String> lowercaseNames = contacts.stream()
-            .map(contact -> contact.getContactName().toLowerCase())
-            .collect(Collectors.toList());
+    //     List<String> lowercaseNames = contacts.stream()
+    //         .map(contact -> contact.getContactName().toLowerCase())
+    //         .collect(Collectors.toList());
 
-        Collections.sort(lowercaseNames);
+    //     Collections.sort(lowercaseNames);
 
-        List<ContactItem> sortedContacts = new ArrayList<>();
-        for (String name : lowercaseNames) {
-            for (ContactItem contact : contacts) {
-                if (contact.getContactName().equalsIgnoreCase(name)) {
-                    sortedContacts.add(contact);
-                    contacts.remove(contact);
-                    break;
-                }
-            }
-        }
-        this.getChildren().setAll(sortedContacts);
-    }
+    //     List<ContactItem> sortedContacts = new ArrayList<>();
+    //     for (String name : lowercaseNames) {
+    //         for (ContactItem contact : contacts) {
+    //             if (contact.getContactName().equalsIgnoreCase(name)) {
+    //                 sortedContacts.add(contact);
+    //                 contacts.remove(contact);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     this.getChildren().setAll(sortedContacts);
+    // }
 
     public void exportToCSV(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
             writer.println("Name,Email,Phone");
             for (Node node : this.getChildren()) {
-                if (node instanceof ContactItem) {
-                    ContactItem contact = (ContactItem) node;
-                    writer.println(contact.getContactName() + "," + contact.getContactEmail() + "," + contact.getContactPhone());
+                if (node instanceof RecipeItem) {
+                    RecipeItem contact = (RecipeItem) node;
+                    writer.println(contact.getRecipeTitle());
                 }
             }
         } catch (IOException ex) {
@@ -201,34 +182,37 @@ class ContactList extends VBox {
     }
 }
 
-class ContactDetailsPage extends VBox {
-    private TextField nameField;
-    private TextField emailField;
-    private TextField phoneField;
-    private ImageView contactImageView;
-    private Image contactImage;
-    private Button uploadButton;
+class RecipeDetailsPage extends VBox {
+    private TextField titleField;
+    private TextField descriptionField;
     private Button doneButton;
     private Button backButton;
-    private ContactItem currentContactItem;
+    private RecipeItem currentRecipeItem;
     private AppFrame appFrame;
-    private Label nameLabel;
-    private Label emailLabel;
-    private Label phoneLabel;
+    private Label titleLabel;
+    private Label descriptionLabel;
 
-    public ContactDetailsPage(AppFrame appFrame) {
+    public RecipeDetailsPage(AppFrame appFrame) {
         this.appFrame = appFrame;
         this.setSpacing(10);
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
-        nameLabel = new Label("Name");
-        styleLabels(nameLabel);
-        emailLabel = new Label("Email");
-        styleLabels(emailLabel);
-        phoneLabel = new Label("Phone");
-        styleLabels(phoneLabel);
+        // Create the title label and text field
+        titleLabel = new Label("Title");
+        styleLabels(titleLabel);
+        titleField = new TextField();
+        titleField.setPromptText("Title");
+        styleTextField(titleField);
 
+        // Create the description label and text field
+        descriptionLabel = new Label("Description");
+        styleLabels(descriptionLabel);
+        descriptionField = new TextField();
+        descriptionField.setPromptText("Description");
+        styleTextField(descriptionField);
+
+        // Create the back button
         backButton = new Button("<-");
         backButton.setPrefSize(50, 30);
         backButton.setOnAction(e -> {
@@ -237,57 +221,23 @@ class ContactDetailsPage extends VBox {
         });
         styleBackButton(backButton);
 
-        nameField = new TextField();
-        nameField.setPromptText("Full Name");
-        styleTextField(nameField);
-
-        emailField = new TextField();
-        emailField.setPromptText("Email Address");
-        styleTextField(emailField);
-
-        phoneField = new TextField();
-        phoneField.setPromptText("Phone Number");
-        styleTextField(phoneField);
-
-        contactImageView = new ImageView();
-        contactImageView.setFitHeight(150);
-        contactImageView.setFitWidth(150);
-        contactImageView.setStyle("-fx-border-color: #B0B0B0; -fx-border-radius: 5; -fx-background-color: white;");
-
-        HBox imageBox = new HBox(contactImageView);
-        imageBox.setAlignment(Pos.CENTER);
-
-        uploadButton = new Button("Upload");
-        uploadButton.setPrefWidth(100);
-        uploadButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().add(
-                new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-            );
-            Stage stage = (Stage) ((Button) e.getSource()).getScene().getWindow();
-            File selectedFile = fileChooser.showOpenDialog(stage);
-            if (selectedFile != null) {
-                contactImage = new Image(selectedFile.toURI().toString());
-                contactImageView.setImage(contactImage);
-            }
-        });
-        styleUploadButton(uploadButton);
-
-        doneButton = new Button("Save Contact");
+        // Create the done button
+        doneButton = new Button("Save Recipe");
         saveButton(doneButton);
 
-        this.getChildren().addAll(backButton, nameLabel, nameField, emailLabel, emailField, phoneLabel, phoneField, imageBox, uploadButton, doneButton);
+        // Add the components to the VBox in the correct order
+        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, doneButton);
     }
 
+
     // Overloaded constructor for showing the detail page after clicking on "edit"
-    public ContactDetailsPage(AppFrame appFrame, ContactItem contactItem) {
+    public RecipeDetailsPage(AppFrame appFrame, RecipeItem recipeItem) {
         this(appFrame); 
-        currentContactItem = contactItem;
-        if (currentContactItem != null) {
-            nameField.setText(currentContactItem.getContactName());
-            emailField.setText(currentContactItem.getContactEmail());
-            phoneField.setText(currentContactItem.getContactPhone());
-            contactImageView.setImage(currentContactItem.getContactImage());
+        currentRecipeItem = recipeItem;
+        if (currentRecipeItem != null) {
+            titleField.setText(currentRecipeItem.getRecipeTitle());
+            descriptionField.setText(currentRecipeItem.getRecipeDescription());
+        
         }
     }
 
@@ -302,12 +252,7 @@ class ContactDetailsPage extends VBox {
         button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
     }
 
-    private void styleUploadButton(Button button) {
-        button.setPrefHeight(30);
-        button.setStyle("-fx-font-size: 14px; -fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 14px; -fx-background-color: #A0A0A0; -fx-text-fill: black; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 14px; -fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-border-radius: 5;"));
-    }
+  
 
     private void styleLabels(Label label) {
         label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
@@ -321,38 +266,33 @@ class ContactDetailsPage extends VBox {
         button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
 
         button.setOnAction(e -> {
-            if (emailField.getText().trim().isEmpty() && phoneField.getText().trim().isEmpty()) {
-                Alert alert = new Alert(AlertType.WARNING);
-                alert.setTitle("Warning");
-                alert.setHeaderText("Incomplete Contact Details");
-                alert.setContentText("Please fill in the email address or phone number to save a new contact!");
-                alert.showAndWait();
-                return;
-            }
+            // if (titleField.getText().trim().isEmpty() && phoneField.getText().trim().isEmpty()) {
+            //     Alert alert = new Alert(AlertType.WARNING);
+            //     alert.setTitle("Warning");
+            //     alert.setHeaderText("Incomplete Contact Details");
+            //     alert.setContentText("Please fill in the email address or phone number to save a new contact!");
+            //     alert.showAndWait();
+            //     return;
+            // }
 
-            String phoneNumber = phoneField.getText().trim();
-            if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
-                Alert alert = new Alert(AlertType.WARNING);
-                alert.setTitle("Warning");
-                alert.setHeaderText("Invalid Phone Number");
-                alert.setContentText("Phone Number must be numeric!");
-                alert.showAndWait();
-                return;
-            }
+            // String phoneNumber = phoneField.getText().trim();
+            // if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
+            //     Alert alert = new Alert(AlertType.WARNING);
+            //     alert.setTitle("Warning");
+            //     alert.setHeaderText("Invalid Phone Number");
+            //     alert.setContentText("Phone Number must be numeric!");
+            //     alert.showAndWait();
+            //     return;
+            // }
 
-            if (currentContactItem == null) {
-                ContactItem contactItem = new ContactItem();
-                contactItem.setContactName(nameField.getText());
-                contactItem.setContactEmail(emailField.getText());
-                contactItem.setContactPhone(phoneField.getText());
-                contactItem.setContactImage(contactImage);
+            if (currentRecipeItem == null) {
+                RecipeItem recipeItem = new RecipeItem();
+                recipeItem.setRecipeTitle(titleField.getText());
+                recipeItem.setRecipeDescription(descriptionField.getText());
 
-                appFrame.getContactList().getChildren().add(contactItem);
+                appFrame.getRecipeList().getChildren().add(recipeItem);
             } else {
-                currentContactItem.setContactName(nameField.getText());
-                currentContactItem.setContactEmail(emailField.getText());
-                currentContactItem.setContactPhone(phoneField.getText());
-                currentContactItem.setContactImage(contactImage);
+                currentRecipeItem.setRecipeDescription(descriptionField.getText());
             }
 
             Stage stage = (Stage) this.getScene().getWindow();
@@ -364,7 +304,7 @@ class ContactDetailsPage extends VBox {
 class Header extends VBox {
 
     private Button addButton;
-    private Button sortButton;
+   // private Button sortButton;
 
     Header() {
         this.setPrefSize(500, 60);
@@ -384,7 +324,7 @@ class Header extends VBox {
         HBox.setHgrow(leftSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(leftSpacer);
 
-        Text titleText = new Text("Contact Manager");
+        Text titleText = new Text("Pantry Pal");
         titleText.setStyle("-fx-font-weight: bold; -fx-font-size: 20;");
         upperRow.getChildren().add(titleText);
 
@@ -392,17 +332,17 @@ class Header extends VBox {
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(rightSpacer);
 
-        sortButton = new Button("Sort");
-        sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        sortButton.setPrefSize(40, 25); 
-        sortButton.setOnAction(e -> {
-            if (this.getParent() instanceof AppFrame) {
-                AppFrame appFrame = (AppFrame) this.getParent();
-                appFrame.getContactList().sortContacts();
-            }
-        });
-        HBox.setMargin(sortButton, new Insets(0, 10, 0, 10));
-        upperRow.getChildren().add(sortButton);
+        // sortButton = new Button("Sort");
+        // sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        // sortButton.setPrefSize(40, 25); 
+        // sortButton.setOnAction(e -> {
+        //     if (this.getParent() instanceof AppFrame) {
+        //         AppFrame appFrame = (AppFrame) this.getParent();
+        //         appFrame.getRecipeList().sortContacts();
+        //     }
+        // });
+        // HBox.setMargin(sortButton, new Insets(0, 10, 0, 10));
+        // upperRow.getChildren().add(sortButton);
 
         this.getChildren().addAll(upperRow);
     }
@@ -411,9 +351,7 @@ class Header extends VBox {
         return addButton;
     }
 
-    public Button getSortButton() {
-        return sortButton;
-    }
+   
 }
 
 class Footer extends HBox {
@@ -437,7 +375,7 @@ class Footer extends HBox {
                 );
                 File file = fileChooser.showSaveDialog(null);
                 if (file != null) {
-                    appFrame.getContactList().exportToCSV(file);
+                    appFrame.getRecipeList().exportToCSV(file);
                 }
             }
         });
@@ -454,19 +392,19 @@ class Footer extends HBox {
 class AppFrame extends BorderPane {
 
     private Header header;
-    private ContactList contactList;
+    private RecipeList recipeList;
     private Button addButton;
     private Footer footer;
 
     AppFrame() {
         this.setStyle("-fx-background-color: linear-gradient(to bottom, " + Constants.PRIMARY_COLOR + ", " + Constants.SECONDARY_COLOR + ");");
         header = new Header();
-        contactList = new ContactList();
+        recipeList = new RecipeList();
         
         this.setTop(header);
 
         ScrollPane scroller = new ScrollPane();
-        scroller.setContent(contactList);
+        scroller.setContent(recipeList);
         scroller.setFitToWidth(true);
         scroller.setFitToHeight(true);
         this.setCenter(scroller);
@@ -481,14 +419,14 @@ class AppFrame extends BorderPane {
 
     public void addListeners() {
         addButton.setOnAction(e -> {
-            ContactDetailsPage detailsPage = new ContactDetailsPage(this);
+            RecipeDetailsPage detailsPage = new RecipeDetailsPage(this);
             Stage stage = (Stage) this.getScene().getWindow();
             stage.getScene().setRoot(detailsPage);
         });
     }
 
-    public ContactList getContactList() {
-        return contactList;
+    public RecipeList getRecipeList() {
+        return recipeList;
     }
 }
 
@@ -498,7 +436,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         AppFrame root = new AppFrame();
-        primaryStage.setTitle("Contact Manager");
+        primaryStage.setTitle("Pantry Pal");
         primaryStage.setScene(new Scene(root, 500, 600));
         primaryStage.setResizable(false);
         primaryStage.show();

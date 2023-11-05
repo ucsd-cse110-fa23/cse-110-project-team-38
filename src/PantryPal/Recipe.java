@@ -6,7 +6,6 @@ public class Recipe {
     private Label title;
     private Label description;
 
-
     public Label getTitle(){
         return this.title;
     }
