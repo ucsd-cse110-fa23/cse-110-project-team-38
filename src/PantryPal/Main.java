@@ -60,6 +60,10 @@ class RecipeItem extends HBox {
         recipeTitleLabel.setEllipsisString("...");
         detailsBox.getChildren().add(recipeTitleLabel);
 
+        recipeDescriptionLabel = new Label();
+        recipeDescriptionLabel.setStyle("-fx-font-size: 16px;");
+        recipeDescriptionLabel.setWrapText(true);
+        detailsBox.getChildren().add(recipeDescriptionLabel);
 
 
         this.getChildren().add(detailsBox);
@@ -169,7 +173,7 @@ class RecipeList extends VBox {
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem contact = (RecipeItem) node;
-                    writer.println(contact.getRecipeTitle() + "," + contact.getContactEmail() + "," + contact.getContactPhone());
+                    writer.println(contact.getRecipeTitle());
                 }
             }
         } catch (IOException ex) {
@@ -194,12 +198,21 @@ class RecipeDetailsPage extends VBox {
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
+        // Create the title label and text field
         titleLabel = new Label("Title");
         styleLabels(titleLabel);
+        titleField = new TextField();
+        titleField.setPromptText("Title");
+        styleTextField(titleField);
+
+        // Create the description label and text field
         descriptionLabel = new Label("Description");
         styleLabels(descriptionLabel);
-        
+        descriptionField = new TextField();
+        descriptionField.setPromptText("Description");
+        styleTextField(descriptionField);
 
+        // Create the back button
         backButton = new Button("<-");
         backButton.setPrefSize(50, 30);
         backButton.setOnAction(e -> {
@@ -208,21 +221,14 @@ class RecipeDetailsPage extends VBox {
         });
         styleBackButton(backButton);
 
-        titleField = new TextField();
-        titleField.setPromptText("Title");
-        styleTextField(titleField);
-
-        descriptionField = new TextField();
-        descriptionField.setPromptText("Description");
-        styleTextField(descriptionField);
-
-
-
+        // Create the done button
         doneButton = new Button("Save Recipe");
         saveButton(doneButton);
 
-        this.getChildren().addAll(backButton, descriptionField, titleField, titleLabel, descriptionLabel, doneButton);
+        // Add the components to the VBox in the correct order
+        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, doneButton);
     }
+
 
     // Overloaded constructor for showing the detail page after clicking on "edit"
     public RecipeDetailsPage(AppFrame appFrame, RecipeItem recipeItem) {
