@@ -182,7 +182,7 @@ class RecipeList extends VBox {
     }
 }
 
-class RecipeDetailsPage extends VBox {
+/*class RecipeDetailsPage extends VBox {
     private TextField titleField;
     private TextField descriptionField;
     private Button doneButton;
@@ -299,7 +299,7 @@ class RecipeDetailsPage extends VBox {
             stage.setScene(new Scene(appFrame, 500, 600));
         });
     }
-}
+}*/
 
 class Header extends VBox {
 

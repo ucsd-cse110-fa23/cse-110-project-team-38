@@ -18,7 +18,7 @@ public class Whisper implements IWhisper {
     private static final String API_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";
     private static final String TOKEN = "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";
     private static final String MODEL = "whisper-1";
-    private static final String FILE_PATH = "/Users/jamesmacasa/Desktop/CSE 110/cse-110-project-team-38/CSE110Lab4Recording.mp3"; //fill with certain file path for audio
+    private static final String FILE_PATH = "/Users/jamesmacasa/Desktop/CSE 110/cse-110-project-team-38/recording.wav"; //fill with certain file path for audio
 
     // Helper method to write a parameter to the output stream in multipart form data format
     public static void writeParameterToOutputStream(
@@ -80,6 +80,8 @@ public class Whisper implements IWhisper {
 
 
         String generatedText = responseJson.getString("text");
+
+        System.out.println(generatedText);
 
 
         return generatedText;
@@ -144,14 +146,18 @@ public class Whisper implements IWhisper {
         // Get response code
         int responseCode = connection.getResponseCode();
 
-        // Disconnect connection
-        connection.disconnect();
+        String response = "";
 
         // Check response code and handle response accordingly
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            return handleSuccessResponse(connection);
+            response = handleSuccessResponse(connection);
         } else {
-            return handleErrorResponse(connection);
+            response = handleErrorResponse(connection);
         }
+
+        // Disconnect connection
+        connection.disconnect();
+
+        return response;
     }
 }

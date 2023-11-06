@@ -54,6 +54,11 @@ public class CreateRecipePage extends VBox {
     private RecipeItem currentContactItem;
     private AppFrame appFrame;
     private Label nameLabel;
+    private Label recordingLabel;
+    private AudioRecorder recorder = new AudioRecorder();
+
+    //String defaultButtonStyle = "-fx-border-color: #000000; -fx-font: 13 arial; -fx-pref-width: 175px; -fx-pref-height: 50px;";
+    String defaultLabelStyle = "-fx-font: 13 arial; -fx-pref-width: 175px; -fx-pref-height: 50px; -fx-text-fill: red; visibility: hidden";
 
     public CreateRecipePage(AppFrame appFrame) throws IOException, URISyntaxException{
         this.appFrame = appFrame;
@@ -76,15 +81,40 @@ public class CreateRecipePage extends VBox {
         nameField.setPromptText("Request");
         styleTextField(nameField);
 
+        
         micButton = new Button("Voice Input");
+        recordingLabel = new Label("Recording...");
+        recordingLabel.setStyle(defaultLabelStyle);
+        recordingLabel.setVisible(false);
+        micButton.setOnAction(e -> {
+            try {
+                recordingLabel.setVisible(true);
+                recorder.startRecording();
+            }
+            catch (Exception err) {
+                System.out.println("mic button error");  
+            };
+        });
         saveButton(micButton);
+
+    
 
         generateButton = new Button("Generate Recipe");
         generateButton.setOnAction(e -> {
             try {
-                String prompt = Whisper.sendRequest();
+                recorder.stopRecording();
+                //String prompt = Whisper.sendRequest();
+                //String prompt = "What is the smallest city in the world?";
                 System.out.println("Request sent");
-                String details = ChatGPT.processRequest(prompt);
+                //String details = ChatGPT.processRequest(prompt);
+                recordingLabel.setVisible(false);
+                RecipeItem newRecipe = new RecipeItem();
+                newRecipe.setRecipeTitle("Steak and Tomato Breakfast Skillet");
+                newRecipe.setRecipeDescription("Ingredients:... Instructions:...");
+                RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true);
+                Stage stage = (Stage) this.getScene().getWindow();
+                stage.getScene().setRoot(detailsPage);
+                //recorder.stopRecording();
             } catch (Exception ex){
                 System.out.println("Error generating");
             };
@@ -99,7 +129,7 @@ public class CreateRecipePage extends VBox {
         HBox imageBox = new HBox(contactImageView);
         imageBox.setAlignment(Pos.CENTER);
 
-        this.getChildren().addAll(backButton, nameLabel, nameField, imageBox, micButton, generateButton);
+        this.getChildren().addAll(backButton, nameLabel, nameField, imageBox, micButton, generateButton, recordingLabel);
     }
 
     private void styleTextField(TextField textField) {
