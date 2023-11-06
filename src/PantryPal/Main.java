@@ -174,7 +174,6 @@ class RecipeList extends VBox {
                 String rawTitle =line.substring(0, line.indexOf(","));
                 String title = decryptByteString(rawTitle);
                 
-
                 //process description
                 String rawDesc = line.substring(line.indexOf(",") + 1);
                 String description = decryptByteString(rawDesc);
@@ -348,16 +347,15 @@ class RecipeDetailsPage extends VBox {
                 + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
 
         button.setOnAction(e -> {
-            // if (titleField.getText().trim().isEmpty() &&
-            // phoneField.getText().trim().isEmpty()) {
-            // Alert alert = new Alert(AlertType.WARNING);
-            // alert.setTitle("Warning");
-            // alert.setHeaderText("Incomplete Contact Details");
-            // alert.setContentText("Please fill in the email address or phone number to
-            // save a new contact!");
-            // alert.showAndWait();
-            // return;
-            // }
+            if (titleField.getText().trim().isEmpty() ||
+            descriptionField.getText().trim().isEmpty()) {
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Incomplete Recipe Details");
+            alert.setContentText("Please make sure there are no empty fields!");
+            alert.showAndWait();
+            return;
+            }
 
             // String phoneNumber = phoneField.getText().trim();
             // if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
