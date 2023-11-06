@@ -34,7 +34,6 @@ import java.util.Arrays;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
-
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
     public static final String SECONDARY_COLOR = "#D5D8DC";
@@ -43,20 +42,21 @@ class Constants {
 
 class RecipeItem extends HBox {
     private VBox detailsBox;
-    private Label recipeTitleLabel; 
+    private Label recipeTitleLabel;
     private Label recipeDescriptionLabel;
     private Button editButton;
     private Button deleteButton;
 
     RecipeItem() {
-        this.setPrefSize(500, 120); 
+        this.setPrefSize(500, 120);
         this.setPadding(new Insets(10));
-        this.setStyle("-fx-background-color: white; -fx-border-width: 0 0 1 0; -fx-border-color: " + Constants.SECONDARY_COLOR + "; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);");
-
+        this.setStyle("-fx-background-color: white; -fx-border-width: 0 0 1 0; -fx-border-color: "
+                + Constants.SECONDARY_COLOR
+                + "; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);");
 
         detailsBox = new VBox(5);
         detailsBox.setAlignment(Pos.CENTER_LEFT);
-        detailsBox.setPadding(new Insets(0, 0, 0, 10)); 
+        detailsBox.setPadding(new Insets(0, 0, 0, 10));
 
         recipeTitleLabel = new Label();
         recipeTitleLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
@@ -69,9 +69,8 @@ class RecipeItem extends HBox {
         recipeDescriptionLabel.setWrapText(true);
         detailsBox.getChildren().add(recipeDescriptionLabel);
 
-
         this.getChildren().add(detailsBox);
-        HBox buttonBox = new HBox(10); 
+        HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(buttonBox, Priority.ALWAYS);
 
@@ -104,20 +103,17 @@ class RecipeItem extends HBox {
         this.recipeTitleLabel.setText(title);
     }
 
-
     public String getRecipeTitle() {
         return this.recipeTitleLabel.getText();
     }
 
-    public void setRecipeDescription(String description){
+    public void setRecipeDescription(String description) {
         this.recipeDescriptionLabel.setText(description);
     }
 
-    public String getRecipeDescription(){
+    public String getRecipeDescription() {
         return this.recipeDescriptionLabel.getText();
     }
-
-
 
     public Button getEditButton() {
         return this.editButton;
@@ -127,15 +123,14 @@ class RecipeItem extends HBox {
         return this.deleteButton;
     }
 
-
 }
-
 
 class RecipeList extends VBox {
     RecipeList() {
-        this.setSpacing(5); 
+        this.setSpacing(5);
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
+        this.loadRecipes();
     }
 
     public void removeRecipe(RecipeItem recipeItem) {
@@ -143,80 +138,94 @@ class RecipeList extends VBox {
     }
 
     // public void sortContacts() {
-    //     List<ContactItem> contacts = this.getChildren().stream()
-    //         .filter(node -> node instanceof ContactItem)
-    //         .map(node -> (ContactItem) node)
-    //         .collect(Collectors.toList());
+    // List<ContactItem> contacts = this.getChildren().stream()
+    // .filter(node -> node instanceof ContactItem)
+    // .map(node -> (ContactItem) node)
+    // .collect(Collectors.toList());
 
-    //     List<String> lowercaseNames = contacts.stream()
-    //         .map(contact -> contact.getContactName().toLowerCase())
-    //         .collect(Collectors.toList());
+    // List<String> lowercaseNames = contacts.stream()
+    // .map(contact -> contact.getContactName().toLowerCase())
+    // .collect(Collectors.toList());
 
-    //     Collections.sort(lowercaseNames);
+    // Collections.sort(lowercaseNames);
 
-    //     List<ContactItem> sortedContacts = new ArrayList<>();
-    //     for (String name : lowercaseNames) {
-    //         for (ContactItem contact : contacts) {
-    //             if (contact.getContactName().equalsIgnoreCase(name)) {
-    //                 sortedContacts.add(contact);
-    //                 contacts.remove(contact);
-    //                 break;
-    //             }
-    //         }
-    //     }
-    //     this.getChildren().setAll(sortedContacts);
+    // List<ContactItem> sortedContacts = new ArrayList<>();
+    // for (String name : lowercaseNames) {
+    // for (ContactItem contact : contacts) {
+    // if (contact.getContactName().equalsIgnoreCase(name)) {
+    // sortedContacts.add(contact);
+    // contacts.remove(contact);
+    // break;
     // }
-        public void loadRecipes(){
-            File file = new File("savedRecipes.csv");
+    // }
+    // }
+    // this.getChildren().setAll(sortedContacts);
+    // }
+    public void loadRecipes() {
+        File file = new File("./savedRecipes.csv");
+        try {
             Scanner scanner = new Scanner(file);
-            while(scanner.hasNext()){
+            System.out.println("loading from: " + file.getPath());
+            while (scanner.hasNext()) {
                 RecipeItem recipe = new RecipeItem();
                 String line = scanner.nextLine();
-                String title = line.substring(0,line.indexOf(","));
-                
-                String half2 = line.substring(line.indexOf(","));
-                int[] arr = half2.split(" ");
-                String description =;
+                String title = line.substring(0, line.indexOf(","));
 
+                String rawDesc = line.substring(line.indexOf(",") + 1);
+                String description = decryptByteString(rawDesc);
+                System.out.println("RESULT:" + description);
 
                 recipe.setRecipeTitle(title);
                 recipe.setRecipeDescription(description);
 
-                //add it to the children list
+                // add it to the children list
                 this.getChildren().add(recipe);
             }
-
-
+        } catch (Exception e) {
+            System.out.println("Could not find '/savedRecipes.csv' in home dir");
+            System.err.println(e.getMessage());
         }
+    }
 
-        public void saveRecipes(){
-            File file = new File("savedRecipes.csv");
-            try (PrintWriter writer = new PrintWriter(file)) {
+    /*
+     * Given a string representing bytes, returns the string represented by the
+     * bytes
+     */
+    public String decryptByteString(String rawString) {
+        String[] stringArray = rawString.split(" ");
+        byte[] byteArray = new byte[stringArray.length];
+        for (int i = 0; i < byteArray.length; i++) {
+            byteArray[i] = Byte.parseByte(stringArray[i]);
+        }
+        return new String(byteArray);
+    }
+
+    public void saveRecipes() {
+        File file = new File("savedRecipes.csv");
+        try (PrintWriter writer = new PrintWriter(file)) {
             // writer.println("Title,Description");
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem recipe = (RecipeItem) node;
                     byte[] descriptionByte = recipe.getRecipeDescription().getBytes();
-                    for (int c : descriptionByte){
-                        System.out.println(c + " ");
-                    }
+                    System.out.println(Arrays.toString(descriptionByte));
 
                     writer.println(recipe.getRecipeTitle() + "," + Arrays.toString(descriptionByte)
-                    .replace("[","")
-                    .replace("]","")
-                    .replace(",","")
-                    );
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace(",", ""));
                 }
             }
         } catch (IOException ex) {
             System.err.println("Error writing to CSV: " + ex.getMessage());
         }
-        }
+    }
 
     /**
      * How to save:
      * save title as is
-     * encode description because description might have commas which mess up the CSV formatting
+     * encode description because description might have commas which mess up the
+     * CSV formatting
      * save encoded description
      * 
      * thus the csv looks like
@@ -286,30 +295,34 @@ class RecipeDetailsPage extends VBox {
         this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, doneButton);
     }
 
-
     // Overloaded constructor for showing the detail page after clicking on "edit"
     public RecipeDetailsPage(AppFrame appFrame, RecipeItem recipeItem) {
-        this(appFrame); 
+        this(appFrame);
         currentRecipeItem = recipeItem;
         if (currentRecipeItem != null) {
             titleField.setText(currentRecipeItem.getRecipeTitle());
             descriptionField.setText(currentRecipeItem.getRecipeDescription());
-        
+
         }
     }
 
     private void styleTextField(TextField textField) {
         textField.setPrefHeight(40);
-        textField.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
+        textField.setStyle(
+                "-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
     }
 
     private void styleBackButton(Button button) {
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
+        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: "
+                + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR
+                + "; -fx-border-width: 1px; -fx-border-radius: 5;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
+                + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-color: "
+                + Constants.BUTTON_HOVER_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
+                + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: "
+                + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
     }
-
-  
 
     private void styleLabels(Label label) {
         label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
@@ -318,28 +331,33 @@ class RecipeDetailsPage extends VBox {
     private void saveButton(Button button) {
         button.setPrefHeight(40);
         button.setPrefWidth(150);
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR
+                + "; -fx-text-fill: white; -fx-border-radius: 5;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
+                + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
+                + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
 
         button.setOnAction(e -> {
-            // if (titleField.getText().trim().isEmpty() && phoneField.getText().trim().isEmpty()) {
-            //     Alert alert = new Alert(AlertType.WARNING);
-            //     alert.setTitle("Warning");
-            //     alert.setHeaderText("Incomplete Contact Details");
-            //     alert.setContentText("Please fill in the email address or phone number to save a new contact!");
-            //     alert.showAndWait();
-            //     return;
+            // if (titleField.getText().trim().isEmpty() &&
+            // phoneField.getText().trim().isEmpty()) {
+            // Alert alert = new Alert(AlertType.WARNING);
+            // alert.setTitle("Warning");
+            // alert.setHeaderText("Incomplete Contact Details");
+            // alert.setContentText("Please fill in the email address or phone number to
+            // save a new contact!");
+            // alert.showAndWait();
+            // return;
             // }
 
             // String phoneNumber = phoneField.getText().trim();
             // if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
-            //     Alert alert = new Alert(AlertType.WARNING);
-            //     alert.setTitle("Warning");
-            //     alert.setHeaderText("Invalid Phone Number");
-            //     alert.setContentText("Phone Number must be numeric!");
-            //     alert.showAndWait();
-            //     return;
+            // Alert alert = new Alert(AlertType.WARNING);
+            // alert.setTitle("Warning");
+            // alert.setHeaderText("Invalid Phone Number");
+            // alert.setContentText("Phone Number must be numeric!");
+            // alert.showAndWait();
+            // return;
             // }
 
             if (currentRecipeItem == null) {
@@ -361,7 +379,7 @@ class RecipeDetailsPage extends VBox {
 class Header extends VBox {
 
     private Button addButton;
-   // private Button sortButton;
+    // private Button sortButton;
 
     Header() {
         this.setPrefSize(500, 60);
@@ -390,13 +408,14 @@ class Header extends VBox {
         upperRow.getChildren().add(rightSpacer);
 
         // sortButton = new Button("Sort");
-        // sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        // sortButton.setPrefSize(40, 25); 
+        // sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black;
+        // -fx-font-weight: bold; -fx-font-size: 12px;");
+        // sortButton.setPrefSize(40, 25);
         // sortButton.setOnAction(e -> {
-        //     if (this.getParent() instanceof AppFrame) {
-        //         AppFrame appFrame = (AppFrame) this.getParent();
-        //         appFrame.getRecipeList().sortContacts();
-        //     }
+        // if (this.getParent() instanceof AppFrame) {
+        // AppFrame appFrame = (AppFrame) this.getParent();
+        // appFrame.getRecipeList().sortContacts();
+        // }
         // });
         // HBox.setMargin(sortButton, new Insets(0, 10, 0, 10));
         // upperRow.getChildren().add(sortButton);
@@ -408,7 +427,6 @@ class Header extends VBox {
         return addButton;
     }
 
-   
 }
 
 class Footer extends HBox {
@@ -420,7 +438,8 @@ class Footer extends HBox {
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
 
         saveToCSVButton = new Button("Save as CSV Files");
-        saveToCSVButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        saveToCSVButton.setStyle(
+                "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
         saveToCSVButton.setPrefSize(140, 40);
 
         saveToCSVButton.setOnAction(e -> {
@@ -429,17 +448,17 @@ class Footer extends HBox {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Save Contacts");
                 fileChooser.getExtensionFilters().add(
-                    new ExtensionFilter("CSV Files", "*.csv")
-                );
+                        new ExtensionFilter("CSV Files", "*.csv"));
                 File file = fileChooser.showSaveDialog(null);
                 if (file != null) {
                     appFrame.getRecipeList().exportToCSV(file);
                 }
             }
         });
-        
+
         saveRecipesButton = new Button("Save Recipes");
-        saveRecipesButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        saveRecipesButton.setStyle(
+                "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
         saveRecipesButton.setPrefSize(140, 40);
 
         saveRecipesButton.setOnAction(e -> {
@@ -447,18 +466,17 @@ class Footer extends HBox {
             appFrame.getRecipeList().saveRecipes();
         });
 
-        this.getChildren().addAll(saveRecipesButton,saveToCSVButton);
+        this.getChildren().addAll(saveRecipesButton, saveToCSVButton);
     }
 
     public Button getSaveToCSVButton() {
         return saveToCSVButton;
     }
 
-    public Button getSaveRecipesButton(){
+    public Button getSaveRecipesButton() {
         return saveRecipesButton;
     }
 }
-
 
 class AppFrame extends BorderPane {
 
@@ -468,10 +486,11 @@ class AppFrame extends BorderPane {
     private Footer footer;
 
     AppFrame() {
-        this.setStyle("-fx-background-color: linear-gradient(to bottom, " + Constants.PRIMARY_COLOR + ", " + Constants.SECONDARY_COLOR + ");");
+        this.setStyle("-fx-background-color: linear-gradient(to bottom, " + Constants.PRIMARY_COLOR + ", "
+                + Constants.SECONDARY_COLOR + ");");
         header = new Header();
         recipeList = new RecipeList();
-        
+
         this.setTop(header);
 
         ScrollPane scroller = new ScrollPane();
