@@ -419,7 +419,12 @@ class AppFrame extends BorderPane {
 
     public void addListeners() {
         addButton.setOnAction(e -> {
-            RecipeDetailsPage detailsPage = new RecipeDetailsPage(this);
+            CreateRecipePage detailsPage = null;
+            try {
+                detailsPage = new CreateRecipePage(this);
+            } catch (Exception err) {
+                System.out.println("Error when create page");
+            }
             Stage stage = (Stage) this.getScene().getWindow();
             stage.getScene().setRoot(detailsPage);
         });

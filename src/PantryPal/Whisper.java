@@ -63,7 +63,7 @@ public class Whisper implements IWhisper {
     }
 
     // Helper method to handle a successful response
-    public static void handleSuccessResponse(HttpURLConnection connection)
+    public static String handleSuccessResponse(HttpURLConnection connection)
     throws IOException, JSONException {
         BufferedReader in = new BufferedReader(
             new InputStreamReader(connection.getInputStream())
@@ -82,12 +82,11 @@ public class Whisper implements IWhisper {
         String generatedText = responseJson.getString("text");
 
 
-        // Print the transcription result
-        System.out.println("Transcription Result: " + generatedText);
+        return generatedText;
     }
 
     // Helper method to handle an error response
-    public static void handleErrorResponse(HttpURLConnection connection)
+    public static String handleErrorResponse(HttpURLConnection connection)
     throws IOException, JSONException {
         BufferedReader errorReader = new BufferedReader(
             new InputStreamReader(connection.getErrorStream())
@@ -99,10 +98,10 @@ public class Whisper implements IWhisper {
         }
         errorReader.close();
         String errorResult = errorResponse.toString();
-        System.out.println("Error Result: " + errorResult);
+        return "Error Result: " + errorResult;
     }
 
-    public static void sendRequest() throws IOException, URISyntaxException {
+    public static String sendRequest() throws IOException, URISyntaxException {
         File file = new File(FILE_PATH);
         
         // Set up HTTP connection
@@ -145,16 +144,14 @@ public class Whisper implements IWhisper {
         // Get response code
         int responseCode = connection.getResponseCode();
 
+        // Disconnect connection
+        connection.disconnect();
 
         // Check response code and handle response accordingly
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            handleSuccessResponse(connection);
+            return handleSuccessResponse(connection);
         } else {
-            handleErrorResponse(connection);
+            return handleErrorResponse(connection);
         }
-
-
-        // Disconnect connection
-        connection.disconnect();
     }
 }

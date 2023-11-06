@@ -82,8 +82,9 @@ public class CreateRecipePage extends VBox {
         generateButton = new Button("Generate Recipe");
         generateButton.setOnAction(e -> {
             try {
-                Whisper.sendRequest();
+                String prompt = Whisper.sendRequest();
                 System.out.println("Request sent");
+                String details = ChatGPT.processRequest(prompt);
             } catch (Exception ex){
                 System.out.println("Error generating");
             };
@@ -99,18 +100,6 @@ public class CreateRecipePage extends VBox {
         imageBox.setAlignment(Pos.CENTER);
 
         this.getChildren().addAll(backButton, nameLabel, nameField, imageBox, micButton, generateButton);
-    }
-
-    // Overloaded constructor for showing the detail page after clicking on "edit"
-    public CreateRecipePage(AppFrame appFrame, RecipeItem contactItem) throws IOException, URISyntaxException {
-        this(appFrame); 
-        currentContactItem = contactItem;
-        /*if (currentContactItem != null) {
-            nameField.setText(currentContactItem.getRecipeName());
-            emailField.setText(currentContactItem.getContactEmail());
-            phoneField.setText(currentContactItem.getContactPhone());
-            contactImageView.setImage(currentContactItem.getContactImage());
-        }*/
     }
 
     private void styleTextField(TextField textField) {
