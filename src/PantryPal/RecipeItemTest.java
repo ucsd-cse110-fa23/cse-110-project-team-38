@@ -27,13 +27,12 @@ public class RecipeItemTest extends ApplicationTest {
 
     @Before
     public void setUp() {
-        // Initialize 'fullDescription' before tests
         try {
             Path descriptionFilePath = Paths.get("C:\\Users\\steve\\OneDrive\\Documents\\GitHub\\cse-110-project-team-38\\src\\PantryPal\\longDescription.txt");
             fullDescription = Files.readString(descriptionFilePath);
         } catch (IOException e) {
             e.printStackTrace();
-            fullDescription = ""; // Default to empty string in case of error
+            fullDescription = "";
         }
     }
 
