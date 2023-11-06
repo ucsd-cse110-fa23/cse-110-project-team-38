@@ -55,6 +55,7 @@ public class CreateRecipePage extends VBox {
     private AppFrame appFrame;
     private Label nameLabel;
     private Label recordingLabel;
+    private Label generatingLabel;
     private AudioRecorder recorder = new AudioRecorder();
 
     //String defaultButtonStyle = "-fx-border-color: #000000; -fx-font: 13 arial; -fx-pref-width: 175px; -fx-pref-height: 50px;";
@@ -99,18 +100,24 @@ public class CreateRecipePage extends VBox {
 
     
 
+        generatingLabel = new Label("Generating...");
+        generatingLabel.setStyle(defaultLabelStyle);
+        generatingLabel.setVisible(false);
         generateButton = new Button("Generate Recipe");
         generateButton.setOnAction(e -> {
             try {
                 recorder.stopRecording();
+                recordingLabel.setVisible(false);
+                generatingLabel.setVisible(true);
                 //String prompt = Whisper.sendRequest();
                 //String prompt = "What is the smallest city in the world?";
                 System.out.println("Request sent");
-                //String details = ChatGPT.processRequest(prompt);
-                recordingLabel.setVisible(false);
+                //String details = ChatGPT.processRequest(prompt + " generate a recipe");
+                //System.out.println(details);
                 RecipeItem newRecipe = new RecipeItem();
                 newRecipe.setRecipeTitle("Steak and Tomato Breakfast Skillet");
                 newRecipe.setRecipeDescription("Ingredients:... Instructions:...");
+                //newRecipe.setRecipeDescription(details);
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);
@@ -129,7 +136,7 @@ public class CreateRecipePage extends VBox {
         HBox imageBox = new HBox(contactImageView);
         imageBox.setAlignment(Pos.CENTER);
 
-        this.getChildren().addAll(backButton, nameLabel, nameField, imageBox, micButton, generateButton, recordingLabel);
+        this.getChildren().addAll(backButton, nameLabel, nameField, imageBox, micButton, generateButton, recordingLabel, generatingLabel);
     }
 
     private void styleTextField(TextField textField) {
