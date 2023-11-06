@@ -169,8 +169,13 @@ class RecipeList extends VBox {
             while (scanner.hasNext()) {
                 RecipeItem recipe = new RecipeItem();
                 String line = scanner.nextLine();
-                String title = line.substring(0, line.indexOf(","));
 
+                //process title
+                String rawTitle =line.substring(0, line.indexOf(","));
+                String title = decryptByteString(rawTitle);
+                
+
+                //process description
                 String rawDesc = line.substring(line.indexOf(",") + 1);
                 String description = decryptByteString(rawDesc);
                 System.out.println("RESULT:" + description);
@@ -207,10 +212,14 @@ class RecipeList extends VBox {
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem recipe = (RecipeItem) node;
+                    byte[] titleByte = recipe.getRecipeTitle().getBytes();
                     byte[] descriptionByte = recipe.getRecipeDescription().getBytes();
                     System.out.println(Arrays.toString(descriptionByte));
 
-                    writer.println(recipe.getRecipeTitle() + "," + Arrays.toString(descriptionByte)
+                    writer.println(Arrays.toString(titleByte)
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace(",", "") + "," + Arrays.toString(descriptionByte)
                             .replace("[", "")
                             .replace("]", "")
                             .replace(",", ""));
