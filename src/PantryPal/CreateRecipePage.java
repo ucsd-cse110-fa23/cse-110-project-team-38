@@ -102,9 +102,9 @@ public class CreateRecipePage extends VBox {
         generateButton = new Button("Generate Recipe");
         generateButton.setOnAction(e -> {
             try {
-                recorder.stopRecording();
                 recordingLabel.setVisible(false);
                 generatingLabel.setVisible(true);
+                recorder.stopRecording();
                 Whisper whisper = new Whisper();
                 String prompt = whisper.sendRequest();
                 //MockWhisper mockWhisper = new MockWhisper();
@@ -118,7 +118,8 @@ public class CreateRecipePage extends VBox {
                 System.out.println(details); //uncomment when using API
                 RecipeItem newRecipe = new RecipeItem();
                 newRecipe.setRecipeTitle(parts[2]);
-                newRecipe.setRecipeDescription(details.replace(parts[2], ""));
+                String detailsWithNoTitle = details.replace(parts[2], "");
+                newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
                 //newRecipe.setRecipeTitle(parts[0]);
                 //newRecipe.setRecipeDescription(details.replace(parts[0], ""));
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true);
