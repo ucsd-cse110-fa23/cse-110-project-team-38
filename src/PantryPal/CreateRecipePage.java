@@ -109,22 +109,22 @@ public class CreateRecipePage extends VBox {
                 recorder.stopRecording();
                 recordingLabel.setVisible(false);
                 generatingLabel.setVisible(true);
-                //Whisper whisper = new Whisper();
-                //String prompt = whisper.sendRequest();
-                MockWhisper mockWhisper = new MockWhisper();
-                String prompt = mockWhisper.sendRequest();
+                Whisper whisper = new Whisper();
+                String prompt = whisper.sendRequest();
+                //MockWhisper mockWhisper = new MockWhisper();
+                //String prompt = mockWhisper.sendRequest();
                 System.out.println("Request sent");
-                MockGPT mock = new MockGPT();
-                String details = mock.processRequest(prompt);
-                //ChatGPT chatGPT = new ChatGPT();
-                //String details = chatGPT.processRequest(prompt + " generate a recipe");
+                //MockGPT mock = new MockGPT();
+                //String details = mock.processRequest(prompt);
+                ChatGPT chatGPT = new ChatGPT();
+                String details = chatGPT.processRequest(prompt + " generate a recipe");
                 String[] parts = details.split("\n");
-                //System.out.println(details); //uncomment when using API
+                System.out.println(details); //uncomment when using API
                 RecipeItem newRecipe = new RecipeItem();
-                //newRecipe.setRecipeTitle(parts[2]);
-                //newRecipe.setRecipeDescription(details.replace(parts[2], ""));
-                newRecipe.setRecipeTitle(parts[0]);
-                newRecipe.setRecipeDescription(details.replace(parts[0], ""));
+                newRecipe.setRecipeTitle(parts[2]);
+                newRecipe.setRecipeDescription(details.replace(parts[2], ""));
+                //newRecipe.setRecipeTitle(parts[0]);
+                //newRecipe.setRecipeDescription(details.replace(parts[0], ""));
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);

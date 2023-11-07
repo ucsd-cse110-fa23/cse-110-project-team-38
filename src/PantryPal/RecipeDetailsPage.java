@@ -3,6 +3,7 @@ package PantryPal;
 import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -14,6 +15,7 @@ import javafx.scene.text.Text;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -32,7 +34,7 @@ import javafx.scene.control.Alert.AlertType;
 
 class RecipeDetailsPage extends VBox {
     private TextField titleField;
-    private TextField descriptionField;
+    private TextArea descriptionField;
     private Button doneButton;
     private Button backButton;
     private RecipeItem currentRecipeItem;
@@ -57,7 +59,7 @@ class RecipeDetailsPage extends VBox {
         // Create the description label and text field
         descriptionLabel = new Label("Description");
         styleLabels(descriptionLabel);
-        descriptionField = new TextField();
+        descriptionField = new TextArea();
         descriptionField.setPromptText("Description");
         styleTextField(descriptionField);
 
@@ -103,6 +105,14 @@ class RecipeDetailsPage extends VBox {
     private void styleTextField(TextField textField) {
         textField.setPrefHeight(40);
         textField.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
+    }
+
+    private void styleTextField(TextInputControl control) {
+    control.setPrefHeight(40);
+    control.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
+        if (control instanceof TextArea) {
+            ((TextArea) control).setPrefHeight(200); // Set a fixed height for the TextArea
+        }
     }
 
     private void styleBackButton(Button button) {
