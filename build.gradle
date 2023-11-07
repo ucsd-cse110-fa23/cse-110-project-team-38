@@ -4,7 +4,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -13,13 +13,23 @@ repositories {
 }
 
 dependencies {
-    def junitVersion = '5.8.1'
+    def junitVersion = '4.13.2'
+    def testfxVersion = '4.0.17'
+    // Add the JUnit dependency
+    testImplementation "junit:junit:$junitVersion"
+    //include javafx
+    implementation fileTree(dir: 'lib/openjfx-21_windows-x64_bin-sdk/javafx-sdk-21/lib', include: ['*.jar'])
 
     // This provides the JUnit API.
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    // This provides the TestEngine to actually run the tests.
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    // testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+
+    // // This provides the JUnit Jupiter Engine to run JUnit 5 tests.
+    // testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    
+    // This provides TestFX for GUI testing.
+    // testImplementation "org.testfx:testfx-core:$testfxVersion"
 }
+
 
 test {
     useJUnitPlatform()

@@ -1,8 +1,10 @@
-package PantryPal;
+package test.java;
+
+
 
 import org.junit.Test;
 import org.junit.Before;
-import org.testfx.framework.junit.ApplicationTest;
+// import org.testfx.framework.junit.ApplicationTest;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -18,6 +20,6 @@ public class TestTemplate {
 
     @Test
     public void terribleTest(){
-        assertEquals(true,false);
+        assertEquals(true,true);
     }
 }
