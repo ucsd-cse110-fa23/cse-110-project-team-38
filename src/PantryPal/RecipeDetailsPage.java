@@ -86,8 +86,8 @@ class RecipeDetailsPage extends VBox {
         this(appFrame); 
         currentRecipeItem = recipeItem;
         if (currentRecipeItem != null) {
-            titleField.setText(currentRecipeItem.getRecipeTitle());
-            descriptionField.setText(currentRecipeItem.getRecipeDescription());
+            titleField.setText(currentRecipeItem.getFullRecipeTitle());
+            descriptionField.setText(currentRecipeItem.getFullRecipeDescription());
         
         }
     }
@@ -97,8 +97,8 @@ class RecipeDetailsPage extends VBox {
         this.generated = generated;
         currentRecipeItem = recipeItem;
         if (currentRecipeItem != null) {
-            titleField.setText(currentRecipeItem.getRecipeTitle());
-            descriptionField.setText(currentRecipeItem.getRecipeDescription());
+            titleField.setText(currentRecipeItem.getFullRecipeTitle());
+            descriptionField.setText(currentRecipeItem.getFullRecipeDescription());
         }
     }
 
@@ -161,6 +161,7 @@ class RecipeDetailsPage extends VBox {
 
                 appFrame.getRecipeList().getChildren().add(recipeItem);
             } else {
+                currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
             }
 

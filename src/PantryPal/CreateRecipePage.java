@@ -67,7 +67,7 @@ public class CreateRecipePage extends VBox {
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
-        nameLabel = new Label("Please list your ingredients & meal times");
+        nameLabel = new Label("Directions:\n-Press mic input button\n-Say meal time (Breakfast, Lunch, or Dinner)\n-Say ingredients\n-Press Generate");
         styleLabels(nameLabel);
 
         backButton = new Button("<-");
@@ -77,10 +77,6 @@ public class CreateRecipePage extends VBox {
             stage.getScene().setRoot(appFrame);
         });
         styleBackButton(backButton);
-
-        nameField = new TextField();
-        nameField.setPromptText("Request");
-        styleTextField(nameField);
 
         
         micButton = new Button("Voice Input");
@@ -143,12 +139,7 @@ public class CreateRecipePage extends VBox {
         HBox imageBox = new HBox(contactImageView);
         imageBox.setAlignment(Pos.CENTER);
 
-        this.getChildren().addAll(backButton, nameLabel, nameField, imageBox, micButton, generateButton, recordingLabel, generatingLabel);
-    }
-
-    private void styleTextField(TextField textField) {
-        textField.setPrefHeight(40);
-        textField.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
+        this.getChildren().addAll(backButton, nameLabel, imageBox, micButton, generateButton, recordingLabel, generatingLabel);
     }
 
     private void styleBackButton(Button button) {
