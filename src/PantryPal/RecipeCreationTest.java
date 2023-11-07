@@ -30,10 +30,45 @@ public class RecipeCreationTest {
                 item.setRecipeTitle(parts[0]);
                 item.setRecipeDescription(details.replace(parts[0], ""));
 
-                assertEquals(item.getRecipeTitle(), "Title");
+                assertNotEquals(item, null);
             } catch (Exception err) {
                 System.out.println("Handle Exceptions");
             }
     }
 
+    @Test
+    //Test if title is the same as the mock and correct
+    public void testCreatedRecipeTitle() {
+        try {
+                String prompt = mockWhisper.sendRequest();
+                String details = mockGPT.processRequest(prompt);
+
+                String[] parts = details.split("\n");
+
+                item.setRecipeTitle(parts[0]);
+                item.setRecipeDescription(details.replace(parts[0], ""));
+
+                assertEquals(item.getFullRecipeTitle(), "Title");
+        } catch (Exception err) {
+            System.out.println("Handle exceptions");
+        }
+    }
+
+    @Test
+    //Test if description is correct
+    public void testCreatedRecipeDescription() {
+        try {
+                String prompt = mockWhisper.sendRequest();
+                String details = mockGPT.processRequest(prompt);
+
+                String[] parts = details.split("\n");
+
+                item.setRecipeTitle(parts[0]);
+                item.setRecipeDescription(details.replace(parts[0], ""));
+
+                assertEquals(item.getFullRecipeDescription(), "Ingredients:...\nInstructions:...");
+        } catch (Exception err) {
+            System.out.println("Handle exceptions");
+        }
+    }
 }
