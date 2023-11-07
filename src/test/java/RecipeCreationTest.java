@@ -1,8 +1,23 @@
-package PantryPal;
+package test.java;
 
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
+
+
+import main.java.PantryPal.MockGPT;
+import main.java.PantryPal.MockWhisper;
+import main.java.PantryPal.RecipeItem;
+
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RecipeCreationTest {
     private RecipeItem item;
@@ -11,7 +26,7 @@ public class RecipeCreationTest {
     
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockGPT = new MockGPT();
         mockWhisper = new MockWhisper();
@@ -30,7 +45,7 @@ public class RecipeCreationTest {
                 item.setRecipeTitle(parts[0]);
                 item.setRecipeDescription(details.replace(parts[0], ""));
 
-                assertNotEquals(item, null);
+                assertEquals(true,item == null);
             } catch (Exception err) {
                 System.out.println("Handle Exceptions");
             }
