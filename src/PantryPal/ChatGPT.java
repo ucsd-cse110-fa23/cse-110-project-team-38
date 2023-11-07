@@ -15,7 +15,7 @@ public class ChatGPT implements IGPT {
     private static final String API_KEY = "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";
     private static final String MODEL = "text-davinci-003";
 
-    public static String processRequest(String prompt) throws IOException, InterruptedException, URISyntaxException {
+    public String processRequest(String prompt) throws IOException, InterruptedException, URISyntaxException {
         int maxTokens = 100;
 
         // Create a request body which you will pass into request object

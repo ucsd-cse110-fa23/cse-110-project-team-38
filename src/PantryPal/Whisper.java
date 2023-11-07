@@ -103,7 +103,7 @@ public class Whisper implements IWhisper {
         return "Error Result: " + errorResult;
     }
 
-    public static String sendRequest() throws IOException, URISyntaxException {
+    public String sendRequest() throws IOException, URISyntaxException {
         File file = new File(FILE_PATH);
         
         // Set up HTTP connection
