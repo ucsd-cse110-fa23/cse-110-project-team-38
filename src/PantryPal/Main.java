@@ -195,7 +195,7 @@ class RecipeList extends VBox {
                 //process description
                 String rawDesc = line.substring(line.indexOf(",") + 1);
                 String description = decryptByteString(rawDesc);
-                System.out.println("RESULT:" + description);
+                // System.out.println("RESULT:" + description);
 
                 recipe.setRecipeTitle(title);
                 recipe.setRecipeDescription(description);
@@ -229,8 +229,8 @@ class RecipeList extends VBox {
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem recipe = (RecipeItem) node;
-                    byte[] titleByte = recipe.getRecipeTitle().getBytes();
-                    byte[] descriptionByte = recipe.getRecipeDescription().getBytes();
+                    byte[] titleByte = recipe.getFullRecipeTitle().getBytes();
+                    byte[] descriptionByte = recipe.getFullRecipeDescription().getBytes();
                     System.out.println(Arrays.toString(descriptionByte));
 
                     writer.println(Arrays.toString(titleByte)
