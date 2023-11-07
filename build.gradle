@@ -23,28 +23,17 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
     
     // def junitVersion = '4.13.2'
-    // def testfxVersion = '4.0.17'
     // // Add the JUnit dependency
     // testImplementation "junit:junit:$junitVersion"
     // //include javafx
     implementation fileTree(dir: 'lib/openjfx-21_windows-x64_bin-sdk/javafx-sdk-21/lib', include: ['*.jar'])
     // implementation fileTree(dir: 'lib', include: ['*.jar'])
-
-    // def junitVersion5 = '5.8.1'
-
-    // // This provides the JUnit API.
-    // testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion5"
-    // // This provides the TestEngine to actually run the tests.
-    // testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion5"
-
-    // This provides the JUnit API.
-    // testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-
-    // // This provides the JUnit Jupiter Engine to run JUnit 5 tests.
-    // testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    implementation 'org.json:json:20210307'
     
+
+    def testfxVersion = '4.0.17'
     // This provides TestFX for GUI testing.
-    // testImplementation "org.testfx:testfx-core:$testfxVersion"
+    testImplementation "org.testfx:testfx-core:$testfxVersion"
 }
 
 

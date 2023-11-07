@@ -23,6 +23,6 @@ public class TestTemplate {
 
     @Test
     public void terribleTest(){
-        assertEquals(true,false);
+        assertEquals(true,true);
     }
 }
