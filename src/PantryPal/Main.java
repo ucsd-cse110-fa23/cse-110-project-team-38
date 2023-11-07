@@ -274,7 +274,7 @@ class RecipeList extends VBox {
     }
 }
 
-class RecipeDetailsPage extends VBox {
+/*class RecipeDetailsPage extends VBox {
     private TextField titleField;
     private TextArea descriptionField;
     private Button doneButton;
@@ -403,7 +403,7 @@ class RecipeDetailsPage extends VBox {
             stage.setScene(new Scene(appFrame, 500, 600));
         });
     }
-}
+}*/
 
 class Header extends VBox {
 
@@ -538,7 +538,12 @@ class AppFrame extends BorderPane {
 
     public void addListeners() {
         addButton.setOnAction(e -> {
-            RecipeDetailsPage detailsPage = new RecipeDetailsPage(this);
+            CreateRecipePage detailsPage = null;
+            try {
+                detailsPage = new CreateRecipePage(this);
+            } catch (Exception err) {
+                System.out.println("Error when create page");
+            }
             Stage stage = (Stage) this.getScene().getWindow();
             stage.getScene().setRoot(detailsPage);
         });
