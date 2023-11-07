@@ -33,11 +33,15 @@ import java.util.Arrays;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputControl;
 
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
     public static final String SECONDARY_COLOR = "#D5D8DC";
     public static final String BUTTON_HOVER_COLOR = "#566573";
+    public static final int MAX_TITLE_LENGTH = 15;
+    public static final int MAX_DESCRIPTION_LENGTH = 40; 
 }
 
 class RecipeItem extends HBox {
@@ -46,6 +50,8 @@ class RecipeItem extends HBox {
     private Label recipeDescriptionLabel;
     private Button editButton;
     private Button deleteButton;
+    private String fullRecipeTitle;
+    private String fullRecipeDescription;
 
     RecipeItem() {
         this.setPrefSize(500, 120);
@@ -100,7 +106,13 @@ class RecipeItem extends HBox {
     }
 
     public void setRecipeTitle(String title) {
-        this.recipeTitleLabel.setText(title);
+        this.fullRecipeTitle = title;
+        String truncatedTitle = title.length() > Constants.MAX_TITLE_LENGTH ? title.substring(0, Constants.MAX_TITLE_LENGTH) + "..." : title;
+        this.recipeTitleLabel.setText(truncatedTitle);
+    }
+
+    public String getFullRecipeTitle() {
+        return this.fullRecipeTitle;
     }
 
     public String getRecipeTitle() {
@@ -108,7 +120,13 @@ class RecipeItem extends HBox {
     }
 
     public void setRecipeDescription(String description) {
-        this.recipeDescriptionLabel.setText(description);
+        this.fullRecipeDescription = description;
+        String truncatedDescription = description.length() > Constants.MAX_DESCRIPTION_LENGTH ? description.substring(0, Constants.MAX_DESCRIPTION_LENGTH) + "..." : description;
+        this.recipeDescriptionLabel.setText(truncatedDescription);
+    }
+
+    public String getFullRecipeDescription(){
+        return this.fullRecipeDescription;
     }
 
     public String getRecipeDescription() {
@@ -258,7 +276,7 @@ class RecipeList extends VBox {
 
 class RecipeDetailsPage extends VBox {
     private TextField titleField;
-    private TextField descriptionField;
+    private TextArea descriptionField;
     private Button doneButton;
     private Button backButton;
     private RecipeItem currentRecipeItem;
@@ -272,21 +290,20 @@ class RecipeDetailsPage extends VBox {
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
-        // Create the title label and text field
         titleLabel = new Label("Title");
         styleLabels(titleLabel);
         titleField = new TextField();
         titleField.setPromptText("Title");
         styleTextField(titleField);
 
-        // Create the description label and text field
         descriptionLabel = new Label("Description");
         styleLabels(descriptionLabel);
-        descriptionField = new TextField();
+        descriptionField = new TextArea();
         descriptionField.setPromptText("Description");
         styleTextField(descriptionField);
+        descriptionField.setPrefRowCount(10); 
+        descriptionField.setWrapText(true);
 
-        // Create the back button
         backButton = new Button("<-");
         backButton.setPrefSize(50, 30);
         backButton.setOnAction(e -> {
@@ -295,11 +312,9 @@ class RecipeDetailsPage extends VBox {
         });
         styleBackButton(backButton);
 
-        // Create the done button
         doneButton = new Button("Save Recipe");
         saveButton(doneButton);
 
-        // Add the components to the VBox in the correct order
         this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, doneButton);
     }
 
@@ -308,9 +323,8 @@ class RecipeDetailsPage extends VBox {
         this(appFrame);
         currentRecipeItem = recipeItem;
         if (currentRecipeItem != null) {
-            titleField.setText(currentRecipeItem.getRecipeTitle());
-            descriptionField.setText(currentRecipeItem.getRecipeDescription());
-
+            titleField.setText(currentRecipeItem.getFullRecipeTitle());
+            descriptionField.setText(currentRecipeItem.getFullRecipeDescription());
         }
     }
 
@@ -334,6 +348,14 @@ class RecipeDetailsPage extends VBox {
 
     private void styleLabels(Label label) {
         label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
+    }
+
+    private void styleTextField(TextInputControl control) {
+    control.setPrefHeight(40);
+    control.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
+        if (control instanceof TextArea) {
+            ((TextArea) control).setPrefHeight(200); // Set a fixed height for the TextArea
+        }
     }
 
     private void saveButton(Button button) {
