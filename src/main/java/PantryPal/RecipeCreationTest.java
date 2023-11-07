@@ -1,4 +1,4 @@
-package PantryPal;
+package main.java.PantryPal;
 
 import org.junit.Test;
 import org.junit.Before;

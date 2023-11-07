@@ -1,9 +1,18 @@
-package PantryPal;
+package test.java;
 
-import org.junit.Test;
-import org.junit.Before;
+// import org.junit.Test;
+// import org.junit.Before;
+// import static org.junit.Assert.*;
+
+// import org.junit.jupiter.api.Test;
+// import org.junit.jupiter.api.BeforeEach;
+
 import org.testfx.framework.junit.ApplicationTest;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,6 +21,7 @@ import java.nio.file.Paths;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import main.java.PantryPal.RecipeItem;
 import javafx.scene.layout.StackPane;
 
 public class RecipeItemTest extends ApplicationTest {
