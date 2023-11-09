@@ -57,30 +57,6 @@ class RecipeList extends VBox {
         this.getChildren().remove(recipeItem);
     }
 
-    // public void sortContacts() {
-    // List<ContactItem> contacts = this.getChildren().stream()
-    // .filter(node -> node instanceof ContactItem)
-    // .map(node -> (ContactItem) node)
-    // .collect(Collectors.toList());
-
-    // List<String> lowercaseNames = contacts.stream()
-    // .map(contact -> contact.getContactName().toLowerCase())
-    // .collect(Collectors.toList());
-
-    // Collections.sort(lowercaseNames);
-
-    // List<ContactItem> sortedContacts = new ArrayList<>();
-    // for (String name : lowercaseNames) {
-    // for (ContactItem contact : contacts) {
-    // if (contact.getContactName().equalsIgnoreCase(name)) {
-    // sortedContacts.add(contact);
-    // contacts.remove(contact);
-    // break;
-    // }
-    // }
-    // }
-    // this.getChildren().setAll(sortedContacts);
-    // }
     public void loadRecipes() {
         File file = new File("./savedRecipes.csv");
         try {

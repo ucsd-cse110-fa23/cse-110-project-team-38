@@ -145,15 +145,6 @@ class RecipeDetailsPage extends VBox {
             return;
             }
 
-            // String phoneNumber = phoneField.getText().trim();
-            // if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
-            //     Alert alert = new Alert(AlertType.WARNING);
-            //     alert.setTitle("Warning");
-            //     alert.setHeaderText("Invalid Phone Number");
-            //     alert.setContentText("Phone Number must be numeric!");
-            //     alert.showAndWait();
-            //     return;
-            // }
 
             if (currentRecipeItem == null || generated) {
                 RecipeItem recipeItem = new RecipeItem();
