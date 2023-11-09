@@ -151,7 +151,7 @@ class RecipeDetailsPage extends VBox {
                 recipeItem.setRecipeTitle(titleField.getText());
                 recipeItem.setRecipeDescription(descriptionField.getText());
 
-                appFrame.getRecipeList().getChildren().add(recipeItem);
+                appFrame.getRecipeList().getChildren().add(0,recipeItem);
             } else {
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
             }
