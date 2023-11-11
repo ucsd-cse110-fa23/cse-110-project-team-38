@@ -1,4 +1,4 @@
-package main.java.PantryPal;
+package main.java.PantryPal.client;
 
 import javafx.application.Application;
 import javafx.scene.control.Button;
@@ -100,6 +100,12 @@ class RecipeList extends VBox {
         return new String(byteArray);
     }
 
+    /**
+     * 
+     * looks like
+     * 12 123 40 94 99, 39 71 61 46 32 55 11 3 3 20 90
+     * 134 99 30 293 93 20 10 43, 12 03 57 18 97 36 47 119 101
+     */
     public void saveRecipes() {
         File file = new File("savedRecipes.csv");
         try (PrintWriter writer = new PrintWriter(file)) {
@@ -125,17 +131,7 @@ class RecipeList extends VBox {
         }
     }
 
-    /**
-     * How to save:
-     * save title as is
-     * encode description because description might have commas which mess up the
-     * CSV formatting
-     * save encoded description
-     * 
-     * thus the csv looks like
-     * titleOfMeal, 39 71 61 46 32 55 11 3 3 20 90
-     * titleOfMeal2,01010101010010010101010010101010101010010100000101010101
-     */
+    
     public void exportToCSV(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
             writer.println("Title,Description");
@@ -344,24 +340,6 @@ class Footer extends HBox {
         this.setPrefSize(500, 40);
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
 
-        saveToCSVButton = new Button("Save as CSV Files");
-        saveToCSVButton.setStyle(
-                "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        saveToCSVButton.setPrefSize(140, 40);
-
-        saveToCSVButton.setOnAction(e -> {
-            if (this.getParent() instanceof AppFrame) {
-                AppFrame appFrame = (AppFrame) this.getParent();
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Save Contacts");
-                fileChooser.getExtensionFilters().add(
-                        new ExtensionFilter("CSV Files", "*.csv"));
-                File file = fileChooser.showSaveDialog(null);
-                if (file != null) {
-                    appFrame.getRecipeList().exportToCSV(file);
-                }
-            }
-        });
 
         saveRecipesButton = new Button("Save Recipes");
         saveRecipesButton.setStyle(

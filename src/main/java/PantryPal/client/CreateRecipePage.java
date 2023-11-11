@@ -1,4 +1,4 @@
-package main.java.PantryPal;
+package main.java.PantryPal.client;
 
 import java.io.BufferedReader;
 import java.io.File;

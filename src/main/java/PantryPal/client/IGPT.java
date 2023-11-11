@@ -1,4 +1,4 @@
-package main.java.PantryPal;
+package main.java.PantryPal.client;
 
 import java.io.IOException;
 import java.net.URI;

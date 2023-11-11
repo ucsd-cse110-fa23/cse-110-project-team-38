@@ -1,9 +1,10 @@
 package test.java;
 
-import main.java.PantryPal.Main;
-import main.java.PantryPal.RecipeItem;
-
 import org.junit.jupiter.api.Test;
+
+import main.java.PantryPal.client.Main;
+import main.java.PantryPal.client.RecipeItem;
+
 // import org.osgi.framework.Constants;
 import org.junit.jupiter.api.BeforeEach;
 
