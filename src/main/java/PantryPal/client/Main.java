@@ -41,9 +41,8 @@ class Constants {
     public static final String SECONDARY_COLOR = "#D5D8DC";
     public static final String BUTTON_HOVER_COLOR = "#566573";
     public static final int MAX_TITLE_LENGTH = 15;
-    public static final int MAX_DESCRIPTION_LENGTH = 40; 
+    public static final int MAX_DESCRIPTION_LENGTH = 40;
 }
-
 
 class RecipeList extends VBox {
     RecipeList() {
@@ -65,39 +64,48 @@ class RecipeList extends VBox {
             while (scanner.hasNext()) {
                 RecipeItem recipe = new RecipeItem();
                 String line = scanner.nextLine();
-
-                //process title
-                String rawTitle =line.substring(0, line.indexOf(","));
-                String title = decryptByteString(rawTitle);
+                String[] recipeInfo = decryptRecipeInfo(line);
                 
-                //process description
-                String rawDesc = line.substring(line.indexOf(",") + 1);
-                String description = decryptByteString(rawDesc);
-                // System.out.println("RESULT:" + description);
-
-                recipe.setRecipeTitle(title);
-                recipe.setRecipeDescription(description);
+                recipe.setRecipeTitle(recipeInfo[0]);
+                recipe.setRecipeDescription(recipeInfo[1]);
 
                 // add it to the children list
                 this.getChildren().add(recipe);
             }
         } catch (Exception e) {
-            System.out.println("Could not find '/savedRecipes.csv' in home dir");
+            System.out.println("Error during loadRecipes!!!");
             System.err.println(e.getMessage());
         }
+    }
+
+    public String encryptRecipeInfo(String recipeTitle, String recipeDescription) {
+        byte[] titleBytes = recipeTitle.getBytes();
+        byte[] descriptionBytes = recipeDescription.getBytes();
+        return Arrays.toString(titleBytes) + "|" + Arrays.toString(descriptionBytes);
+
     }
 
     /*
      * Given a string representing bytes, returns the string represented by the
      * bytes
+     * 
+     * [1,2,3,4,5,6] | [1,1,1,1,12,23]
      */
-    public String decryptByteString(String rawString) {
-        String[] stringArray = rawString.split(" ");
-        byte[] byteArray = new byte[stringArray.length];
-        for (int i = 0; i < byteArray.length; i++) {
-            byteArray[i] = Byte.parseByte(stringArray[i]);
+    public String[] decryptRecipeInfo(String comboString) {
+        String[] titleDescCombo = comboString.split("|");
+
+        for (int i = 0; i < 2; i++) {
+            String[] stringArray = titleDescCombo[i].replace("[", "")
+                    .replace("]", "").split(", ");
+            byte[] byteArray = new byte[stringArray.length];
+
+            for (int j = 0; i < byteArray.length; j++) {
+                byteArray[j] = Byte.parseByte(stringArray[j]);
+            }
+            titleDescCombo[i] = new String(byteArray);
+
         }
-        return new String(byteArray);
+        return titleDescCombo;
     }
 
     /**
@@ -109,21 +117,13 @@ class RecipeList extends VBox {
     public void saveRecipes() {
         File file = new File("savedRecipes.csv");
         try (PrintWriter writer = new PrintWriter(file)) {
-            // writer.println("Title,Description");
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem recipe = (RecipeItem) node;
-                    byte[] titleByte = recipe.getFullRecipeTitle().getBytes();
-                    byte[] descriptionByte = recipe.getFullRecipeDescription().getBytes();
-                    System.out.println(Arrays.toString(descriptionByte));
+                    String encryption = encryptRecipeInfo(recipe.getFullRecipeTitle(), recipe.getFullRecipeDescription());
+                    System.out.println(encryption);
 
-                    writer.println(Arrays.toString(titleByte)
-                            .replace("[", "")
-                            .replace("]", "")
-                            .replace(",", "") + "," + Arrays.toString(descriptionByte)
-                            .replace("[", "")
-                            .replace("]", "")
-                            .replace(",", ""));
+                    writer.println(encryption);
                 }
             }
         } catch (IOException ex) {
@@ -131,7 +131,6 @@ class RecipeList extends VBox {
         }
     }
 
-    
     public void exportToCSV(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
             writer.println("Title,Description");
@@ -147,137 +146,6 @@ class RecipeList extends VBox {
         }
     }
 }
-
-/*class RecipeDetailsPage extends VBox {
-    private TextField titleField;
-    private TextArea descriptionField;
-    private Button doneButton;
-    private Button backButton;
-    private RecipeItem currentRecipeItem;
-    private AppFrame appFrame;
-    private Label titleLabel;
-    private Label descriptionLabel;
-
-    public RecipeDetailsPage(AppFrame appFrame) {
-        this.appFrame = appFrame;
-        this.setSpacing(10);
-        this.setPadding(new Insets(10, 20, 10, 20));
-        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
-
-        titleLabel = new Label("Title");
-        styleLabels(titleLabel);
-        titleField = new TextField();
-        titleField.setPromptText("Title");
-        styleTextField(titleField);
-
-        descriptionLabel = new Label("Description");
-        styleLabels(descriptionLabel);
-        descriptionField = new TextArea();
-        descriptionField.setPromptText("Description");
-        styleTextField(descriptionField);
-        descriptionField.setPrefRowCount(10); 
-        descriptionField.setWrapText(true);
-
-        backButton = new Button("<-");
-        backButton.setPrefSize(50, 30);
-        backButton.setOnAction(e -> {
-            Stage stage = (Stage) this.getScene().getWindow();
-            stage.getScene().setRoot(appFrame);
-        });
-        styleBackButton(backButton);
-
-        doneButton = new Button("Save Recipe");
-        saveButton(doneButton);
-
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, doneButton);
-    }
-
-    // Overloaded constructor for showing the detail page after clicking on "edit"
-    public RecipeDetailsPage(AppFrame appFrame, RecipeItem recipeItem) {
-        this(appFrame);
-        currentRecipeItem = recipeItem;
-        if (currentRecipeItem != null) {
-            titleField.setText(currentRecipeItem.getFullRecipeTitle());
-            descriptionField.setText(currentRecipeItem.getFullRecipeDescription());
-        }
-    }
-
-    private void styleTextField(TextField textField) {
-        textField.setPrefHeight(40);
-        textField.setStyle(
-                "-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
-    }
-
-    private void styleBackButton(Button button) {
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: "
-                + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR
-                + "; -fx-border-width: 1px; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-color: "
-                + Constants.BUTTON_HOVER_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: "
-                + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
-    }
-
-    private void styleLabels(Label label) {
-        label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
-    }
-
-    private void styleTextField(TextInputControl control) {
-    control.setPrefHeight(40);
-    control.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
-        if (control instanceof TextArea) {
-            ((TextArea) control).setPrefHeight(200); // Set a fixed height for the TextArea
-        }
-    }
-
-    private void saveButton(Button button) {
-        button.setPrefHeight(40);
-        button.setPrefWidth(150);
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR
-                + "; -fx-text-fill: white; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
-
-        button.setOnAction(e -> {
-            if (titleField.getText().trim().isEmpty() ||
-            descriptionField.getText().trim().isEmpty()) {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Incomplete Recipe Details");
-            alert.setContentText("Please make sure there are no empty fields!");
-            alert.showAndWait();
-            return;
-            }
-
-            // String phoneNumber = phoneField.getText().trim();
-            // if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
-            // Alert alert = new Alert(AlertType.WARNING);
-            // alert.setTitle("Warning");
-            // alert.setHeaderText("Invalid Phone Number");
-            // alert.setContentText("Phone Number must be numeric!");
-            // alert.showAndWait();
-            // return;
-            // }
-
-            if (currentRecipeItem == null) {
-                RecipeItem recipeItem = new RecipeItem();
-                recipeItem.setRecipeTitle(titleField.getText());
-                recipeItem.setRecipeDescription(descriptionField.getText());
-
-                appFrame.getRecipeList().getChildren().add(recipeItem);
-            } else {
-                currentRecipeItem.setRecipeDescription(descriptionField.getText());
-            }
-
-            Stage stage = (Stage) this.getScene().getWindow();
-            stage.setScene(new Scene(appFrame, 500, 600));
-        });
-    }
-}*/
 
 class Header extends VBox {
 
@@ -339,7 +207,6 @@ class Footer extends HBox {
     Footer() {
         this.setPrefSize(500, 40);
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
-
 
         saveRecipesButton = new Button("Save Recipes");
         saveRecipesButton.setStyle(
