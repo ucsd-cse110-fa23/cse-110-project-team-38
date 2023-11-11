@@ -1,4 +1,4 @@
-package server;
+package main.java.PantryPal.server;
 
 import com.sun.net.httpserver.*;
 import java.io.IOException;
@@ -22,8 +22,6 @@ public class MyServer {
     HttpContext context = server.createContext("/", new RequestHandler(data));
 
     
-    HttpContext otherContext = server.createContext("/name",new MyHandler());
-
     server.setExecutor(threadPoolExecutor);
     server.start();
 
