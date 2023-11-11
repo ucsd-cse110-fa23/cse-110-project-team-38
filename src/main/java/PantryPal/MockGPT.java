@@ -1,4 +1,5 @@
-package PantryPal;
+package main.java.PantryPal;
+
 
 import java.io.IOException;
 import java.net.URISyntaxException;
