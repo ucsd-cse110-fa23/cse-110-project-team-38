@@ -1,5 +1,6 @@
 package PantryPal.client;
 
+
 import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -152,9 +153,12 @@ class RecipeDetailsPage extends VBox {
                 recipeItem.setRecipeTitle(titleField.getText());
                 recipeItem.setRecipeDescription(descriptionField.getText());
 
-                appFrame.getRecipeList().getChildren().add(0,recipeItem);
+
+                appFrame.getRecipeList().getChildren().add(recipeItem);
+    
             } else {
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
+                appFrame.getRecipeList().saveRecipes();
             }
 
             Stage stage = (Stage) this.getScene().getWindow();

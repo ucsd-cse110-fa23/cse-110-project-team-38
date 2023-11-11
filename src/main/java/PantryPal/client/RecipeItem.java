@@ -1,5 +1,6 @@
 package PantryPal.client;
 
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -59,6 +60,8 @@ public class RecipeItem extends HBox {
             if (this.getParent() instanceof RecipeList) {
                 RecipeList parentList = (RecipeList) this.getParent();
                 parentList.removeRecipe(this);
+                parentList.saveRecipes();
+                
             }
         });
 
