@@ -1,4 +1,4 @@
-package main.java.PantryPal;
+package PantryPal;
 
 import javafx.application.Application;
 import javafx.scene.control.Button;
@@ -161,8 +161,10 @@ class RecipeDetailsPage extends VBox {
                 recipeItem.setRecipeDescription(descriptionField.getText());
 
                 appFrame.getRecipeList().getChildren().add(recipeItem);
+    
             } else {
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
+                appFrame.getRecipeList().saveRecipes();
             }
 
             Stage stage = (Stage) this.getScene().getWindow();
