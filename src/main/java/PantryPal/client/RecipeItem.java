@@ -1,4 +1,4 @@
-package main.java.PantryPal.client;
+package PantryPal.client;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

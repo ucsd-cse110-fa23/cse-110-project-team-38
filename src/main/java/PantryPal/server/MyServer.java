@@ -1,4 +1,4 @@
-package main.java.PantryPal.server;
+package PantryPal.server;
 
 import com.sun.net.httpserver.*;
 import java.io.IOException;
