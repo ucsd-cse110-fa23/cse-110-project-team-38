@@ -2,7 +2,7 @@ package PantryPal.server;
 
 import com.sun.net.httpserver.*;
 
-import PantryPal.client.RecipeItem;
+import PantryPal.client.RecipeEncryptor;
 
 import java.io.*;
 import java.net.*;
@@ -13,11 +13,16 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class RequestHandler implements HttpHandler {
 
+
+public class RecipeRequestHandler implements HttpHandler {
+
+
+    //Recipe Info is encoded as UTF-8 Arrays as key value pairs [1,2,3],[1,2,3]
+    //must convert to UTF-8 strings when accessing recipes
     private final Map<String, String> recipes;
 
-    public RequestHandler(Map<String, String> recipes) {
+    public RecipeRequestHandler(Map<String, String> recipes) {
         this.recipes = recipes;
     }
 
@@ -61,18 +66,23 @@ public class RequestHandler implements HttpHandler {
 
     }
 
+    /*
+     * GET request, given a title, return the value
+     */
     private String handleGet(HttpExchange httpExchange) throws IOException {
+        
         String response = "Invalid GET request";
         URI uri = httpExchange.getRequestURI();
         String query = uri.getRawQuery();
         if (query != null) {
-            String value = query.substring(query.indexOf("=") + 1);
-            String year = recipes.get(value); // Retrieve recipes from hashmap
-            if (year != null) {
-                response = year;
-                System.out.println("Queried for " + value + " and found " + year);
+            String title = query.substring(query.indexOf("=") + 1);
+            String encryptedDescription = recipes.get(RecipeEncryptor.encryptSingle(title)); // Retrieve recipes info after encrypting title
+            if (encryptedDescription != null) {
+                //return the decrypted description
+                response = RecipeEncryptor.decryptSingle(encryptedDescription);
+                System.out.println("Queried for " + title + " and found " + RecipeEncryptor.decryptSingle(encryptedDescription));
             } else {
-                response = "No recipes found for " + value;
+                response = "No recipes found for " + title;
             }
         }
         return response;

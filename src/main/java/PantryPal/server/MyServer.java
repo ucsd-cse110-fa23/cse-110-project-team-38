@@ -15,11 +15,12 @@ public class MyServer {
   public static void main(String[] args) throws IOException {
     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10); //10 thread executor
 
-    Map<String, String> data = new HashMap<>();
+    //recipes stored as [1,2,3],[1,2,3] string keypair values
+    Map<String, String> recipes = new HashMap<>();
 
     HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_HOSTNAME,SERVER_PORT),0);
 
-    HttpContext context = server.createContext("/", new RequestHandler(data));
+    HttpContext context = server.createContext("/", new RecipeRequestHandler(recipes));
 
     
     server.setExecutor(threadPoolExecutor);

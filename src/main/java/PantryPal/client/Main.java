@@ -83,7 +83,7 @@ class RecipeList extends VBox {
             while (scanner.hasNext()) {
                 RecipeItem recipe = new RecipeItem();
                 String line = scanner.nextLine();
-                String[] recipeInfo = decryptRecipeInfo(line);
+                String[] recipeInfo = RecipeEncryptor.decryptRecipeInfo(line);
                 
                 recipe.setRecipeTitle(recipeInfo[0]);
                 recipe.setRecipeDescription(recipeInfo[1]);
@@ -97,36 +97,7 @@ class RecipeList extends VBox {
         }
     }
 
-    public String encryptRecipeInfo(String recipeTitle, String recipeDescription) {
-        byte[] titleBytes = recipeTitle.getBytes();
-        byte[] descriptionBytes = recipeDescription.getBytes();
-        return Arrays.toString(titleBytes) + "|" + Arrays.toString(descriptionBytes);
-
-    }
-
-    /*
-     * Given a string representing bytes, returns the string represented by the
-     * bytes
-     * 
-     * [1,2,3,4,5,6] | [1,1,1,1,12,23]
-     */
-    public String[] decryptRecipeInfo(String comboString) {
-        String[] titleDescCombo = {comboString.substring(0,comboString.indexOf("|")), comboString.substring(comboString.indexOf("|") + 1) };
-        // comboString.split("|");
-
-        for (int i = 0; i < 2; i++) {
-            String[] stringArray = titleDescCombo[i].replace("[", "")
-                    .replace("]", "").split(", ");
-            byte[] byteArray = new byte[stringArray.length];
-
-            for (int j = 0; j < byteArray.length; j++) {
-                byteArray[j] = Byte.parseByte(stringArray[j]);
-            }
-            titleDescCombo[i] = new String(byteArray);
-
-        }
-        return titleDescCombo;
-    }
+    
 
     /**
      * 
@@ -140,7 +111,7 @@ class RecipeList extends VBox {
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem recipe = (RecipeItem) node;
-                    String encryption = encryptRecipeInfo(recipe.getFullRecipeTitle(), recipe.getFullRecipeDescription());
+                    String encryption = RecipeEncryptor.encryptRecipeInfo(recipe.getFullRecipeTitle(), recipe.getFullRecipeDescription());
                     System.out.println(encryption);
 
                     writer.println(encryption);
