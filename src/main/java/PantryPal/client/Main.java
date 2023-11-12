@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+
 import java.io.File;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -44,12 +45,30 @@ class Constants {
     public static final int MAX_DESCRIPTION_LENGTH = 40;
 }
 
+
 class RecipeList extends VBox {
     RecipeList() {
         this.setSpacing(5);
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
         this.loadRecipes();
+        // this.addMocks();
+    }
+    
+    public void addMocks(){
+        RecipeItem mock1 = new RecipeItem();
+        mock1.setRecipeTitle("Bacon and Eggs");
+        mock1.setRecipeDescription("You take the moon and you take the sun");
+        
+        RecipeItem mock2 = new RecipeItem();
+        mock2.setRecipeTitle("Shrimp Fried Rice");
+        mock2.setRecipeDescription("So you're telling me a SHRIMP fried this rice!?");
+        
+        RecipeItem mock3 = new RecipeItem();
+        mock3.setRecipeTitle("Nothing burger");
+        mock3.setRecipeDescription("Absolutely nothing");
+
+        this.getChildren().addAll(mock1,mock2,mock3);
     }
 
     public void removeRecipe(RecipeItem recipeItem) {
@@ -92,14 +111,15 @@ class RecipeList extends VBox {
      * [1,2,3,4,5,6] | [1,1,1,1,12,23]
      */
     public String[] decryptRecipeInfo(String comboString) {
-        String[] titleDescCombo = comboString.split("|");
+        String[] titleDescCombo = {comboString.substring(0,comboString.indexOf("|")), comboString.substring(comboString.indexOf("|") + 1) };
+        // comboString.split("|");
 
         for (int i = 0; i < 2; i++) {
             String[] stringArray = titleDescCombo[i].replace("[", "")
                     .replace("]", "").split(", ");
             byte[] byteArray = new byte[stringArray.length];
 
-            for (int j = 0; i < byteArray.length; j++) {
+            for (int j = 0; j < byteArray.length; j++) {
                 byteArray[j] = Byte.parseByte(stringArray[j]);
             }
             titleDescCombo[i] = new String(byteArray);
@@ -178,19 +198,6 @@ class Header extends VBox {
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(rightSpacer);
 
-        // sortButton = new Button("Sort");
-        // sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black;
-        // -fx-font-weight: bold; -fx-font-size: 12px;");
-        // sortButton.setPrefSize(40, 25);
-        // sortButton.setOnAction(e -> {
-        // if (this.getParent() instanceof AppFrame) {
-        // AppFrame appFrame = (AppFrame) this.getParent();
-        // appFrame.getRecipeList().sortContacts();
-        // }
-        // });
-        // HBox.setMargin(sortButton, new Insets(0, 10, 0, 10));
-        // upperRow.getChildren().add(sortButton);
-
         this.getChildren().addAll(upperRow);
     }
 
@@ -207,6 +214,25 @@ class Footer extends HBox {
     Footer() {
         this.setPrefSize(500, 40);
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
+
+        saveToCSVButton = new Button("Save as CSV Files");
+        saveToCSVButton.setStyle(
+                "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        saveToCSVButton.setPrefSize(140, 40);
+
+        saveToCSVButton.setOnAction(e -> {
+            if (this.getParent() instanceof AppFrame) {
+                AppFrame appFrame = (AppFrame) this.getParent();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Save Contacts");
+                fileChooser.getExtensionFilters().add(
+                        new ExtensionFilter("CSV Files", "*.csv"));
+                File file = fileChooser.showSaveDialog(null);
+                if (file != null) {
+                    appFrame.getRecipeList().exportToCSV(file);
+                }
+            }
+        });
 
         saveRecipesButton = new Button("Save Recipes");
         saveRecipesButton.setStyle(

@@ -58,7 +58,7 @@ public class RecipeItemTest extends ApplicationTest {
                     "Also known as a hot pocket (or pizza rolls).";
             item.setRecipeTitle(title);
             assertEquals(title, item.getFullRecipeTitle());
-            assertTrue(item.getRecipeTitle().length() <= Constants.MAX_TITLE_LENGTH+3);
+            assertTrue(item.getRecipeTitle().length() <= main.java.PantryPal.MAX_TITLE_LENGTH+3);
         });
     }
 
@@ -70,7 +70,7 @@ public class RecipeItemTest extends ApplicationTest {
                     "Also known as a hot pocket (or pizza rolls).";
             item.setRecipeTitle(title);
             assertEquals(title, item.getFullRecipeTitle());
-            assertTrue(item.getFullRecipeTitle().length() > Constants.MAX_TITLE_LENGTH);
+            assertTrue(item.getFullRecipeTitle().length() > main.java.PantryPal.MAX_TITLE_LENGTH);
         });
     }
 
@@ -80,7 +80,7 @@ public class RecipeItemTest extends ApplicationTest {
         interact(() -> {
             item.setRecipeDescription(fullDescription);
             assertEquals(fullDescription, item.getFullRecipeDescription());
-            assertTrue(item.getRecipeDescription().length() <= Constants.MAX_DESCRIPTION_LENGTH+3);
+            assertTrue(item.getRecipeDescription().length() <= main.java.PantryPal.MAX_DESCRIPTION_LENGTH+3);
         });
     }
 
@@ -90,7 +90,7 @@ public class RecipeItemTest extends ApplicationTest {
         interact(() -> {
             item.setRecipeDescription(fullDescription);
             assertEquals(fullDescription, item.getFullRecipeDescription());
-            assertTrue(item.getFullRecipeDescription().length() > Constants.MAX_DESCRIPTION_LENGTH);
+            assertTrue(item.getFullRecipeDescription().length() > main.java.PantryPal.MAX_DESCRIPTION_LENGTH);
         });
     }
 
