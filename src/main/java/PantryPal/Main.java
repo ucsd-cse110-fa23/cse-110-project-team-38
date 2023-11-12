@@ -1,4 +1,4 @@
-package main.java.PantryPal;
+package PantryPal;
 
 import javafx.application.Application;
 import javafx.scene.control.Button;
@@ -56,31 +56,7 @@ class RecipeList extends VBox {
     public void removeRecipe(RecipeItem recipeItem) {
         this.getChildren().remove(recipeItem);
     }
-
-    // public void sortContacts() {
-    // List<ContactItem> contacts = this.getChildren().stream()
-    // .filter(node -> node instanceof ContactItem)
-    // .map(node -> (ContactItem) node)
-    // .collect(Collectors.toList());
-
-    // List<String> lowercaseNames = contacts.stream()
-    // .map(contact -> contact.getContactName().toLowerCase())
-    // .collect(Collectors.toList());
-
-    // Collections.sort(lowercaseNames);
-
-    // List<ContactItem> sortedContacts = new ArrayList<>();
-    // for (String name : lowercaseNames) {
-    // for (ContactItem contact : contacts) {
-    // if (contact.getContactName().equalsIgnoreCase(name)) {
-    // sortedContacts.add(contact);
-    // contacts.remove(contact);
-    // break;
-    // }
-    // }
-    // }
-    // this.getChildren().setAll(sortedContacts);
-    // }
+    
     public void loadRecipes() {
         File file = new File("./savedRecipes.csv");
         try {
@@ -176,137 +152,6 @@ class RecipeList extends VBox {
     }
 }
 
-/*class RecipeDetailsPage extends VBox {
-    private TextField titleField;
-    private TextArea descriptionField;
-    private Button doneButton;
-    private Button backButton;
-    private RecipeItem currentRecipeItem;
-    private AppFrame appFrame;
-    private Label titleLabel;
-    private Label descriptionLabel;
-
-    public RecipeDetailsPage(AppFrame appFrame) {
-        this.appFrame = appFrame;
-        this.setSpacing(10);
-        this.setPadding(new Insets(10, 20, 10, 20));
-        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
-
-        titleLabel = new Label("Title");
-        styleLabels(titleLabel);
-        titleField = new TextField();
-        titleField.setPromptText("Title");
-        styleTextField(titleField);
-
-        descriptionLabel = new Label("Description");
-        styleLabels(descriptionLabel);
-        descriptionField = new TextArea();
-        descriptionField.setPromptText("Description");
-        styleTextField(descriptionField);
-        descriptionField.setPrefRowCount(10); 
-        descriptionField.setWrapText(true);
-
-        backButton = new Button("<-");
-        backButton.setPrefSize(50, 30);
-        backButton.setOnAction(e -> {
-            Stage stage = (Stage) this.getScene().getWindow();
-            stage.getScene().setRoot(appFrame);
-        });
-        styleBackButton(backButton);
-
-        doneButton = new Button("Save Recipe");
-        saveButton(doneButton);
-
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, doneButton);
-    }
-
-    // Overloaded constructor for showing the detail page after clicking on "edit"
-    public RecipeDetailsPage(AppFrame appFrame, RecipeItem recipeItem) {
-        this(appFrame);
-        currentRecipeItem = recipeItem;
-        if (currentRecipeItem != null) {
-            titleField.setText(currentRecipeItem.getFullRecipeTitle());
-            descriptionField.setText(currentRecipeItem.getFullRecipeDescription());
-        }
-    }
-
-    private void styleTextField(TextField textField) {
-        textField.setPrefHeight(40);
-        textField.setStyle(
-                "-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
-    }
-
-    private void styleBackButton(Button button) {
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-text-fill: "
-                + Constants.PRIMARY_COLOR + "; -fx-border-color: " + Constants.PRIMARY_COLOR
-                + "; -fx-border-width: 1px; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-color: "
-                + Constants.BUTTON_HOVER_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.SECONDARY_COLOR + "; -fx-text-fill: " + Constants.PRIMARY_COLOR + "; -fx-border-color: "
-                + Constants.PRIMARY_COLOR + "; -fx-border-width: 1px; -fx-border-radius: 5;"));
-    }
-
-    private void styleLabels(Label label) {
-        label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
-    }
-
-    private void styleTextField(TextInputControl control) {
-    control.setPrefHeight(40);
-    control.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
-        if (control instanceof TextArea) {
-            ((TextArea) control).setPrefHeight(200); // Set a fixed height for the TextArea
-        }
-    }
-
-    private void saveButton(Button button) {
-        button.setPrefHeight(40);
-        button.setPrefWidth(150);
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR
-                + "; -fx-text-fill: white; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: "
-                + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
-
-        button.setOnAction(e -> {
-            if (titleField.getText().trim().isEmpty() ||
-            descriptionField.getText().trim().isEmpty()) {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Incomplete Recipe Details");
-            alert.setContentText("Please make sure there are no empty fields!");
-            alert.showAndWait();
-            return;
-            }
-
-            // String phoneNumber = phoneField.getText().trim();
-            // if (!phoneNumber.isEmpty() && !phoneNumber.matches("\\d+")) {
-            // Alert alert = new Alert(AlertType.WARNING);
-            // alert.setTitle("Warning");
-            // alert.setHeaderText("Invalid Phone Number");
-            // alert.setContentText("Phone Number must be numeric!");
-            // alert.showAndWait();
-            // return;
-            // }
-
-            if (currentRecipeItem == null) {
-                RecipeItem recipeItem = new RecipeItem();
-                recipeItem.setRecipeTitle(titleField.getText());
-                recipeItem.setRecipeDescription(descriptionField.getText());
-
-                appFrame.getRecipeList().getChildren().add(recipeItem);
-            } else {
-                currentRecipeItem.setRecipeDescription(descriptionField.getText());
-            }
-
-            Stage stage = (Stage) this.getScene().getWindow();
-            stage.setScene(new Scene(appFrame, 500, 600));
-        });
-    }
-}*/
-
 class Header extends VBox {
 
     private Button addButton;
@@ -337,19 +182,6 @@ class Header extends VBox {
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(rightSpacer);
-
-        // sortButton = new Button("Sort");
-        // sortButton.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black;
-        // -fx-font-weight: bold; -fx-font-size: 12px;");
-        // sortButton.setPrefSize(40, 25);
-        // sortButton.setOnAction(e -> {
-        // if (this.getParent() instanceof AppFrame) {
-        // AppFrame appFrame = (AppFrame) this.getParent();
-        // appFrame.getRecipeList().sortContacts();
-        // }
-        // });
-        // HBox.setMargin(sortButton, new Insets(0, 10, 0, 10));
-        // upperRow.getChildren().add(sortButton);
 
         this.getChildren().addAll(upperRow);
     }

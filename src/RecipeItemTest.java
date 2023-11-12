@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import main.java.PantryPal.Main;
+import PantryPal.Main;
 import javafx.scene.layout.StackPane;
 
 public class RecipeItemTest extends ApplicationTest {

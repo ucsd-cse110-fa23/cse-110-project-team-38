@@ -1,10 +1,6 @@
-package test.java;
-
-
-
-import main.java.PantryPal.MockGPT;
-import main.java.PantryPal.MockWhisper;
-import main.java.PantryPal.RecipeItem;
+import PantryPal.MockGPT;
+import PantryPal.MockWhisper;
+import PantryPal.RecipeItem;
 
 
 import org.junit.jupiter.api.Test;

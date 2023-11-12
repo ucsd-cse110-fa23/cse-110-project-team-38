@@ -1,7 +1,5 @@
-package test.java;
-
-import main.java.PantryPal.Main;
-import main.java.PantryPal.RecipeItem;
+import PantryPal.Main;
+import PantryPal.RecipeItem;
 
 import org.junit.jupiter.api.Test;
 // import org.osgi.framework.Constants;

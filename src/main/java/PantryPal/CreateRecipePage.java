@@ -1,4 +1,4 @@
-package main.java.PantryPal;
+package PantryPal;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +19,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Priority;
 import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -28,19 +27,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import java.io.File;
-import java.util.stream.Collectors;
-import java.util.List;
-import javafx.scene.layout.Region;
-import java.io.PrintWriter;
-import java.io.IOException;
-import javafx.scene.Node;
-import java.util.Collections;
-import java.util.ArrayList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 
 public class CreateRecipePage extends VBox {
     private TextField nameField;
@@ -122,7 +108,7 @@ public class CreateRecipePage extends VBox {
                 newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
                 //newRecipe.setRecipeTitle(parts[0]);
                 //newRecipe.setRecipeDescription(details.replace(parts[0], ""));
-                RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true);
+                RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true, true);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);
                 //recorder.stopRecording();
@@ -161,4 +147,5 @@ public class CreateRecipePage extends VBox {
         button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
 
     }
+
 }
