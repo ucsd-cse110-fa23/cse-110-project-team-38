@@ -100,7 +100,7 @@ class RecipeList extends VBox {
     }
 
     /**
-     * saves all recipes to 
+     * saves all recipes to local file after encoding
      */
     public void saveRecipes() {
         File file = new File("savedRecipes.csv");
@@ -119,6 +119,9 @@ class RecipeList extends VBox {
         }
     }
 
+    /*
+     * saves recipes to the HTTP server, if its running
+     */
     public void saveRecipesToServer() {
         Model request = new Model();
         for (Node node : this.getChildren()) {
