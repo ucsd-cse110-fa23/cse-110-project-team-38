@@ -1,19 +1,8 @@
 package PantryPal.client;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import org.json.JSONObject;
-import org.json.JSONException;
-import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -22,23 +11,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.geometry.Pos;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class CreateRecipePage extends VBox {
-    private TextField nameField;
-    private TextField emailField;
-    private TextField phoneField;
     private ImageView contactImageView;
-    private Image contactImage;
     private Button generateButton;
     private Button micButton;
     private Button backButton;
-    private RecipeItem currentContactItem;
     private AppFrame appFrame;
     private Label nameLabel;
     private Label recordingLabel;
@@ -72,6 +52,7 @@ public class CreateRecipePage extends VBox {
         recordingLabel.setVisible(false);
         micButton.setOnAction(e -> {
             try {
+                //start listening for audio
                 recordingLabel.setVisible(true);
                 recorder.startRecording();
             }
@@ -89,30 +70,31 @@ public class CreateRecipePage extends VBox {
         generateButton = new Button("Generate Recipe");
         generateButton.setOnAction(e -> {
             try {
+                //set recording label to let user know
                 recordingLabel.setVisible(false);
                 generatingLabel.setVisible(true);
                 recorder.stopRecording();
+                
+                //whisper API used to get text from audio
                 Whisper whisper = new Whisper();
-                String prompt = whisper.sendRequest();
-                //MockWhisper mockWhisper = new MockWhisper();
-                //String prompt = mockWhisper.sendRequest();
+                String prompt = whisper.sendRequest(); //the audio
                 System.out.println("Request sent");
-                //MockGPT mock = new MockGPT();
-                //String details = mock.processRequest(prompt);
+                
+                //chatGPT call used to get back chatGPT output
                 ChatGPT chatGPT = new ChatGPT();
                 String details = chatGPT.processRequest(prompt + " generate a recipe");
+                
+                //parse output of ChatGPT
                 String[] parts = details.split("\n");
-                System.out.println(details); //uncomment when using API
+                System.out.println(details);
                 RecipeItem newRecipe = new RecipeItem();
                 newRecipe.setRecipeTitle(parts[2]);
                 String detailsWithNoTitle = details.replace(parts[2], "");
                 newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
-                //newRecipe.setRecipeTitle(parts[0]);
-                //newRecipe.setRecipeDescription(details.replace(parts[0], ""));
+
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true, true);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);
-                //recorder.stopRecording();
             } catch (Exception ex){
                 System.out.println("Error generating");
             };
