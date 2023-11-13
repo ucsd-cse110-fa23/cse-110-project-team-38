@@ -1,5 +1,6 @@
 package PantryPal.client;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /* 
@@ -41,7 +42,6 @@ public class RecipeEncryptor {
                 byteArray[j] = Byte.parseByte(stringArray[j]);
             }
             titleDescCombo[i] = new String(byteArray);
-
         }
         return titleDescCombo;
     }

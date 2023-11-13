@@ -21,6 +21,9 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 import java.io.File;
 import java.util.stream.Collectors;
+
+import PantryPal.server.serverTestApp.Model;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -45,7 +48,6 @@ class Constants {
     public static final int MAX_DESCRIPTION_LENGTH = 40;
 }
 
-
 class RecipeList extends VBox {
     RecipeList() {
         this.setSpacing(5);
@@ -54,21 +56,21 @@ class RecipeList extends VBox {
         this.loadRecipes();
         // this.addMocks();
     }
-    
-    public void addMocks(){
+
+    public void addMocks() {
         RecipeItem mock1 = new RecipeItem();
         mock1.setRecipeTitle("Bacon and Eggs");
         mock1.setRecipeDescription("You take the moon and you take the sun");
-        
+
         RecipeItem mock2 = new RecipeItem();
         mock2.setRecipeTitle("Shrimp Fried Rice");
         mock2.setRecipeDescription("So you're telling me a SHRIMP fried this rice!?");
-        
+
         RecipeItem mock3 = new RecipeItem();
         mock3.setRecipeTitle("Nothing burger");
         mock3.setRecipeDescription("Absolutely nothing");
 
-        this.getChildren().addAll(mock1,mock2,mock3);
+        this.getChildren().addAll(mock1, mock2, mock3);
     }
 
     public void removeRecipe(RecipeItem recipeItem) {
@@ -84,7 +86,7 @@ class RecipeList extends VBox {
                 RecipeItem recipe = new RecipeItem();
                 String line = scanner.nextLine();
                 String[] recipeInfo = RecipeEncryptor.decryptRecipeInfo(line);
-                
+
                 recipe.setRecipeTitle(recipeInfo[0]);
                 recipe.setRecipeDescription(recipeInfo[1]);
 
@@ -96,8 +98,6 @@ class RecipeList extends VBox {
             System.err.println(e.getMessage());
         }
     }
-
-    
 
     /**
      * 
@@ -111,7 +111,8 @@ class RecipeList extends VBox {
             for (Node node : this.getChildren()) {
                 if (node instanceof RecipeItem) {
                     RecipeItem recipe = (RecipeItem) node;
-                    String encryption = RecipeEncryptor.encryptRecipeInfo(recipe.getFullRecipeTitle(), recipe.getFullRecipeDescription());
+                    String encryption = RecipeEncryptor.encryptRecipeInfo(recipe.getFullRecipeTitle(),
+                            recipe.getFullRecipeDescription());
                     System.out.println(encryption);
 
                     writer.println(encryption);
@@ -119,6 +120,18 @@ class RecipeList extends VBox {
             }
         } catch (IOException ex) {
             System.err.println("Error writing to CSV: " + ex.getMessage());
+        }
+    }
+
+    public void saveRecipesToServer() {
+        Model request = new Model();
+        for (Node node : this.getChildren()) {
+            if (node instanceof RecipeItem) {
+                RecipeItem recipe = (RecipeItem) node;
+                String response = request.performRequest("PUT",recipe.getFullRecipeTitle(),recipe.getFullRecipeDescription(),null);
+                System.out.println("Response:" + response);
+            
+            }
         }
     }
 
@@ -215,6 +228,7 @@ class Footer extends HBox {
         saveRecipesButton.setOnAction(e -> {
             AppFrame appFrame = (AppFrame) this.getParent();
             appFrame.getRecipeList().saveRecipes();
+            appFrame.getRecipeList().saveRecipesToServer();
         });
 
         this.getChildren().addAll(saveRecipesButton, saveToCSVButton);

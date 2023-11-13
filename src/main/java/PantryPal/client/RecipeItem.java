@@ -4,7 +4,6 @@ package PantryPal.client;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -15,8 +14,6 @@ public class RecipeItem extends HBox {
     private VBox detailsBox;
     private Label recipeTitleLabel;
     private Label recipeDescriptionLabel;
-    private Button editButton;
-    private Button deleteButton;
     private String fullRecipeTitle;
     private String fullRecipeDescription;
 
@@ -47,28 +44,13 @@ public class RecipeItem extends HBox {
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(buttonBox, Priority.ALWAYS);
 
-        editButton = new Button("Edit");
-        editButton.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0;");
-        buttonBox.getChildren().add(editButton);
 
-        deleteButton = new Button("Delete");
-        deleteButton.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0;");
-        buttonBox.getChildren().add(deleteButton);
 
-        this.getChildren().add(buttonBox);
+        
+        this.setOnMouseClicked(e -> {
 
-        deleteButton.setOnAction(e -> {
-            if (this.getParent() instanceof RecipeList) {
-                RecipeList parentList = (RecipeList) this.getParent();
-                parentList.removeRecipe(this);
-                parentList.saveRecipes();
-                
-            }
-        });
-
-        editButton.setOnAction(e -> {
             AppFrame appFrame = (AppFrame) this.getScene().getRoot();
-            RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this);
+            RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
             Stage stage = (Stage) this.getScene().getWindow();
             stage.getScene().setRoot(detailsPage);
         });
@@ -103,14 +85,6 @@ public class RecipeItem extends HBox {
 
     public String getRecipeDescription() {
         return this.recipeDescriptionLabel.getText();
-    }
-
-    public Button getEditButton() {
-        return this.editButton;
-    }
-
-    public Button getDeleteButton() {
-        return this.deleteButton;
     }
 
 }
