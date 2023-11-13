@@ -1,5 +1,6 @@
 package PantryPal.client;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /* 
@@ -21,10 +22,7 @@ public class RecipeEncryptor {
         return str.replace("[","").replace("]", "").replace(", ", "-").split("-");
     }
     public static String encryptRecipeInfo(String recipeTitle, String recipeDescription) {
-        byte[] titleBytes = recipeTitle.getBytes();
-        byte[] descriptionBytes = recipeDescription.getBytes();
-        return encryptSingle(Arrays.toString(titleBytes)) + "/" + encryptSingle(Arrays.toString(descriptionBytes));
-
+        return encryptSingle(recipeTitle) + "/" + encryptSingle(recipeDescription);
     }
 
     /*
@@ -44,7 +42,7 @@ public class RecipeEncryptor {
                 byteArray[j] = Byte.parseByte(stringArray[j]);
             }
             titleDescCombo[i] = new String(byteArray);
-
+            System.out.println("boob");
         }
         return titleDescCombo;
     }
