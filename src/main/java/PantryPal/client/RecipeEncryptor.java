@@ -21,10 +21,7 @@ public class RecipeEncryptor {
         return str.replace("[","").replace("]", "").replace(", ", "-").split("-");
     }
     public static String encryptRecipeInfo(String recipeTitle, String recipeDescription) {
-        byte[] titleBytes = recipeTitle.getBytes();
-        byte[] descriptionBytes = recipeDescription.getBytes();
-        return encryptSingle(Arrays.toString(titleBytes)) + "/" + encryptSingle(Arrays.toString(descriptionBytes));
-
+        return encryptSingle(recipeTitle) + "/" + encryptSingle(recipeDescription);
     }
 
     /*
