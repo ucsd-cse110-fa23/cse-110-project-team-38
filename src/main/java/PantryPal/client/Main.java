@@ -100,10 +100,7 @@ class RecipeList extends VBox {
     }
 
     /**
-     * 
-     * looks like
-     * 12 123 40 94 99, 39 71 61 46 32 55 11 3 3 20 90
-     * 134 99 30 293 93 20 10 43, 12 03 57 18 97 36 47 119 101
+     * saves all recipes to local file after encoding
      */
     public void saveRecipes() {
         File file = new File("savedRecipes.csv");
@@ -114,7 +111,6 @@ class RecipeList extends VBox {
                     String encryption = RecipeEncryptor.encryptRecipeInfo(recipe.getFullRecipeTitle(),
                             recipe.getFullRecipeDescription());
                     System.out.println(encryption);
-
                     writer.println(encryption);
                 }
             }
@@ -123,6 +119,9 @@ class RecipeList extends VBox {
         }
     }
 
+    /*
+     * saves recipes to the HTTP server, if its running
+     */
     public void saveRecipesToServer() {
         Model request = new Model();
         for (Node node : this.getChildren()) {
@@ -135,20 +134,6 @@ class RecipeList extends VBox {
         }
     }
 
-    public void exportToCSV(File file) {
-        try (PrintWriter writer = new PrintWriter(file)) {
-            writer.println("Title,Description");
-            for (Node node : this.getChildren()) {
-                if (node instanceof RecipeItem) {
-                    RecipeItem recipe = (RecipeItem) node;
-                    byte[] descriptionByte = recipe.getRecipeDescription().getBytes();
-                    writer.println(recipe.getRecipeTitle() + "," + descriptionByte.toString());
-                }
-            }
-        } catch (IOException ex) {
-            System.err.println("Error writing to CSV: " + ex.getMessage());
-        }
-    }
 }
 
 class Header extends VBox {
@@ -201,26 +186,7 @@ class Footer extends HBox {
         this.setPrefSize(500, 40);
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
 
-        saveToCSVButton = new Button("Save as CSV Files");
-        saveToCSVButton.setStyle(
-                "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        saveToCSVButton.setPrefSize(140, 40);
-
-        saveToCSVButton.setOnAction(e -> {
-            if (this.getParent() instanceof AppFrame) {
-                AppFrame appFrame = (AppFrame) this.getParent();
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Save Contacts");
-                fileChooser.getExtensionFilters().add(
-                        new ExtensionFilter("CSV Files", "*.csv"));
-                File file = fileChooser.showSaveDialog(null);
-                if (file != null) {
-                    appFrame.getRecipeList().exportToCSV(file);
-                }
-            }
-        });
-
-        saveRecipesButton = new Button("Save Recipes");
+        saveRecipesButton = new Button("Save All Recipes");
         saveRecipesButton.setStyle(
                 "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
         saveRecipesButton.setPrefSize(140, 40);
@@ -231,11 +197,7 @@ class Footer extends HBox {
             appFrame.getRecipeList().saveRecipesToServer();
         });
 
-        this.getChildren().addAll(saveRecipesButton, saveToCSVButton);
-    }
-
-    public Button getSaveToCSVButton() {
-        return saveToCSVButton;
+        this.getChildren().addAll(saveRecipesButton);
     }
 
     public Button getSaveRecipesButton() {
