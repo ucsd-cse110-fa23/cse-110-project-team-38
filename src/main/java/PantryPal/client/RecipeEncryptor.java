@@ -42,7 +42,6 @@ public class RecipeEncryptor {
                 byteArray[j] = Byte.parseByte(stringArray[j]);
             }
             titleDescCombo[i] = new String(byteArray);
-            System.out.println("boob");
         }
         return titleDescCombo;
     }
