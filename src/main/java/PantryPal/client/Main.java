@@ -191,11 +191,13 @@ class Header extends VBox {
 
 }
 
+
 class Footer extends HBox {
-    private Button saveToCSVButton;
-    private Button saveRecipesButton;
+    //private Button saveToCSVButton;
+    //private Button saveRecipesButton;
 
     Footer() {
+        /* 
         this.setPrefSize(500, 40);
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
 
@@ -238,8 +240,10 @@ class Footer extends HBox {
 
     public Button getSaveRecipesButton() {
         return saveRecipesButton;
+        */
     }
 }
+
 
 class AppFrame extends BorderPane {
 

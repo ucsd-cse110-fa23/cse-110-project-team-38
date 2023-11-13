@@ -1,5 +1,9 @@
 package PantryPal.client;
 
+
+
+import javafx.application.Application;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
@@ -57,6 +61,7 @@ class RecipeDetailsPage extends VBox {
             }
 
             if (currentRecipeItem == null || generated) {
+
                 currentRecipeItem = new RecipeItem();
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
@@ -64,9 +69,13 @@ class RecipeDetailsPage extends VBox {
             } else {
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
+                appFrame.getRecipeList().saveRecipes();
             }
 
+            appFrame.getRecipeList().saveRecipes();
+            
             setEditableMode(false);
+
         });
 
         editButton = new Button("Edit");
@@ -93,6 +102,7 @@ class RecipeDetailsPage extends VBox {
         if (parentList != null) {
             parentList.removeRecipe(currentRecipeItem);
         }
+        parentList.saveRecipes();
         goBack();
     }
 
