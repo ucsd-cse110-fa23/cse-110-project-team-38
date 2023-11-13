@@ -10,7 +10,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
 
-public class AudioRecorder {
+public class AudioRecorder implements IAudioRecorder {
     private AudioFormat audioFormat = getAudioFormat();
     public TargetDataLine targetDataLine;
     private AudioFormat getAudioFormat() {
