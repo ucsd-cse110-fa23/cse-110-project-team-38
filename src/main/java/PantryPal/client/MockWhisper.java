@@ -9,4 +9,8 @@ public class MockWhisper implements IWhisper {
     public String sendRequest() throws IOException, URISyntaxException {
         return "Test Prompt";
     }
+
+    public String sendRequest(String input) {
+        return input;
+    }
 }
