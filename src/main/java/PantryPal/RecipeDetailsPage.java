@@ -43,7 +43,7 @@ class RecipeDetailsPage extends VBox {
         styleTextInputControl(descriptionField,true,"Monaco");
         descriptionField.setEditable(isEditable);
 
-        backButton = new Button("<- Back");
+        backButton = new Button("<- ");
         styleButton(backButton);
         backButton.setOnAction(e -> goBack());
 
