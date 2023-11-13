@@ -34,6 +34,8 @@ public class RecipeSavingTest {
     //Test saving to server and getting
     public void saveRecipeToServer() {
         try {
+            item.setRecipeTitle("Steak and Eggs");
+            item.setRecipeDescription("Ingredients... instructions...");
             String title = RecipeEncryptor.encryptSingle("Steak and Eggs");
             String description = RecipeEncryptor.encryptSingle("Ingredients... instructions...");
             Model model = new Model();
@@ -42,7 +44,7 @@ public class RecipeSavingTest {
             model.performRequest("POST", title, description, null);
 
             String response = model.performRequest("GET", null, null, query);
-            assertEquals("Ingredients... instructions...", response);
+            assertEquals(item.getFullRecipeDescription(), response);
         } catch (Exception err) {
             System.out.println("Handle exceptions");
         }
