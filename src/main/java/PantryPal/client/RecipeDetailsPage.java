@@ -61,13 +61,12 @@ class RecipeDetailsPage extends VBox {
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
                 appFrame.getRecipeList().getChildren().add(currentRecipeItem);
-                System.out.println("Hello!");
             } else {
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
             }
 
-            goBack();
+            setEditableMode(false);
         });
 
         editButton = new Button("Edit");
