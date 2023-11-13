@@ -18,30 +18,30 @@ public class Controller {
     }
 
     private void handlePostButton(ActionEvent event) {
-        String title = RecipeEncryptor.encryptSingle(view.getTitle());
-        String description = RecipeEncryptor.encryptSingle(view.getDescription());
-        //encrypt then post
+        String title = view.getTitle();
+        String description = view.getDescription();
+        
         String response = model.performRequest("POST", title, description, null);
         view.showAlert("Response", response);
     }
 
     private void handleGetButton(ActionEvent event) {
-        //encrypt query field
-        String query = RecipeEncryptor.encryptSingle(view.getQuery());
+        
+        String query = view.getQuery();
         String response = model.performRequest("GET", null, null, query);
         view.showAlert("Response", response);
     }
 
     private void handlePutButton(ActionEvent event) {
-        // encrypt before sending
-        String title = RecipeEncryptor.encryptSingle(view.getTitle());
-        String description = RecipeEncryptor.encryptSingle(view.getDescription());
+        
+        String title = view.getTitle();
+        String description = view.getDescription();
         String response = model.performRequest("PUT", title, description, null);
         view.showAlert("Response", response);
     }
 
     private void handleDeleteButton(ActionEvent event) {
-        String query = RecipeEncryptor.encryptSingle(view.getQuery());
+        String query = view.getQuery();
         String response = model.performRequest("DELETE", null, null, query);
         view.showAlert("Response", response);
     }

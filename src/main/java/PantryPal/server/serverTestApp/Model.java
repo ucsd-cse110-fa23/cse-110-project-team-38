@@ -5,6 +5,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import PantryPal.client.RecipeEncryptor;
+
 import java.net.URI;
 
 
@@ -12,6 +15,9 @@ public class Model {
     public String performRequest(String method, String title, String description, String query) {
         // Implement your HTTP request logic here and return the response
 
+        //encrypt all fields before sending requests
+        title = RecipeEncryptor.encryptSingle(title);
+        description = RecipeEncryptor.encryptSingle(description);
         try {
             String urlString = "http://localhost:8100/";
             if (query != null) {
