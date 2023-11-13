@@ -19,7 +19,7 @@ public class Whisper implements IWhisper {
     private static final String API_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";
     private static final String TOKEN = "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";
     private static final String MODEL = "whisper-1";
-    private static final String FILE_PATH = "/Users/thomas/Desktop/cse110project/cse-110-project-team-38/recording.wav"; //fill with certain file path for audio
+    private static final String FILE_PATH = "recording.wav"; //fill with certain file path for audio
 
     // Helper method to write a parameter to the output stream in multipart form data format
     public static void writeParameterToOutputStream(
