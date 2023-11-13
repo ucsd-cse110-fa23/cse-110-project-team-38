@@ -30,16 +30,17 @@ class RecipeDetailsPage extends VBox {
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
-        Label titleLabel = new Label("Title");
+        Label titleLabel = new Label("What To Cook Today?");
         styleLabels(titleLabel);
         titleField = new TextField(recipeItem.getFullRecipeTitle());
-        styleTextInputControl(titleField);
+        //titleField.setStyle("-fx-font-weight: bold; -fx-text-fill: darkblue;");
+        styleTextInputControl(titleField,false,"Monaco");
         titleField.setEditable(isEditable);
 
-        Label descriptionLabel = new Label("Description");
+        Label descriptionLabel = new Label("Ingredients & Directions");
         styleLabels(descriptionLabel);
         descriptionField = new TextArea(recipeItem.getFullRecipeDescription());
-        styleTextInputControl(descriptionField);
+        styleTextInputControl(descriptionField,true,"Monaco");
         descriptionField.setEditable(isEditable);
 
         backButton = new Button("<- Back");
@@ -110,21 +111,34 @@ class RecipeDetailsPage extends VBox {
     }
 
     private void styleLabels(Label label) {
-        label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
+        label.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;-fx-font-family: Impact; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
     }
+   
 
-    private void styleTextInputControl(TextInputControl control) {
-        control.setPrefHeight(40);
-        control.setStyle("-fx-font-size: 16px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
-        if (control instanceof TextArea) {
-            ((TextArea) control).setPrefHeight(200);
+    // private void styleTextInputControl(TextInputControl control) {
+    //     control.setPrefHeight(40);
+    //     control.setStyle("-fx-font-size: 25px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
+    //     if (control instanceof TextArea) {
+    //         ((TextArea) control).setPrefHeight(350);
+    //     }
+    // }
+
+    private void styleTextInputControl(TextInputControl control, boolean isTextArea, String fontFamily) {
+        control.setPrefHeight(40);  
+    
+        if (isTextArea) {
+            control.setStyle("-fx-font-size: 14px; -fx-font-family: '" + fontFamily + "';-fx-background-color: #F5F5F5; -fx-border-radius: 5; -fx-border-color: #CCCCCC; -fx-padding: 5 10;");
+            ((TextArea) control).setPrefHeight(360);  
+        } else {
+            control.setStyle("-fx-font-size: 18px; -fx-font-style: italic; -fx-font-family: '" + fontFamily + "'; -fx-background-color: #F5F5F5; -fx-border-radius: 5; -fx-border-color: #CCCCCC; -fx-padding: 5 10; -fx-font-weight: bold;");
         }
     }
+    
 
     private void styleButton(Button button) {
-        button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+        button.setStyle("-fx-font-size: 16px; -fx-font-family: Impact;-fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px;-fx-font-family: Impact; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-font-family: Impact;-fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
     }
 
 }
