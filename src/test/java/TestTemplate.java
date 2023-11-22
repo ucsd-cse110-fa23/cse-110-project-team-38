@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test;
 
 import PantryPal.client.Main;
-import PantryPal.client.RecipeItem;
+import PantryPal.server.RecipeItem;
 
 // import org.osgi.framework.Constants;
 import org.junit.jupiter.api.BeforeEach;

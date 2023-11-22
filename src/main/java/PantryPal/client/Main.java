@@ -22,6 +22,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.File;
 import java.util.stream.Collectors;
 
+import PantryPal.server.RecipeItem;
 import PantryPal.server.serverTestApp.Model;
 
 import java.util.List;

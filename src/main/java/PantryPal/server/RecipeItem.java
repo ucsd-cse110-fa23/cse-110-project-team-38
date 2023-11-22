@@ -1,7 +1,10 @@
-package PantryPal.client;
+package PantryPal.server;
 
 
 
+import PantryPal.client.AppFrame;
+import PantryPal.client.Constants;
+import PantryPal.client.RecipeDetailsPage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

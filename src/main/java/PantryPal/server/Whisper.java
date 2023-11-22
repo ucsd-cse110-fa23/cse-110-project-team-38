@@ -1,4 +1,4 @@
-package PantryPal.client;
+package PantryPal.server;
 
 
 import java.io.BufferedReader;
@@ -14,6 +14,8 @@ import java.net.URL;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import PantryPal.client.IWhisper;
 
 public class Whisper implements IWhisper {
     private static final String API_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";

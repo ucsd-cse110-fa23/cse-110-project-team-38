@@ -2,6 +2,7 @@ package PantryPal.client;
 
 
 
+import PantryPal.server.RecipeItem;
 import javafx.application.Application;
 
 import javafx.scene.control.Button;

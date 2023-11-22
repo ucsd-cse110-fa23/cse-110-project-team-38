@@ -1,4 +1,4 @@
-package PantryPal.client;
+package PantryPal.server;
 
 
 import java.io.IOException;
@@ -10,6 +10,8 @@ import java.net.http.HttpResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import PantryPal.client.IGPT;
 
 public class ChatGPT implements IGPT {
     private static final String API_ENDPOINT = "https://api.openai.com/v1/completions";

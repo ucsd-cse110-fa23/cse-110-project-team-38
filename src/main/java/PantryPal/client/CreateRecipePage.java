@@ -3,6 +3,11 @@ package PantryPal.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+
+import PantryPal.server.AudioRecorder;
+import PantryPal.server.ChatGPT;
+import PantryPal.server.RecipeItem;
+import PantryPal.server.Whisper;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
