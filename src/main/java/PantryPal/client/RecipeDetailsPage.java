@@ -9,6 +9,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
@@ -87,7 +89,13 @@ class RecipeDetailsPage extends VBox {
         styleButton(deleteButton);
         deleteButton.setOnAction(e -> deleteRecipe());
 
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, editButton, deleteButton, doneButton);
+        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, editButton, deleteButton, doneButton, new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"));
+        //this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, editButton, deleteButton, doneButton);
+
+        ScrollPane scroller = new ScrollPane();
+        scroller.setContent(this);
+        scroller.setFitToWidth(true);
+        scroller.setFitToHeight(true);
     }
 
     private void setEditableMode(boolean editable) {

@@ -266,6 +266,13 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    @Override
+    public void stop(){
+        //TODO: add logic to delete existing pictures of recipes
+        System.out.println("Stage is closing");
+        // Save file
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
