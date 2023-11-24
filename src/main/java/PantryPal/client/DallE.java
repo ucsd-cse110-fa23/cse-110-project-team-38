@@ -58,13 +58,15 @@ public class DallE implements IDallE {
         System.out.println(generatedImageURL);
 
         // Download the Generated Image to Current Directory
+        String newFileName = prompt.replaceAll("\\s", "");
+        String newPath = "images/" + newFileName + ".jpg";
         try(
             InputStream in = new URI(generatedImageURL).toURL().openStream()
         )
         {
-            Files.copy(in, Paths.get("image.jpg"));
+            Files.copy(in, Paths.get(newPath));
         }
 
-        return "image.jpg";
+        return newPath;
     }
 }

@@ -268,9 +268,11 @@ public class Main extends Application {
 
     @Override
     public void stop(){
-        //TODO: add logic to delete existing pictures of recipes
+        //deletes existing images of recipes
+        for(File file: new File("images").listFiles()) 
+        if (!file.isDirectory()) 
+            file.delete();
         System.out.println("Stage is closing");
-        // Save file
     }
 
     public static void main(String[] args) {
