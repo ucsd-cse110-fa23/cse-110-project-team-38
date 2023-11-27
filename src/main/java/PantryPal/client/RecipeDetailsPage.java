@@ -22,6 +22,7 @@ class RecipeDetailsPage extends VBox {
     private Button backButton;
     private Button editButton;
     private Button deleteButton;
+    private Button regenerateButton;
     private RecipeItem currentRecipeItem;
     private AppFrame appFrame;
     private boolean generated = false;
@@ -87,7 +88,12 @@ class RecipeDetailsPage extends VBox {
         styleButton(deleteButton);
         deleteButton.setOnAction(e -> deleteRecipe());
 
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, editButton, deleteButton, doneButton);
+        regenerateButton = new Button("Regenerate");
+        styleButton(regenerateButton);
+        regenerateButton.setVisible(generated);
+        regenerateButton.setOnAction(e -> regenerateRecipe());
+
+        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, editButton, deleteButton, doneButton, regenerateButton);
     }
 
     private void setEditableMode(boolean editable) {
@@ -148,6 +154,31 @@ class RecipeDetailsPage extends VBox {
         button.setStyle("-fx-font-size: 16px; -fx-font-family: Impact;-fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;");
         button.setOnMouseEntered(e -> button.setStyle("-fx-font-size: 16px;-fx-font-family: Impact; -fx-background-color: " + Constants.BUTTON_HOVER_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
         button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-font-family: Impact;-fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
+    }
+
+    private void regenerateRecipe() {
+        //TODO: move logic to server side
+        
+        try {
+            //whisper API used to get text from audio
+            Whisper whisper = new Whisper();
+            String prompt = whisper.sendRequest(); //the audio
+            System.out.println("Request sent");
+            
+            //chatGPT call used to get back chatGPT output
+            ChatGPT chatGPT = new ChatGPT();
+            String details = chatGPT.processRequest(prompt + " generate a recipe");
+
+            //parse output of ChatGPT
+            String[] parts = details.split("\n");
+            System.out.println(details);
+            titleField.setText(parts[2]);
+            String detailsWithNoTitle = details.replace(parts[2], "");
+            descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n", ""));
+        }
+        catch (Exception err) {
+            System.out.println("Error regenerating");
+        }
     }
 
 }
