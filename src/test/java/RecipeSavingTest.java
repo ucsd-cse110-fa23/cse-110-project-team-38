@@ -88,7 +88,7 @@ public class RecipeSavingTest {
             Model model = new Model();
             String query = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
             
-            model.performRequest("POST", title, description, null);
+            model.performRequest("PUT", title, description, null);
 
             String response = model.performRequest("GET", null, null, query);
             assertEquals(item.getFullRecipeDescription(), response);

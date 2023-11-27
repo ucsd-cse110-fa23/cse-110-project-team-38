@@ -175,6 +175,7 @@ class RecipeDetailsPage extends VBox {
 
     private String generateImage() {
         //TODO: Convert to server call logic when ready
+        //ideally have server call do the generation and this function will return the image path
         
         DallE dalle = new DallE();
         String imagePath;
