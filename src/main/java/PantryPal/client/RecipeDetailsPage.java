@@ -104,13 +104,7 @@ class RecipeDetailsPage extends VBox {
         imageView.setFitWidth(250);
         imageView.setPreserveRatio(true);
 
-        //this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, editButton, deleteButton, doneButton, new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"), new Label("test"));
         this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton);
-
-        ScrollPane scroller = new ScrollPane();
-        scroller.setContent(this);
-        scroller.setFitToWidth(true);
-        scroller.setFitToHeight(true);
     }
 
     private void setEditableMode(boolean editable) {
