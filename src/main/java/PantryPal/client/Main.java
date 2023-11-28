@@ -258,12 +258,17 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        AppFrame root = new AppFrame();
-        primaryStage.setTitle("Pantry Pal");
-        primaryStage.setScene(new Scene(root, 500, 600));
-        primaryStage.setResizable(false);
+        LoginPage loginPage = new LoginPage(primaryStage);
+        Scene scene = new Scene(loginPage, 300, 200);
+        primaryStage.setTitle("Pantry Pal Login");
+        primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        DatabaseConnect.close();
+        super.stop();
     }
 
     public static void main(String[] args) {
