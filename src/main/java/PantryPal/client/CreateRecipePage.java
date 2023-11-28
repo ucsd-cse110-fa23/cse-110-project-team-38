@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 
 import PantryPal.server.AudioRecorder;
 import PantryPal.server.ChatGPT;
-import PantryPal.server.RecipeItem;
 import PantryPal.server.Whisper;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -66,8 +65,6 @@ public class CreateRecipePage extends VBox {
             };
         });
         saveButton(micButton);
-
-    
 
         generatingLabel = new Label("Generating...");
         generatingLabel.setStyle(defaultLabelStyle);

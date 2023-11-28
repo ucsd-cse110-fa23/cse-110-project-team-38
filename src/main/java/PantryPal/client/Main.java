@@ -22,7 +22,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.File;
 import java.util.stream.Collectors;
 
-import PantryPal.server.RecipeItem;
+import PantryPal.server.StringPacker;
 import PantryPal.server.serverTestApp.Model;
 
 import java.util.List;
@@ -50,10 +50,12 @@ class Constants {
 }
 
 class RecipeList extends VBox {
+
     RecipeList() {
         this.setSpacing(5);
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
+        
         this.loadRecipes();
         // this.addMocks();
     }
@@ -78,7 +80,57 @@ class RecipeList extends VBox {
         this.getChildren().remove(recipeItem);
     }
 
-    public void loadRecipes() {
+    /*
+     * Call HTTP get request from HTTP Server
+     */
+
+    public void loadRecipes(){
+        System.out.println("Loading Recipes...");
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run(){
+                System.out.println("Fetching...");
+                Model request = new Model();
+                String response = request.performRequest("GET", "", "", "load");
+                System.out.println("Response:" + response);
+                //separate response!
+                response = response.replace("{","");
+                String[] packages = response.split("}");
+
+                //unpack and add recipes
+                for(String str : packages){
+                    // System.out.println("DEBUG: " + str);
+                    getChildren().add(unpackRecipe(str));
+                }
+                getChildren();
+            }
+        });
+        t.start();
+    }
+    /*
+     * given packaged string in form [11-22-33]/[44-55-66]
+     */
+    public RecipeItem unpackRecipe(String pkg){
+        RecipeItem r = new RecipeItem();
+        
+        // index 0 = title
+        /*
+         * 0 = title
+         * 1 = desc
+         * 2 = ...? nothing yet
+         */
+        String[] unpacked = pkg.split("/");
+        System.out.println("DEBUG: " + (Arrays.toString(unpacked)));
+        if(unpacked.length >= 2){
+            System.out.println("unpacked with size grater than 2!");
+            r.setRecipeTitle(StringPacker.decrypt(unpacked[0]));
+            r.setRecipeDescription(StringPacker.decrypt(unpacked[1]));
+        }
+
+        return r;
+    }
+
+    public void loadRecipesCSV() {
         File file = new File("./savedRecipes.csv");
         try {
             Scanner scanner = new Scanner(file);

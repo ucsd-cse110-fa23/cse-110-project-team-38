@@ -4,7 +4,7 @@ import PantryPal.client.IAudioRecorder;
 import PantryPal.client.MockGPT;
 import PantryPal.client.MockRecorder;
 import PantryPal.client.MockWhisper;
-import PantryPal.server.RecipeItem;
+import PantryPal.client.RecipeItem;
 
 import org.junit.jupiter.api.BeforeEach;
 
