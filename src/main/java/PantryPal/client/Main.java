@@ -191,9 +191,33 @@ class Header extends VBox {
 
 }
 
+
+class Footer extends HBox {
+    private Button logoutButton;
+
+    Footer() {
+        this.setAlignment(Pos.CENTER);
+        this.setPadding(new Insets(10));
+        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
+
+        logoutButton = new Button("Logout");
+        logoutButton.setOnAction(e -> handleLogout());
+        this.getChildren().add(logoutButton);
+    }
+
+    private void handleLogout() {
+        Stage stage = (Stage) this.getScene().getWindow();
+        LoginPage loginPage = new LoginPage(stage);
+        Scene scene = new Scene(loginPage, 300, 200);
+        stage.setScene(scene);
+    }
+}
+
+
 class AppFrame extends BorderPane {
 
     private Header header;
+    private Footer footer;
     private RecipeList recipeList;
     private Button addButton;
 
@@ -212,6 +236,9 @@ class AppFrame extends BorderPane {
         this.setCenter(scroller);
 
         addButton = header.getAddButton();
+
+        footer = new Footer();
+        this.setBottom(footer);
 
         addListeners();
     }
