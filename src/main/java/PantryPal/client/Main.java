@@ -322,6 +322,15 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    @Override
+    public void stop(){
+        //deletes existing images of recipes
+        for(File file: new File("images").listFiles()) 
+        if (!file.isDirectory()) 
+            file.delete();
+        System.out.println("Stage is closing");
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

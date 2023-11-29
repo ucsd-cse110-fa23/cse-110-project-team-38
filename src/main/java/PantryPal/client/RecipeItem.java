@@ -52,10 +52,15 @@ public class RecipeItem extends HBox {
         
         this.setOnMouseClicked(e -> {
 
-            AppFrame appFrame = (AppFrame) this.getScene().getRoot();
-            RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
-            Stage stage = (Stage) this.getScene().getWindow();
-            stage.getScene().setRoot(detailsPage);
+            try {
+                AppFrame appFrame = (AppFrame) this.getScene().getRoot();
+                RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
+                Stage stage = (Stage) this.getScene().getWindow();
+                stage.getScene().setRoot(detailsPage);
+            }
+            catch (Exception err) {
+                System.out.println("Error generating details page");
+            }
         });
     }
 
