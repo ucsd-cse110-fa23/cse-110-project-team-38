@@ -21,7 +21,6 @@ public class DatabaseConnect {
         return database.getCollection(collectionName);
     }
 
-    // Optional: Close the client when the application stops
     public static void close() {
         if (mongoClient != null) {
             mongoClient.close();

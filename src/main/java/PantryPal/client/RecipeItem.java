@@ -1,7 +1,5 @@
 package PantryPal.client;
 
-
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -16,6 +14,8 @@ public class RecipeItem extends HBox {
     private Label recipeDescriptionLabel;
     private String fullRecipeTitle;
     private String fullRecipeDescription;
+    private String recipeId;
+    private boolean generated;
 
     RecipeItem() {
         this.setPrefSize(500, 120);
@@ -44,9 +44,6 @@ public class RecipeItem extends HBox {
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(buttonBox, Priority.ALWAYS);
 
-
-
-        
         this.setOnMouseClicked(e -> {
 
             AppFrame appFrame = (AppFrame) this.getScene().getRoot();
@@ -85,6 +82,22 @@ public class RecipeItem extends HBox {
 
     public String getRecipeDescription() {
         return this.recipeDescriptionLabel.getText();
+    }
+
+    public String getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(String recipeId) {
+        this.recipeId = recipeId;
+    }
+
+    public boolean isGenerated() {
+        return generated;
+    }
+    
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
     }
 
 }

@@ -59,7 +59,7 @@ public class LoginPage extends VBox {
 
         if (userCount == 1) {
             //success login
-            navigateToMainApp(primaryStage);
+            navigateToMainApp(primaryStage, username);
         } else {
             showAlert("Error", "Invalid username or password");
         }
@@ -80,8 +80,8 @@ public class LoginPage extends VBox {
     }
     
 
-    private void navigateToMainApp(Stage primaryStage) {
-        appFrame = new AppFrame();
+    private void navigateToMainApp(Stage primaryStage, String username) {
+        AppFrame appFrame = new AppFrame(username);
         Scene scene = new Scene(appFrame, 500, 600);
         primaryStage.setScene(scene);
     }

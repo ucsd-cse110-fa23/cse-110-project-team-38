@@ -59,24 +59,31 @@ class RecipeDetailsPage extends VBox {
                 showAlert("Incomplete Recipe Details", "Please make sure there are no empty fields!");
                 return;
             }
-
-            if (currentRecipeItem == null || generated) {
-
-                currentRecipeItem = new RecipeItem();
+        
+            if (generated) {
+                if (currentRecipeItem == null) {
+                    currentRecipeItem = new RecipeItem();
+                }
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
-                appFrame.getRecipeList().getChildren().add(0, currentRecipeItem);
+        
+                //only add newRecipe to the list if it's a newly generated recipe
+                if (!appFrame.getRecipeList().getChildren().contains(currentRecipeItem)) {
+                    appFrame.getRecipeList().getChildren().add(0, currentRecipeItem);
+                }
+        
+                this.generated = false; //reset the flag after saving
+                appFrame.getRecipeList().saveRecipes();
             } else {
+                //update the existing recipe
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
                 appFrame.getRecipeList().saveRecipes();
             }
-
-            appFrame.getRecipeList().saveRecipes();
-            
+        
             setEditableMode(false);
-
         });
+        
 
         editButton = new Button("Edit");
         styleButton(editButton);
@@ -123,14 +130,6 @@ class RecipeDetailsPage extends VBox {
         label.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;-fx-font-family: Impact; -fx-text-fill: " + Constants.PRIMARY_COLOR + ";");
     }
    
-
-    // private void styleTextInputControl(TextInputControl control) {
-    //     control.setPrefHeight(40);
-    //     control.setStyle("-fx-font-size: 25px; -fx-background-color: white; -fx-border-radius: 5; -fx-border-color: #B0B0B0; -fx-padding: 5 10;");
-    //     if (control instanceof TextArea) {
-    //         ((TextArea) control).setPrefHeight(350);
-    //     }
-    // }
 
     private void styleTextInputControl(TextInputControl control, boolean isTextArea, String fontFamily) {
         control.setPrefHeight(40);  
