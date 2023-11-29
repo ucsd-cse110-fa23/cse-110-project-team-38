@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="RecipeSavingTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2023-11-28T21:06:43" hostname="MSI" time="0.002">
+  <properties/>
+  <testcase name="saveRecipeToServer()" classname="RecipeSavingTest" time="0.0"/>
+  <testcase name="saveNewlyGeneratedRecipe()" classname="RecipeSavingTest" time="0.0"/>
+  <testcase name="saveEditedRecipe()" classname="RecipeSavingTest" time="0.0"/>
+  <system-out><![CDATA[Handle exceptions
+Handle exceptions
+Handle exceptions
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

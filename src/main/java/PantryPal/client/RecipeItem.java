@@ -1,7 +1,5 @@
 package PantryPal.client;
 
-
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -9,6 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import java.time.LocalDateTime;
 
 public class RecipeItem extends HBox {
     private VBox detailsBox;
@@ -16,8 +15,12 @@ public class RecipeItem extends HBox {
     private Label recipeDescriptionLabel;
     private String fullRecipeTitle;
     private String fullRecipeDescription;
+    private String recipeId;
+    private boolean generated;
+    private LocalDateTime creationTimestamp;
 
     RecipeItem() {
+        this.creationTimestamp = LocalDateTime.now();
         this.setPrefSize(500, 120);
         this.setPadding(new Insets(10));
         this.setStyle("-fx-background-color: white; -fx-border-width: 0 0 1 0; -fx-border-color: "
@@ -44,15 +47,17 @@ public class RecipeItem extends HBox {
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(buttonBox, Priority.ALWAYS);
 
-
-
-        
         this.setOnMouseClicked(e -> {
 
-            AppFrame appFrame = (AppFrame) this.getScene().getRoot();
-            RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
-            Stage stage = (Stage) this.getScene().getWindow();
-            stage.getScene().setRoot(detailsPage);
+            try {
+                AppFrame appFrame = (AppFrame) this.getScene().getRoot();
+                RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
+                Stage stage = (Stage) this.getScene().getWindow();
+                stage.getScene().setRoot(detailsPage);
+            }
+            catch (Exception err) {
+                System.out.println("Error generating details page");
+            }
         });
     }
 
@@ -85,6 +90,25 @@ public class RecipeItem extends HBox {
 
     public String getRecipeDescription() {
         return this.recipeDescriptionLabel.getText();
+    }
+    public LocalDateTime getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public String getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(String recipeId) {
+        this.recipeId = recipeId;
+    }
+
+    public boolean isGenerated() {
+        return generated;
+    }
+    
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
     }
 
 }
