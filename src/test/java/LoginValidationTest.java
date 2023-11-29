@@ -1,32 +1,38 @@
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
-import PantryPal.client.DatabaseConnect;
-
 
 public class LoginValidationTest {
     
-    private static DatabaseConnect dbConnect;
-    private static LoginValidation userValidation;
+    private MongoCollection<Document> usersCollectionMock;
+    private MockMongoCollection loginValidation;
 
-    @BeforeAll
-    static void setUp() {
-        dbConnect = new DatabaseConnect();
-        userValidation = new LoginValidation(DatabaseConnect.getDatabase());
+    @BeforeEach
+    void setUp() {
+        // Mock the MongoCollection
+        usersCollectionMock = Mockito.mock(MongoCollection.class);
+
+        // Create a fake user document
+        Document fakeUser = new Document("username", "admin").append("password", "12345");
+
+        // Mock the behavior of the find method
+        when(usersCollectionMock.find(Mockito.any())).thenReturn(new FindIterableImpl<>(Collections.singletonList(fakeUser)));
+
+        // Instantiate LoginValidation with the mocked collection
+        loginValidation = new MockMongoCollection(usersCollectionMock);
     }
 
     @Test
-    void testValidateUser() {
-        assertTrue(userValidation.validateUser("admin", "12345"));
-        assertFalse(userValidation.validateUser("sadas", "5465"));
+    void testValidUser() {
+        assertTrue(loginValidation.validateUser("admin", "12345"));
     }
 
-    @AfterAll
-    static void tearDown() {
-        DatabaseConnect.close();
+    @Test
+    void testInvalidUser() {
+        assertFalse(loginValidation.validateUser("invalidUser", "wrongPass"));
     }
 }
-
-
-
