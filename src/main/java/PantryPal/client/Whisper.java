@@ -15,6 +15,8 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import PantryPal.server.StringPacker;
+
 public class Whisper implements IWhisper {
     private static final String API_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";
     private static final String TOKEN = "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";
@@ -77,13 +79,14 @@ public class Whisper implements IWhisper {
         in.close();
 
 
-        JSONObject responseJson = new JSONObject(response.toString());
-        String generatedText = responseJson.getString("text");
+        // JSONObject responseJson = new JSONObject("{" + response.toString() + "}");
+        // String generatedText = responseJson.getString("text");
+        // System.out.println(generatedText);
 
-        System.out.println(generatedText);
+        String output = response.toString();
+        System.out.println("From Server: "+ output);
 
-
-        return generatedText;
+        return StringPacker.decrypt(output);
     }
 
     // Helper method to handle an error response
@@ -128,20 +131,12 @@ public class Whisper implements IWhisper {
 
         // Set up output stream to write request body
         OutputStream outputStream = connection.getOutputStream();
-
-
         // Write model parameter to request body
         writeParameterToOutputStream(outputStream, "model", MODEL, boundary);
-
-
         // Write file parameter to request body
         writeFileToOutputStream(outputStream, file, boundary);
-
-
         // Write closing boundary to request body
         outputStream.write(("\r\n--" + boundary + "--\r\n").getBytes());
-
-
         // Flush and close output stream
         outputStream.flush();
         outputStream.close();
@@ -162,6 +157,7 @@ public class Whisper implements IWhisper {
         // Disconnect connection
         connection.disconnect();
 
+        System.out.println("WHISPER GOT: " + response);
         return response;
     }
 }

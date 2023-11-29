@@ -79,40 +79,30 @@ public class CreateRecipePage extends VBox {
                 recorder.stopRecording();
                 
                 //--------------------------
-
-                Model request = new Model();
-                File file = new File(FILE_PATH);
-
-                //should be a chatGPT response
-                String response = request.performRequest("POST", null, null);
-                
                 
                 // //whisper API used to get text from audio
                 Whisper whisper = new Whisper();
-                String whisperRequest = whisper.sendRequest(); //the audio
-                // System.out.println("Request sent");
-                
-                // //chatGPT call used to get back chatGPT output
-                // ChatGPT chatGPT = new ChatGPT();
-                // String details = chatGPT.processRequest(prompt + " generate a recipe");
+                System.out.println("sending request to server...");
+                String response = whisper.sendRequest(); //send request via Whisper, recieve a gpt response
                 
 
                 // //--------------------------
 
 
                 // //parse output of ChatGPT
-                // String[] parts = details.split("\n");
-                // System.out.println(details);
-                // RecipeItem newRecipe = new RecipeItem();
-                // newRecipe.setRecipeTitle(parts[2]);
-                // String detailsWithNoTitle = details.replace(parts[2], "");
-                // newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
+                String[] parts = response.split("\n");
+                System.out.println("GPT response: " + response);
+                RecipeItem newRecipe = new RecipeItem();
+                newRecipe.setRecipeTitle(parts[2]);
+                String detailsWithNoTitle = response.replace(parts[2], "");
+                newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
 
-                // RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true, true);
-                // Stage stage = (Stage) this.getScene().getWindow();
-                // stage.getScene().setRoot(detailsPage);
+                RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true, true);
+                Stage stage = (Stage) this.getScene().getWindow();
+                stage.getScene().setRoot(detailsPage);
             } catch (Exception ex){
-                System.out.println("Error generating");
+                System.out.println("Error Generating!");
+                ex.printStackTrace();
             };
         });
         saveButton(generateButton);

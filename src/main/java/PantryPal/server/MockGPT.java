@@ -1,4 +1,4 @@
-package PantryPal.client;
+package PantryPal.server;
 
 
 

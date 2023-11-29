@@ -110,16 +110,16 @@ public class RecipeRequestHandler implements HttpHandler {
         return sb.toString();
     }
 
-    /*
-     * 
-     */
-    private String handlePost(HttpExchange httpExchange) throws IOException, URISyntaxException {
+    private String handlePost(HttpExchange httpExchange) throws IOException, URISyntaxException, InterruptedException {
         String response = "Got POST";
 
-        //forward our request to whisper
-        String whisperResponse = forwardToWhisper(httpExchange);
+        // forward our request to whisper
+        String whisperResponse = "{\"text\":\"Chocolate and Fish Sticks\"}"; //forwardToWhisper(httpExchange);
         System.out.println("Whisper Response: " + whisperResponse);
-
+        //send to GPT
+        String gptResponse = sendToGPT(whisperResponse);
+        System.out.println("GPT response: " + gptResponse);
+        response = StringPacker.encrypt(gptResponse);
         return response;
     }
 
@@ -130,34 +130,38 @@ public class RecipeRequestHandler implements HttpHandler {
 
         System.out.println("Opening connection to Whisper");
 
-        
         URL url = new URI(API_ENDPOINT).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
-        
+
         // Reuse headers from the original client request
         for (Map.Entry<String, List<String>> header : httpExchange.getRequestHeaders().entrySet()) {
             String headerKey = header.getKey();
             List<String> headerValues = header.getValue();
             for (String value : headerValues) {
                 connection.addRequestProperty(headerKey, value);
-            }   
+            }
         }
 
         // forward our body to WhisperAPI
         httpExchange.getRequestBody().transferTo(connection.getOutputStream());
 
-        //read response from API
+        // read response from API
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String response = in.readLine();
         in.close();
         return response;
     }
 
-
-    public String sendToGPT(String prompt){
-        
+    public String sendToGPT(String prompt) throws IOException, InterruptedException, URISyntaxException {
+        System.out.println("SEND TO GPT prompt: " + prompt);
+        String response = "";
+        // //chatGPT call used to get back chatGPT output
+        ChatGPT chatGPT = new ChatGPT();
+        System.out.println("Processing request...");
+        response = chatGPT.processRequest(prompt + " generate a recipe");
+        return response;
     }
 
     /*

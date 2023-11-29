@@ -1,11 +1,11 @@
 import org.junit.jupiter.api.Test;
 
 import PantryPal.client.IAudioRecorder;
-import PantryPal.client.MockGPT;
 import PantryPal.client.MockRecorder;
 import PantryPal.client.MockWhisper;
 import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
+import PantryPal.server.MockGPT;
 import PantryPal.server.serverTestApp.Model;
 
 import org.junit.jupiter.api.BeforeEach;
