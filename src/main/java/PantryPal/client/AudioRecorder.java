@@ -1,4 +1,4 @@
-package PantryPal.server;
+package PantryPal.client;
 
 
 import java.io.File;
@@ -9,8 +9,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
-
-import PantryPal.client.IAudioRecorder;
 
 public class AudioRecorder implements IAudioRecorder {
     private AudioFormat audioFormat = getAudioFormat();

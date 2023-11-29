@@ -1,15 +1,18 @@
 package PantryPal.server.serverTestApp;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URI;
 
-
 public class Model {
-    public String performRequest(String method, String title, String description, String query) {
+    public String performRequest(String method, String body, String query) {
         // Implement your HTTP request logic here and return the response
 
         try {
@@ -22,9 +25,10 @@ public class Model {
             conn.setRequestMethod(method);
             conn.setDoOutput(true);
 
+            // takes in the body of the whisper request
             if (method.equals("POST") || method.equals("PUT")) {
                 OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
-                out.write(title + "/" + description);
+                out.write(body);
                 out.flush();
                 out.close();
             }
@@ -37,5 +41,25 @@ public class Model {
             ex.printStackTrace();
             return "Error: " + ex.getMessage();
         }
+    }
+
+    public static void writeFileToOutputStream(
+            OutputStream outputStream,
+            File file,
+            String boundary) throws IOException {
+        outputStream.write(("--" + boundary + "\r\n").getBytes());
+        outputStream.write(
+                ("Content-Disposition: form-data; name=\"file\"; filename=\"" +
+                        file.getName() +
+                        "\"\r\n").getBytes());
+        outputStream.write(("Content-Type: audio/mpeg\r\n\r\n").getBytes());
+
+        FileInputStream fileInputStream = new FileInputStream(file);
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+        fileInputStream.close();
     }
 }

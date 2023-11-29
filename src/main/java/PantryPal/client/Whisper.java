@@ -1,4 +1,4 @@
-package PantryPal.server;
+package PantryPal.client;
 
 
 import java.io.BufferedReader;
@@ -14,8 +14,6 @@ import java.net.URL;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import PantryPal.client.IWhisper;
 
 public class Whisper implements IWhisper {
     private static final String API_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";
@@ -80,8 +78,6 @@ public class Whisper implements IWhisper {
 
 
         JSONObject responseJson = new JSONObject(response.toString());
-
-
         String generatedText = responseJson.getString("text");
 
         System.out.println(generatedText);
@@ -106,17 +102,22 @@ public class Whisper implements IWhisper {
         return "Error Result: " + errorResult;
     }
 
+    /*
+     * generates a request to send to the server to be forwarded to whisper
+     */
     public String sendRequest() throws IOException, URISyntaxException {
         File file = new File(FILE_PATH);
         
-        // Set up HTTP connection
-        URL url = new URI(API_ENDPOINT).toURL();
+        // // Set up HTTP connection
+        String urlString = "http://localhost:8100/";
+        URL url = new URI(urlString).toURL();
+
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
 
-
         // Set up request headers
+        //
         String boundary = "Boundary-" + System.currentTimeMillis();
         connection.setRequestProperty(
             "Content-Type",

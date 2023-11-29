@@ -4,6 +4,7 @@ import com.sun.net.httpserver.*;
 
 import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
+import PantryPal.client.Whisper;
 
 import java.io.*;
 import java.net.*;
@@ -78,7 +79,7 @@ public class RecipeRequestHandler implements HttpHandler {
             // ALL REQUESTS ARE IN TERMS OF ENCRYPTED STRINGS
             String specificQuery = query.substring(query.indexOf("=") + 1);
             if (specificQuery != null) {
-                if(specificQuery.equals("load")){
+                if (specificQuery.equals("load")) {
                     response = loadRecipes();
                 }
             }
@@ -92,14 +93,14 @@ public class RecipeRequestHandler implements HttpHandler {
      * {R2 info}\n
      * {R3 info}
      * 
-     * for every recipedata, package its export() into {} 
+     * for every recipedata, package its export() into {}
      * put it into the response
      * 
      * 
      */
-    private String loadRecipes(){
+    private String loadRecipes() {
         StringBuilder sb = new StringBuilder();
-        for(RecipeData r : recipeList){
+        for (RecipeData r : recipeList) {
             String frame = "{";
             frame += r.export();
             frame += "}";
@@ -110,28 +111,53 @@ public class RecipeRequestHandler implements HttpHandler {
     }
 
     /*
-     * POST MUST BE IN FORM:
-     * "[1,2,3]/[4,5,6]"
+     * 
      */
-    private String handlePost(HttpExchange httpExchange) throws IOException {
-        InputStream inStream = httpExchange.getRequestBody();
-        Scanner scanner = new Scanner(inStream);
-        String postData = scanner.nextLine();
+    private String handlePost(HttpExchange httpExchange) throws IOException, URISyntaxException {
+        String response = "Got POST";
 
-        String[] splitData = RecipeEncryptor.comboDivider(postData);
-
-        String encryptedTitle = splitData[0];
-        String encryptedDescription = splitData[1];
-
-        // Store recipes in hashmap
-        recipes.put(encryptedTitle, encryptedDescription);
-
-        String response = "Posted entry {" + RecipeEncryptor.decryptSingle(encryptedTitle) + ", "
-                + RecipeEncryptor.decryptSingle(encryptedDescription) + "}";
-        System.out.println(response);
-        scanner.close();
+        //forward our request to whisper
+        String whisperResponse = forwardToWhisper(httpExchange);
+        System.out.println("Whisper Response: " + whisperResponse);
 
         return response;
+    }
+
+    private String forwardToWhisper(HttpExchange httpExchange) throws URISyntaxException, IOException {
+        final String API_ENDPOINT = "https://api.openai.com/v1/audio/transcriptions";
+        final String TOKEN = "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";
+        final String MODEL = "whisper-1";
+
+        System.out.println("Opening connection to Whisper");
+
+        
+        URL url = new URI(API_ENDPOINT).toURL();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        
+        // Reuse headers from the original client request
+        for (Map.Entry<String, List<String>> header : httpExchange.getRequestHeaders().entrySet()) {
+            String headerKey = header.getKey();
+            List<String> headerValues = header.getValue();
+            for (String value : headerValues) {
+                connection.addRequestProperty(headerKey, value);
+            }   
+        }
+
+        // forward our body to WhisperAPI
+        httpExchange.getRequestBody().transferTo(connection.getOutputStream());
+
+        //read response from API
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String response = in.readLine();
+        in.close();
+        return response;
+    }
+
+
+    public String sendToGPT(String prompt){
+        
     }
 
     /*

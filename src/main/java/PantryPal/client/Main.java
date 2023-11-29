@@ -91,7 +91,7 @@ class RecipeList extends VBox {
             public void run(){
                 System.out.println("Fetching...");
                 Model request = new Model();
-                String response = request.performRequest("GET", "", "", "load");
+                String response = request.performRequest("GET",null, "load");
                 System.out.println("Response:" + response);
                 //separate response!
                 response = response.replace("{","");
@@ -172,20 +172,6 @@ class RecipeList extends VBox {
         }
     }
 
-    /*
-     * saves recipes to the HTTP server, if its running
-     */
-    public void saveRecipesToServer() {
-        Model request = new Model();
-        for (Node node : this.getChildren()) {
-            if (node instanceof RecipeItem) {
-                RecipeItem recipe = (RecipeItem) node;
-                String response = request.performRequest("PUT",recipe.getFullRecipeTitle(),recipe.getFullRecipeDescription(),null);
-                System.out.println("Response:" + response);
-            
-            }
-        }
-    }
 
 }
 
