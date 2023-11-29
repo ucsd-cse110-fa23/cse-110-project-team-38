@@ -35,6 +35,11 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import java.util.Comparator;
+import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
+
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
@@ -133,6 +138,28 @@ class RecipeList extends VBox {
             }
         }
     }
+    public void sortRecipesAlphabetically() {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Sort the recipe items alphabetically based on the recipe titles
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getRecipeTitle()));
+
+        // Clear the existing children and add the sorted recipe items
+        this.getChildren().clear();
+        this.getChildren().addAll(recipeItems);
+    }
+
+    public void sortRecipesChronologically() {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Sort the recipe items chronologically based on the creation timestamp
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()));
+
+        // Clear the existing children and add the sorted recipe items
+        this.getChildren().clear();
+        this.getChildren().addAll(recipeItems);
+    }
+
 
 }
 
@@ -147,6 +174,9 @@ class Header extends VBox {
 
         HBox upperRow = new HBox();
         upperRow.setAlignment(Pos.CENTER);
+
+        HBox upperRowRight = new HBox();
+        upperRowRight.setAlignment(Pos.TOP_RIGHT);
 
         String addButtonStyle = "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 18px;";
         addButton = new Button("+");
@@ -168,6 +198,32 @@ class Header extends VBox {
         upperRow.getChildren().add(rightSpacer);
 
         this.getChildren().addAll(upperRow);
+
+
+        //create a dropdown menu
+        ComboBox<String> sortByComboBox = new ComboBox<>(FXCollections.observableArrayList("Time", "A to Z"));
+        sortByComboBox.setPromptText("Sort By");
+        sortByComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        sortByComboBox.setPrefSize(140, 40);
+
+        sortByComboBox.setOnAction(e -> {
+            if (sortByComboBox.getValue() != null) {
+                if (this.getParent() instanceof AppFrame) {
+                    AppFrame appFrame = (AppFrame) this.getParent();
+                    String sortBy = sortByComboBox.getValue();
+                    if ("Time".equals(sortBy)) {
+                        appFrame.getRecipeList().sortRecipesChronologically();
+                    } else if ("A to Z".equals(sortBy)) {
+                        appFrame.getRecipeList().sortRecipesAlphabetically();
+                    }
+                }
+            }
+        });
+
+        upperRowRight.getChildren().addAll(sortByComboBox);
+
+        this.getChildren().addAll(upperRowRight);
+    
     }
 
     public Button getAddButton() {
