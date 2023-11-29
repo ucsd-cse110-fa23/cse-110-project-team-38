@@ -26,4 +26,8 @@ public class DatabaseConnect {
             mongoClient.close();
         }
     }
+
+    public static MongoDatabase getDatabase() {
+        return mongoClient.getDatabase("PantryPalDB");
+    }
 }
