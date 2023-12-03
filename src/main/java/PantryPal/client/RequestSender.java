@@ -1,4 +1,4 @@
-package PantryPal.server.serverTestApp;
+package PantryPal.client;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,14 +9,20 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import org.json.JSONObject;
+
 import java.net.URI;
 
-public class Model {
-    public String performRequest(String method, String body, String query) {
+public class RequestSender {
+    public String performRequest(String method,String path, JSONObject json, String query) {
         // Implement your HTTP request logic here and return the response
 
         try {
             String urlString = "http://localhost:8100/";
+            //used to add "api" or something if necessary
+            if(path != null) {urlString += path;}
+
             if (query != null) {
                 urlString += "?=" + query;
             }
@@ -25,14 +31,16 @@ public class Model {
             conn.setRequestMethod(method);
             conn.setDoOutput(true);
 
-            // takes in the body of the whisper request
+            // writes the json to the request body
             if (method.equals("POST") || method.equals("PUT")) {
                 OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
-                out.write(body);
+                out.write(json.toString());
                 out.flush();
                 out.close();
             }
 
+
+            //reads the response
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String response = in.readLine();
             in.close();

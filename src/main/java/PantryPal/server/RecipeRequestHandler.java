@@ -2,6 +2,7 @@ package PantryPal.server;
 
 import com.sun.net.httpserver.*;
 
+import PantryPal.client.DatabaseConnect;
 import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
 import PantryPal.client.Whisper;
@@ -9,6 +10,8 @@ import PantryPal.client.Whisper;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import org.json.JSONObject;
 
 import com.sun.net.httpserver.*;
 import java.io.*;
@@ -54,7 +57,7 @@ public class RecipeRequestHandler implements HttpHandler {
                     throw new Exception("Not Valid Request Method");
             }
         } catch (Exception e) {
-            System.out.println("An erroneous request");
+            System.out.println("RecipeRequest Handler got an Exception:");
             response = e.toString();
             e.printStackTrace();
         }
@@ -68,26 +71,40 @@ public class RecipeRequestHandler implements HttpHandler {
     }
 
     /*
-     * GET request, given a title, return the value
+     * all GET requests should be for loading recipes from the DB
      */
     private String handleGet(HttpExchange httpExchange) throws IOException {
 
-        String response = "Invalid GET request";
         URI uri = httpExchange.getRequestURI();
         String query = uri.getRawQuery();
         if (query != null) {
-            // ALL REQUESTS ARE IN TERMS OF ENCRYPTED STRINGS
             String specificQuery = query.substring(query.indexOf("=") + 1);
             if (specificQuery != null) {
-                if (specificQuery.equals("load")) {
-                    response = loadRecipes();
-                }
+                // do we really need to even be checking for the query?
             }
         }
-        return response;
+
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        // username is in the constructor for RecipeList in main, so look there
+        FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
+        JSONObject json = new JSONObject();
+
+        // TODO: add the recipe info to the json
+        for (Document recipeDoc : recipes) {
+            RecipeItem recipe = new RecipeItem();
+            recipe.setRecipeTitle(recipeDoc.getString("title"));
+            recipe.setRecipeDescription(recipeDoc.getString("description"));
+            recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+            // TODO
+        }
+
+        return json.toString();
     }
 
     /*
+     * METHOD TO RETURN FROM VERSION SAVED ON SERVER!!!!!
+     * IS UNUSED 
+     * 
      * Recipes sent in form
      * {[12,43,65]+[51,33,75]}\n
      * {R2 info}\n
@@ -95,8 +112,6 @@ public class RecipeRequestHandler implements HttpHandler {
      * 
      * for every recipedata, package its export() into {}
      * put it into the response
-     * 
-     * 
      */
     private String loadRecipes() {
         StringBuilder sb = new StringBuilder();
@@ -106,60 +121,68 @@ public class RecipeRequestHandler implements HttpHandler {
             frame += "}";
             sb.append(frame);
         }
-
         return sb.toString();
     }
 
-    private String handlePost(HttpExchange httpExchange){
-        String response = "Got save POST";
+    /*
+     * Assuming all POSTs are save requests given ONE recipe in json form
+     */
+    private String handlePost(HttpExchange httpExchange) {
+        String response = "got save POST";
+        JSONObject json = new JSONObject(httpExchange.getRequestBody());
+        // TODO: extract recipe from json
 
-        
+        // Username is from RecipeList in Main... see there for info i guess
+        // TODO: send to db
+        Document recipeDoc = new Document("username", username)
+                .append("title", recipe.getFullRecipeTitle())
+                .append("description", recipe.getFullRecipeDescription());
+
+        if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
+            // Insert new recipe only if it's generated and not yet saved
+            recipesCollection.insertOne(recipeDoc);
+            recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+            recipe.setGenerated(false); // Reset the generated flag
+        } else {
+            // Update existing recipe
+            ObjectId id = new ObjectId(recipe.getRecipeId());
+            Bson filter = Filters.eq("_id", id);
+            recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
+        }
+
         return response;
     }
+
     /*
      * PUT MUST BE IN FORM
      * "[1,2,3]/[4,5,6]"
      */
     private String handlePut(HttpExchange httpExchange) throws IOException {
-        // should update entry OR create
-        InputStream inStream = httpExchange.getRequestBody();
-        Scanner scanner = new Scanner(inStream);
-        String putData = scanner.nextLine();
+        String response = "got PUT";
 
-        String[] splitData = RecipeEncryptor.comboDivider(putData);
-
-        String encryptedTitle = splitData[0];
-        String encryptedDescription = splitData[1];
-
-        scanner.close();
-
-        if (recipes.containsKey(encryptedTitle)) {
-            String prevDescription = RecipeEncryptor.decryptSingle(recipes.get(encryptedTitle));
-            recipes.put(encryptedTitle, encryptedDescription);
-
-            return "Updated entry {" + RecipeEncryptor.decryptSingle(encryptedTitle) +
-                    ", " + RecipeEncryptor.decryptSingle(encryptedDescription) +
-                    "} (previous encryptedDescription:" + prevDescription + ")";
-        } else {
-            recipes.put(encryptedTitle, encryptedDescription);
-            return "Added entry {" + encryptedTitle + ", " + encryptedDescription + "}";
-        }
+        return response;
     }
 
     private String handleDelete(HttpExchange httpExchange) throws IOException {
         String response = "Invalid DELETE request";
+
         URI uri = httpExchange.getRequestURI();
         String query = uri.getRawQuery();
         if (query != null) {
             String encryptedTitle = query.substring(query.indexOf("=") + 1);
-            if (recipes.containsKey(encryptedTitle)) {
-                response = "Deleted entry {" + RecipeEncryptor.decryptSingle(encryptedTitle) + ", " +
-                        RecipeEncryptor.decryptSingle(recipes.get(encryptedTitle)) + "}";
-                recipes.remove(encryptedTitle);
-            } else {
-                response = "No recipes found for " + RecipeEncryptor.decryptSingle(encryptedTitle);
-            }
+            // do we really need anything here??
         }
+        //TODO: I dont actually know if you can send a request body in a DELETE or GET, so this method may not work
+        JSONObject json = new JSONObject(httpExchange.getRequestBody());
+
+        //TODO: encorporate the code!
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        Bson filter = Filters.and(
+                Filters.eq("username", username),
+                Filters.eq("title", recipeItem.getFullRecipeTitle()),
+                Filters.eq("description", recipeItem.getFullRecipeDescription()));
+        recipesCollection.deleteOne(filter);
+
         return response;
 
     }

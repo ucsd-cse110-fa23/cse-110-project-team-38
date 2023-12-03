@@ -3,10 +3,10 @@ import org.junit.jupiter.api.Test;
 import PantryPal.client.IAudioRecorder;
 import PantryPal.client.MockRecorder;
 import PantryPal.client.MockWhisper;
+import PantryPal.client.RequestSender;
 import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
 import PantryPal.server.MockGPT;
-import PantryPal.server.serverTestApp.Model;
 
 import org.junit.jupiter.api.BeforeEach;
 
@@ -37,7 +37,7 @@ public class RecipeDeletingTest {
 
             String title = RecipeEncryptor.encryptSingle("Steak and Eggs");
             String description = RecipeEncryptor.encryptSingle("Ingredients... instructions...");
-            Model model = new Model();
+            RequestSender model = new RequestSender();
             String query = RecipeEncryptor.encryptSingle("Steak and Eggs");
             
             model.performRequest("POST", title, description, null);
@@ -66,7 +66,7 @@ public class RecipeDeletingTest {
 
                 String title = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
                 String description = RecipeEncryptor.encryptSingle(item.getFullRecipeDescription());
-                Model model = new Model();
+                RequestSender model = new RequestSender();
                 String query = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
 
                 model.performRequest("POST", title, description, null);
