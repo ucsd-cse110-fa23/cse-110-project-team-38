@@ -114,7 +114,7 @@ public class RecipeRequestHandler implements HttpHandler {
         String response = "Got POST";
 
         // forward our request to whisper
-        String whisperResponse = "{\"text\":\"Chocolate and Fish Sticks\"}"; //forwardToWhisper(httpExchange);
+        String whisperResponse = forwardToWhisper(httpExchange);
         System.out.println("Whisper Response: " + whisperResponse);
         //send to GPT
         String gptResponse = sendToGPT(whisperResponse);
