@@ -112,7 +112,7 @@ public class Whisper implements IWhisper {
         File file = new File(FILE_PATH);
         
         // // Set up HTTP connection
-        String urlString = "http://localhost:8100/";
+        String urlString = "http://localhost:8100/api";
         URL url = new URI(urlString).toURL();
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
