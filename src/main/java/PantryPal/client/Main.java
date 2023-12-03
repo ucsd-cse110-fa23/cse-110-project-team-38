@@ -22,7 +22,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.io.File;
 import java.util.stream.Collectors;
 
-import PantryPal.server.StringPacker;
 import PantryPal.server.serverTestApp.Model;
 
 import java.util.List;
@@ -36,10 +35,23 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import java.util.Comparator;
+import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
+
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
+
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import com.mongodb.client.FindIterable;
+import static com.mongodb.client.model.Filters.eq;
+import org.bson.types.ObjectId;
 
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
@@ -50,126 +62,117 @@ class Constants {
 }
 
 class RecipeList extends VBox {
-
-    RecipeList() {
+    private String username;
+    RecipeList(String username) {
+        this.username = username;
         this.setSpacing(5);
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
-        
         this.loadRecipes();
-        // this.addMocks();
     }
 
-    public void addMocks() {
-        RecipeItem mock1 = new RecipeItem();
-        mock1.setRecipeTitle("Bacon and Eggs");
-        mock1.setRecipeDescription("You take the moon and you take the sun");
+    // public void addMocks() {
+    //     RecipeItem mock1 = new RecipeItem();
+    //     mock1.setRecipeTitle("Bacon and Eggs");
+    //     mock1.setRecipeDescription("You take the moon and you take the sun");
 
-        RecipeItem mock2 = new RecipeItem();
-        mock2.setRecipeTitle("Shrimp Fried Rice");
-        mock2.setRecipeDescription("So you're telling me a SHRIMP fried this rice!?");
+    //     RecipeItem mock2 = new RecipeItem();
+    //     mock2.setRecipeTitle("Shrimp Fried Rice");
+    //     mock2.setRecipeDescription("So you're telling me a SHRIMP fried this rice!?");
 
-        RecipeItem mock3 = new RecipeItem();
-        mock3.setRecipeTitle("Nothing burger");
-        mock3.setRecipeDescription("Absolutely nothing");
+    //     RecipeItem mock3 = new RecipeItem();
+    //     mock3.setRecipeTitle("Nothing burger");
+    //     mock3.setRecipeDescription("Absolutely nothing");
 
-        this.getChildren().addAll(mock1, mock2, mock3);
-    }
+    //     this.getChildren().addAll(mock1, mock2, mock3);
+    // }
 
     public void removeRecipe(RecipeItem recipeItem) {
+        //remove from the UI
         this.getChildren().remove(recipeItem);
+
+        //remove from database
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        Bson filter = Filters.and(
+                Filters.eq("username", username),
+                Filters.eq("title", recipeItem.getFullRecipeTitle()),
+                Filters.eq("description", recipeItem.getFullRecipeDescription())
+        );
+        recipesCollection.deleteOne(filter);
     }
 
-    /*
-     * Call HTTP get request from HTTP Server
-     */
 
-    public void loadRecipes(){
-        System.out.println("Loading Recipes...");
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run(){
-                System.out.println("Fetching...");
-                Model request = new Model();
-                String response = request.performRequest("GET",null, "load");
-                System.out.println("Response:" + response);
-                //separate response!
-                response = response.replace("{","");
-                String[] packages = response.split("}");
-
-                //unpack and add recipes
-                for(String str : packages){
-                    // System.out.println("DEBUG: " + str);
-                    getChildren().add(unpackRecipe(str));
-                }
-                getChildren();
-            }
-        });
-        t.start();
-    }
-    /*
-     * given packaged string in form [11-22-33]/[44-55-66]
-     */
-    public RecipeItem unpackRecipe(String pkg){
-        RecipeItem r = new RecipeItem();
-        
-        // index 0 = title
-        /*
-         * 0 = title
-         * 1 = desc
-         * 2 = ...? nothing yet
-         */
-        String[] unpacked = pkg.split("/");
-        System.out.println("DEBUG: " + (Arrays.toString(unpacked)));
-        if(unpacked.length >= 2){
-            System.out.println("unpacked with size grater than 2!");
-            r.setRecipeTitle(StringPacker.decrypt(unpacked[0]));
-            r.setRecipeDescription(StringPacker.decrypt(unpacked[1]));
-        }
-
-        return r;
-    }
-
-    public void loadRecipesCSV() {
-        File file = new File("./savedRecipes.csv");
-        try {
-            Scanner scanner = new Scanner(file);
-            System.out.println("loading from: " + file.getPath());
-            while (scanner.hasNext()) {
-                RecipeItem recipe = new RecipeItem();
-                String line = scanner.nextLine();
-                String[] recipeInfo = RecipeEncryptor.decryptRecipeInfo(line);
-
-                recipe.setRecipeTitle(recipeInfo[0]);
-                recipe.setRecipeDescription(recipeInfo[1]);
-
-                // add it to the children list
-                this.getChildren().add(recipe);
-            }
-        } catch (Exception e) {
-            System.out.println("Error during loadRecipes!!!");
-            System.err.println(e.getMessage());
+    public void loadRecipes() {
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
+        for (Document recipeDoc : recipes) {
+            RecipeItem recipe = new RecipeItem();
+            recipe.setRecipeTitle(recipeDoc.getString("title"));
+            recipe.setRecipeDescription(recipeDoc.getString("description"));
+            recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+            this.getChildren().add(recipe);
         }
     }
 
-    /**
-     * saves all recipes to local file after encoding
-     */
     public void saveRecipes() {
-        File file = new File("savedRecipes.csv");
-        try (PrintWriter writer = new PrintWriter(file)) {
-            for (Node node : this.getChildren()) {
-                if (node instanceof RecipeItem) {
-                    RecipeItem recipe = (RecipeItem) node;
-                    String encryption = RecipeEncryptor.encryptRecipeInfo(recipe.getFullRecipeTitle(),
-                            recipe.getFullRecipeDescription());
-                    System.out.println(encryption);
-                    writer.println(encryption);
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        for (Node node : this.getChildren()) {
+            if (node instanceof RecipeItem) {
+                RecipeItem recipe = (RecipeItem) node;
+                Document recipeDoc = new Document("username", username)
+                                        .append("title", recipe.getFullRecipeTitle())
+                                        .append("description", recipe.getFullRecipeDescription());
+
+                if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
+                    // Insert new recipe only if it's generated and not yet saved
+                    recipesCollection.insertOne(recipeDoc);
+                    recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+                    recipe.setGenerated(false); // Reset the generated flag
+                } else {
+                    // Update existing recipe
+                    ObjectId id = new ObjectId(recipe.getRecipeId());
+                    Bson filter = Filters.eq("_id", id);
+                    recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
                 }
             }
-        } catch (IOException ex) {
-            System.err.println("Error writing to CSV: " + ex.getMessage());
         }
+    }
+
+
+    /*
+     * saves recipes to the HTTP server, if its running
+     */
+    public void saveRecipesToServer() {
+        Model request = new Model();
+        for (Node node : this.getChildren()) {
+            if (node instanceof RecipeItem) {
+                RecipeItem recipe = (RecipeItem) node;
+                String response = request.performRequest("PUT",recipe.getFullRecipeTitle(),recipe.getFullRecipeDescription(),null);
+                System.out.println("Response:" + response);
+            
+            }
+        }
+    }
+    public void sortRecipesAlphabetically() {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Sort the recipe items alphabetically based on the recipe titles
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getRecipeTitle()));
+
+        // Clear the existing children and add the sorted recipe items
+        this.getChildren().clear();
+        this.getChildren().addAll(recipeItems);
+    }
+
+    public void sortRecipesChronologically() {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Sort the recipe items chronologically based on the creation timestamp
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()));
+
+        // Clear the existing children and add the sorted recipe items
+        this.getChildren().clear();
+        this.getChildren().addAll(recipeItems);
     }
 
 
@@ -186,6 +189,9 @@ class Header extends VBox {
 
         HBox upperRow = new HBox();
         upperRow.setAlignment(Pos.CENTER);
+
+        HBox upperRowRight = new HBox();
+        upperRowRight.setAlignment(Pos.TOP_RIGHT);
 
         String addButtonStyle = "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 18px;";
         addButton = new Button("+");
@@ -207,6 +213,32 @@ class Header extends VBox {
         upperRow.getChildren().add(rightSpacer);
 
         this.getChildren().addAll(upperRow);
+
+
+        //create a dropdown menu
+        ComboBox<String> sortByComboBox = new ComboBox<>(FXCollections.observableArrayList("Time", "A to Z"));
+        sortByComboBox.setPromptText("Sort By");
+        sortByComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        sortByComboBox.setPrefSize(140, 40);
+
+        sortByComboBox.setOnAction(e -> {
+            if (sortByComboBox.getValue() != null) {
+                if (this.getParent() instanceof AppFrame) {
+                    AppFrame appFrame = (AppFrame) this.getParent();
+                    String sortBy = sortByComboBox.getValue();
+                    if ("Time".equals(sortBy)) {
+                        appFrame.getRecipeList().sortRecipesChronologically();
+                    } else if ("A to Z".equals(sortBy)) {
+                        appFrame.getRecipeList().sortRecipesAlphabetically();
+                    }
+                }
+            }
+        });
+
+        upperRowRight.getChildren().addAll(sortByComboBox);
+
+        this.getChildren().addAll(upperRowRight);
+    
     }
 
     public Button getAddButton() {
@@ -217,31 +249,23 @@ class Header extends VBox {
 
 
 class Footer extends HBox {
-    //private Button saveToCSVButton;
-    //private Button saveRecipesButton;
+    private Button logoutButton;
 
     Footer() {
-        /* 
-        this.setPrefSize(500, 40);
-        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + "; -fx-alignment: center;");
+        this.setAlignment(Pos.CENTER);
+        this.setPadding(new Insets(10));
+        this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
-        saveRecipesButton = new Button("Save All Recipes");
-        saveRecipesButton.setStyle(
-                "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        saveRecipesButton.setPrefSize(140, 40);
-
-        saveRecipesButton.setOnAction(e -> {
-            AppFrame appFrame = (AppFrame) this.getParent();
-            appFrame.getRecipeList().saveRecipes();
-            appFrame.getRecipeList().saveRecipesToServer();
-        });
-
-        this.getChildren().addAll(saveRecipesButton);
+        logoutButton = new Button("Logout");
+        logoutButton.setOnAction(e -> handleLogout());
+        this.getChildren().add(logoutButton);
     }
 
-    public Button getSaveRecipesButton() {
-        return saveRecipesButton;
-        */
+    private void handleLogout() {
+        Stage stage = (Stage) this.getScene().getWindow();
+        LoginPage loginPage = new LoginPage(stage);
+        Scene scene = new Scene(loginPage, 300, 200);
+        stage.setScene(scene);
     }
 }
 
@@ -249,15 +273,15 @@ class Footer extends HBox {
 class AppFrame extends BorderPane {
 
     private Header header;
+    private Footer footer;
     private RecipeList recipeList;
     private Button addButton;
-    private Footer footer;
 
-    AppFrame() {
+    AppFrame(String username) {
         this.setStyle("-fx-background-color: linear-gradient(to bottom, " + Constants.PRIMARY_COLOR + ", "
                 + Constants.SECONDARY_COLOR + ");");
         header = new Header();
-        recipeList = new RecipeList();
+        recipeList = new RecipeList(username);
 
         this.setTop(header);
 
@@ -269,10 +293,10 @@ class AppFrame extends BorderPane {
 
         addButton = header.getAddButton();
 
-        addListeners();
-
         footer = new Footer();
         this.setBottom(footer);
+
+        addListeners();
     }
 
     public void addListeners() {
@@ -297,12 +321,20 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        AppFrame root = new AppFrame();
-        primaryStage.setTitle("Pantry Pal");
-        primaryStage.setScene(new Scene(root, 500, 600));
-        primaryStage.setResizable(false);
+        LoginPage loginPage = new LoginPage(primaryStage);
+        Scene scene = new Scene(loginPage, 300, 200);
+        primaryStage.setTitle("Pantry Pal Login");
+        primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    @Override
+    public void stop(){
+        //deletes existing images of recipes
+        for(File file: new File("images").listFiles()) 
+        if (!file.isDirectory()) 
+            file.delete();
+        System.out.println("Stage is closing");
     }
 
     public static void main(String[] args) {
