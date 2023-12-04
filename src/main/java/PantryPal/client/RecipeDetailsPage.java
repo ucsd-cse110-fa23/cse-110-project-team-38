@@ -5,6 +5,14 @@ package PantryPal.client;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.json.JSONObject;
 
 import javafx.application.Application;
 
@@ -88,6 +96,12 @@ class RecipeDetailsPage extends VBox {
                 //update the existing recipe
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
+                JSONObject obj = new JSONObject();
+                obj.put("title", currentRecipeItem.getFullRecipeTitle());
+                obj.put("description", currentRecipeItem.getFullRecipeDescription());
+                obj.put("username", appFrame.getRecipeList().username);
+                RequestSender request = new RequestSender();
+                String response = request.performRequest("PUT", null, obj, null, appFrame.getRecipeList().username);
                 appFrame.getRecipeList().saveRecipes();
             }
         
@@ -166,11 +180,11 @@ class RecipeDetailsPage extends VBox {
         button.setOnMouseExited(e -> button.setStyle("-fx-font-size: 16px; -fx-font-family: Impact;-fx-background-color: " + Constants.PRIMARY_COLOR + "; -fx-text-fill: white; -fx-border-radius: 5;"));
     }
 
-    private String generateImage() {
+    private String generateImage() throws MalformedURLException, IOException, URISyntaxException {
         //TODO: Convert to server call logic when ready
         //ideally have server call do the generation and this function will return the image path
         
-        DallE dalle = new DallE();
+        /*DallE dalle = new DallE();
         String imagePath;
         try {
             imagePath = dalle.processRequest(currentRecipeItem.getFullRecipeTitle());
@@ -178,8 +192,23 @@ class RecipeDetailsPage extends VBox {
         catch (Exception err) {
             String imageName = currentRecipeItem.getFullRecipeTitle().replaceAll("\\s", "");
             imagePath = "images/" + imageName + ".jpg";
+        }*/
+
+        RequestSender request = new RequestSender();
+        String newFileName = currentRecipeItem.getFullRecipeTitle().replaceAll("\\s", "");
+        String newPath = "images/" + newFileName + ".jpg";
+        String response = request.performRequest("GET", null, null, currentRecipeItem.getFullRecipeTitle().replace(" ", ""), null);
+        JSONObject responsePath = new JSONObject(response);
+        String imageURL = responsePath.getString("imageURL");
+        try(
+            InputStream in = new URI(imageURL).toURL().openStream()
+        )
+        {
+            Files.copy(in, Paths.get(newPath));
         }
-        return imagePath;
+        catch (Exception err) {
+        } 
+        return newPath;
     }
 
 }

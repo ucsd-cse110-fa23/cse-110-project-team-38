@@ -61,7 +61,7 @@ class Constants {
 }
 
 class RecipeList extends VBox {
-    private String username;
+    public String username;
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);

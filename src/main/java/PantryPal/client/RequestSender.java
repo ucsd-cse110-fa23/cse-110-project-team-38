@@ -27,6 +27,7 @@ public class RequestSender {
                 urlString += "title/?=" + query;
                 urlString += "/username/?=" + username;
             }
+
             URL url = new URI(urlString).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Content-Type", "application/json");

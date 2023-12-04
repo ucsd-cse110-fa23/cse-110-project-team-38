@@ -61,6 +61,7 @@ public class APIRequestHandler implements HttpHandler{
     private String handlePost(HttpExchange httpExchange) throws IOException, URISyntaxException, InterruptedException {
         String response = "got API post";
 
+        
         // forward our request to whisper
         String whisperResponse = forwardToWhisper(httpExchange);
         System.out.println("Whisper Response: " + whisperResponse);

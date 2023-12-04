@@ -104,11 +104,21 @@ public class RecipeRequestHandler implements HttpHandler {
                     return loadRecipes(recipes).toString();
                 }
                 else {
-                    for (Document recipe : recipes) {
+                    /*for (Document recipe : recipes) {
                         JSONObject jsonObject = new JSONObject(recipe.toJson());
                         if (jsonObject.getString("title").equals(specificQuery)) {
                             return jsonObject.toString();
                         }
+                    }*/
+                    try {
+                        DallE dalle = new DallE();
+                        String imageURL = dalle.processRequest(specificQuery);
+                        JSONObject returnURL = new JSONObject();
+                        returnURL.put("imageURL", imageURL);
+                        return returnURL.toString();
+                    }
+                    catch (Exception err) {
+                        System.out.println("Failed to generate image");
                     }
                 }
             }
@@ -200,6 +210,28 @@ public class RecipeRequestHandler implements HttpHandler {
      */
     private String handlePut(HttpExchange httpExchange) throws IOException {
         String response = "got PUT";
+
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        try {
+            for (int length; (length = httpExchange.getRequestBody().read(buffer)) != -1; ) {
+                result.write(buffer, 0, length);
+            }
+        }
+        catch (Exception err) {
+            System.out.println("Error in getting request body");
+        }
+        String jsonBody = result.toString();
+        JSONObject json = new JSONObject(jsonBody);
+
+        Document recipeDoc = new Document("username", json.getString("username"))
+                .append("title", json.getString("title"))
+                .append("description", json.getString("description"));
+
+        Bson filter = Filters.eq("title", json.getString("title"));
+        recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
 
         return response;
     }
