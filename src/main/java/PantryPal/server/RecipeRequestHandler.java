@@ -1,5 +1,8 @@
 package PantryPal.server;
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.sun.net.httpserver.*;
 
 import PantryPal.client.DatabaseConnect;
@@ -7,10 +10,16 @@ import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
 import PantryPal.client.Whisper;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.sun.net.httpserver.*;
@@ -33,6 +42,8 @@ public class RecipeRequestHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
+        System.out.println(httpExchange.getRequestBody());
+        System.out.println(method);
         System.out.println(httpExchange.getRequestURI().toASCIIString());
         try {
             switch (method) {
@@ -76,29 +87,34 @@ public class RecipeRequestHandler implements HttpHandler {
     private String handleGet(HttpExchange httpExchange) throws IOException {
 
         URI uri = httpExchange.getRequestURI();
+        //System.out.println(json.toString());
         String query = uri.getRawQuery();
+        System.out.println(query);
+        String username = query.split("=")[2];
+        System.out.println("username: " + username);
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        // username is in the constructor for RecipeList in main, so look there
+        List<Document> recipes = recipesCollection.find(eq("username", username)).into(new ArrayList<>());
         if (query != null) {
-            String specificQuery = query.substring(query.indexOf("=") + 1);
+            String specificQuery = query.split("/")[0];
+            System.out.println(specificQuery);
             if (specificQuery != null) {
                 // do we really need to even be checking for the query?
+                if (specificQuery.equals("=ALL")) {
+                    return loadRecipes(recipes).toString();
+                }
+                else {
+                    for (Document recipe : recipes) {
+                        JSONObject jsonObject = new JSONObject(recipe.toJson());
+                        if (jsonObject.getString("title").equals(specificQuery)) {
+                            return jsonObject.toString();
+                        }
+                    }
+                }
             }
         }
 
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        // username is in the constructor for RecipeList in main, so look there
-        FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
-        JSONObject json = new JSONObject();
-
-        // TODO: add the recipe info to the json
-        for (Document recipeDoc : recipes) {
-            RecipeItem recipe = new RecipeItem();
-            recipe.setRecipeTitle(recipeDoc.getString("title"));
-            recipe.setRecipeDescription(recipeDoc.getString("description"));
-            recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
-            // TODO
-        }
-
-        return json.toString();
+        return "Does not exist";
     }
 
     /*
@@ -113,30 +129,42 @@ public class RecipeRequestHandler implements HttpHandler {
      * for every recipedata, package its export() into {}
      * put it into the response
      */
-    private String loadRecipes() {
-        StringBuilder sb = new StringBuilder();
-        for (RecipeData r : recipeList) {
-            String frame = "{";
-            frame += r.export();
-            frame += "}";
-            sb.append(frame);
+    private JSONArray loadRecipes(List<Document> recipes) {
+        // TODO: add the recipe info to the json
+        JSONArray jsonArray = new JSONArray();
+        for (Document recipeDoc : recipes) {
+            JSONObject jsonObject = new JSONObject(recipeDoc.toJson());
+            jsonArray.put(jsonObject);
+            // TODO
+            
         }
-        return sb.toString();
+
+        return jsonArray;
     }
 
     /*
      * Assuming all POSTs are save requests given ONE recipe in json form
      */
     private String handlePost(HttpExchange httpExchange) {
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         String response = "got save POST";
-        JSONObject json = new JSONObject(httpExchange.getRequestBody());
+        JSONObject json = new JSONObject("{" + httpExchange.getRequestBody() + "}");
+        System.out.println(json.toString());
+        String username = json.getString("username");
         // TODO: extract recipe from json
-
+        RecipeItem recipe = new RecipeItem();
+        recipe.setRecipeDescription(json.getString("description"));
+        recipe.setGenerated(json.getBoolean("isGenerated"));
+        recipe.setRecipeTitle(json.getString("title"));
+        recipe.setRecipeId(json.getString("id"));
+        
         // Username is from RecipeList in Main... see there for info i guess
         // TODO: send to db
         Document recipeDoc = new Document("username", username)
-                .append("title", recipe.getFullRecipeTitle())
-                .append("description", recipe.getFullRecipeDescription());
+                .append("title", json.getString("title"))
+                .append("description", json.getString("description"));
+        
+        
 
         if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
             // Insert new recipe only if it's generated and not yet saved
@@ -167,6 +195,8 @@ public class RecipeRequestHandler implements HttpHandler {
         String response = "Invalid DELETE request";
 
         URI uri = httpExchange.getRequestURI();
+        JSONObject jsonObject = new JSONObject(httpExchange.getRequestBody());
+        String username = jsonObject.getString("username");
         String query = uri.getRawQuery();
         if (query != null) {
             String encryptedTitle = query.substring(query.indexOf("=") + 1);
@@ -179,8 +209,7 @@ public class RecipeRequestHandler implements HttpHandler {
         MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         Bson filter = Filters.and(
                 Filters.eq("username", username),
-                Filters.eq("title", recipeItem.getFullRecipeTitle()),
-                Filters.eq("description", recipeItem.getFullRecipeDescription()));
+                Filters.eq("title", query));
         recipesCollection.deleteOne(filter);
 
         return response;

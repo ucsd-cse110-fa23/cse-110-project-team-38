@@ -19,7 +19,7 @@ public class RecipeItem extends HBox {
     private boolean generated;
     private LocalDateTime creationTimestamp;
 
-    RecipeItem() {
+    public RecipeItem() {
         this.creationTimestamp = LocalDateTime.now();
         this.setPrefSize(500, 120);
         this.setPadding(new Insets(10));

@@ -11,6 +11,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import com.sun.net.httpserver.*;
 
 public class APIRequestHandler implements HttpHandler{
@@ -96,6 +98,13 @@ public class APIRequestHandler implements HttpHandler{
         // read response from API
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String response = in.readLine();
+        String itr = in.readLine();
+        while (itr != null) {
+            response += itr;
+            itr = in.readLine();
+        }
+        JSONObject obj = new JSONObject(response);
+        response = obj.getString("text");
         in.close();
         return response;
     }

@@ -49,6 +49,7 @@ import org.bson.conversions.Bson;
 import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 class Constants {
@@ -69,15 +70,26 @@ class RecipeList extends VBox {
         this.loadRecipes();
     }
 
+    public JSONObject buildRecipeJSON(RecipeItem recipeItem, JSONObject jsonObject) {
+        jsonObject.put("title", recipeItem.getFullRecipeTitle());
+        jsonObject.put("description", recipeItem.getFullRecipeDescription());
+        jsonObject.put("id", recipeItem.getRecipeId());
+        jsonObject.put("isGenerated", recipeItem.isGenerated());
+        jsonObject.put("username", username);
+        return jsonObject;
+    }
+        
+
     public void removeRecipe(RecipeItem recipeItem) {
         //remove from the UI
         this.getChildren().remove(recipeItem);
 
         JSONObject json = new JSONObject();
         //TODO: pack recipeitem into the json
+        json = buildRecipeJSON(recipeItem, json);
 
         RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeID);
+        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
 
         //TODO: working code below!!! port to server!!!
         //remove from database
@@ -93,12 +105,24 @@ class RecipeList extends VBox {
 
     public void loadRecipes() {
         RequestSender request = new RequestSender();
-
-        String response = request.performRequest("GET", null, null, "ALL");
-        //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
-        JSONObject response = new JSONObject(response);
-
         ArrayList<RecipeItem> recipeList = new ArrayList<>();
+        System.out.println("Sending get request for all recipes");
+        String response = request.performRequest("GET", null, null, "ALL", username);
+        System.out.println(response);
+        //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
+        try {
+            JSONArray responseArray = new JSONArray(response);
+            for (int i = 0; i < responseArray.length(); i++) {
+            RecipeItem item = new RecipeItem();
+            item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
+            item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
+            recipeList.add(item);
+        }
+        }
+        catch (Exception err) {
+            System.out.println("Empty");
+        }
+
         for(RecipeItem recipe:recipeList){
 
 
@@ -125,15 +149,22 @@ class RecipeList extends VBox {
          * either call loop a post request for each client recipe, OR make one big json and send ONE request
          */
 
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        //MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         for (Node node : this.getChildren()) {
             if (node instanceof RecipeItem) {
                 RecipeItem recipe = (RecipeItem) node;
                 JSONObject json = new JSONObject();
 
                 //TODO: pack recipe item data we need to save into json
+                json.put("title", recipe.getFullRecipeTitle());
+                json.put("description", recipe.getFullRecipeDescription());
+                json.put("isGenerated", recipe.isGenerated());
+                json.put("id", recipe.getRecipeId());
+                json.put("username", username);
 
-                String response = request.performRequest("POST", null, json, null); //perform a save post given json and no query
+                System.out.println(json.toString());
+
+                String response = request.performRequest("POST", null, json, null, null); //perform a save post given json and no query
 
                 //TODO: working DB save code below! port to server!!!
                 // Document recipeDoc = new Document("username", username)

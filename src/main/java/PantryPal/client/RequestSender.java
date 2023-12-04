@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.net.URI;
 
 public class RequestSender {
-    public String performRequest(String method,String path, JSONObject json, String query) {
+    public String performRequest(String method,String path, JSONObject json, String query, String username) {
         // Implement your HTTP request logic here and return the response
 
         try {
@@ -24,16 +24,20 @@ public class RequestSender {
             if(path != null) {urlString += path;}
 
             if (query != null) {
-                urlString += "?=" + query;
+                urlString += "title/?=" + query;
+                urlString += "/username/?=" + username;
             }
             URL url = new URI(urlString).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod(method);
             conn.setDoOutput(true);
 
+            System.out.println(method);
+
             // writes the json to the request body
             if (method.equals("POST") || method.equals("PUT")) {
                 OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
+                System.out.println(json.toString());
                 out.write(json.toString());
                 out.flush();
                 out.close();

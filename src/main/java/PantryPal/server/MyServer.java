@@ -28,7 +28,7 @@ public class MyServer {
     HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_HOSTNAME,SERVER_PORT),0);
 
     HttpContext context = server.createContext("/", new RecipeRequestHandler(recipes,recipeList));
-    HttpContext recipeContext = server.createContext("/api",new RecipeRequestHandler(recipes, recipeList));
+    HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
     
     
     server.setExecutor(threadPoolExecutor);
