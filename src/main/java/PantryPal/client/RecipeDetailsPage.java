@@ -30,6 +30,7 @@ class RecipeDetailsPage extends VBox {
     private Button backButton;
     private Button editButton;
     private Button deleteButton;
+    private Button regenerateButton;
     private RecipeItem currentRecipeItem;
     private AppFrame appFrame;
     private boolean generated = false;
@@ -65,6 +66,8 @@ class RecipeDetailsPage extends VBox {
         styleButton(doneButton);
         doneButton.setVisible(isEditable);
         doneButton.setOnAction(e -> {
+            regenerateButton.setVisible(false);
+
             if (titleField.getText().trim().isEmpty() || descriptionField.getText().trim().isEmpty()) {
                 showAlert("Incomplete Recipe Details", "Please make sure there are no empty fields!");
                 return;
@@ -104,6 +107,11 @@ class RecipeDetailsPage extends VBox {
         styleButton(deleteButton);
         deleteButton.setOnAction(e -> deleteRecipe());
 
+        regenerateButton = new Button("Regenerate");
+        styleButton(regenerateButton);
+        regenerateButton.setVisible(generated);
+        regenerateButton.setOnAction(e -> regenerateRecipe());
+
         String imagePath = generateImage();
         Image image = new Image(new File(imagePath).toURI().toString());
         imageView.setImage(image);
@@ -111,7 +119,7 @@ class RecipeDetailsPage extends VBox {
         imageView.setFitWidth(250);
         imageView.setPreserveRatio(true);
 
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton);
+        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton, regenerateButton);
     }
 
     private void setEditableMode(boolean editable) {
@@ -173,13 +181,42 @@ class RecipeDetailsPage extends VBox {
         DallE dalle = new DallE();
         String imagePath;
         try {
-            imagePath = dalle.processRequest(currentRecipeItem.getFullRecipeTitle());
+            imagePath = dalle.processRequest(titleField.getText());
         }
         catch (Exception err) {
-            String imageName = currentRecipeItem.getFullRecipeTitle().replaceAll("\\s", "");
+            String imageName = titleField.getText().replaceAll("\\s", "");
             imagePath = "images/" + imageName + ".jpg";
         }
         return imagePath;
+    }
+
+    private void regenerateRecipe() {
+        //TODO: move logic to server side
+        
+        try {
+            //whisper API used to get text from audio
+            Whisper whisper = new Whisper();
+            String prompt = whisper.sendRequest(); //the audio
+            System.out.println("Request sent");
+            
+            //chatGPT call used to get back chatGPT output
+            ChatGPT chatGPT = new ChatGPT();
+            String details = chatGPT.processRequest(prompt + " generate a recipe");
+
+            //parse output of ChatGPT
+            String[] parts = details.split("\n");
+            System.out.println(details);
+            titleField.setText(parts[2]);
+            String detailsWithNoTitle = details.replace(parts[2], "");
+            descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n", ""));
+
+            String imagePath = generateImage();
+            Image image = new Image(new File(imagePath).toURI().toString());
+            imageView.setImage(image);
+        }
+        catch (Exception err) {
+            System.out.println("Error regenerating" + err);
+        }
     }
 
 }
