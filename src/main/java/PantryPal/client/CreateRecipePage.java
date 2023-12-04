@@ -1,13 +1,11 @@
 package PantryPal.client;
 
-
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
@@ -24,6 +22,7 @@ public class CreateRecipePage extends VBox {
     private Label recordingLabel;
     private Label generatingLabel;
     private AudioRecorder recorder = new AudioRecorder();
+    private static final String FILE_PATH = "recording.wav"; //fill with certain file path for audio
 
     //String defaultButtonStyle = "-fx-border-color: #000000; -fx-font: 13 arial; -fx-pref-width: 175px; -fx-pref-height: 50px;";
     String defaultLabelStyle = "-fx-font: 13 arial; -fx-pref-width: 175px; -fx-pref-height: 50px; -fx-text-fill: red; visibility: hidden";
@@ -62,8 +61,6 @@ public class CreateRecipePage extends VBox {
         });
         saveButton(micButton);
 
-    
-
         generatingLabel = new Label("Generating...");
         generatingLabel.setStyle(defaultLabelStyle);
         generatingLabel.setVisible(false);
@@ -75,28 +72,31 @@ public class CreateRecipePage extends VBox {
                 generatingLabel.setVisible(true);
                 recorder.stopRecording();
                 
-                //whisper API used to get text from audio
+                //--------------------------
+                
+                // //whisper API used to get text from audio
                 Whisper whisper = new Whisper();
-                String prompt = whisper.sendRequest(); //the audio
-                System.out.println("Request sent");
+                System.out.println("sending request to server...");
+                String response = whisper.sendRequest(); //send request via Whisper, recieve a gpt response
                 
-                //chatGPT call used to get back chatGPT output
-                ChatGPT chatGPT = new ChatGPT();
-                String details = chatGPT.processRequest(prompt + " generate a recipe");
-                
-                //parse output of ChatGPT
-                String[] parts = details.split("\n");
-                System.out.println(details);
+
+                // //--------------------------
+
+
+                // //parse output of ChatGPT
+                String[] parts = response.split("\n");
+                System.out.println("GPT response: " + response);
                 RecipeItem newRecipe = new RecipeItem();
                 newRecipe.setRecipeTitle(parts[2]);
-                String detailsWithNoTitle = details.replace(parts[2], "");
+                String detailsWithNoTitle = response.replace(parts[2], "");
                 newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
 
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true, true);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);
             } catch (Exception ex){
-                System.out.println("Error generating");
+                System.out.println("Error Generating!");
+                ex.printStackTrace();
             };
         });
         saveButton(generateButton);
