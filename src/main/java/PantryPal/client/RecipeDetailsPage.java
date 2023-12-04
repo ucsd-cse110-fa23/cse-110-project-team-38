@@ -102,7 +102,7 @@ class RecipeDetailsPage extends VBox {
 
         deleteButton = new Button("Delete");
         styleButton(deleteButton);
-        deleteButton.setOnAction(e -> deleteRecipe());
+        //deleteButton.setOnAction(e -> deleteRecipe());
 
         String imagePath = generateImage();
         Image image = new Image(new File(imagePath).toURI().toString());
@@ -121,14 +121,14 @@ class RecipeDetailsPage extends VBox {
         editButton.setVisible(!editable);
     }
 
-    private void deleteRecipe() {
-        RecipeList parentList = (RecipeList) currentRecipeItem.getParent();
-        if (parentList != null) {
-            parentList.removeRecipe(currentRecipeItem);
-        }
-        parentList.saveRecipes();
-        goBack();
-    }
+    // private void deleteRecipe() {
+    //     RecipeList parentList = (RecipeList) currentRecipeItem.getParent();
+    //     if (parentList != null) {
+    //         parentList.removeRecipe(currentRecipeItem);
+    //     }
+    //     parentList.saveRecipes();
+    //     goBack();
+    // }
 
     private void goBack() {
         Stage stage = (Stage) this.getScene().getWindow();

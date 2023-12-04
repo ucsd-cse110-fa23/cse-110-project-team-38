@@ -69,26 +69,26 @@ class RecipeList extends VBox {
         this.loadRecipes();
     }
 
-    public void removeRecipe(RecipeItem recipeItem) {
-        //remove from the UI
-        this.getChildren().remove(recipeItem);
+    // public void removeRecipe(RecipeItem recipeItem) {
+    //     //remove from the UI
+    //     this.getChildren().remove(recipeItem);
 
-        JSONObject json = new JSONObject();
-        //TODO: pack recipeitem into the json
+    //     JSONObject json = new JSONObject();
+    //     //TODO: pack recipeitem into the json
 
-        RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeID);
+    //     RequestSender request = new RequestSender();
+    //     String response = request.performRequest("DELETE", null, json, recipeID);
 
-        //TODO: working code below!!! port to server!!!
-        //remove from database
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        Bson filter = Filters.and(
-                Filters.eq("username", username),
-                Filters.eq("title", recipeItem.getFullRecipeTitle()),
-                Filters.eq("description", recipeItem.getFullRecipeDescription())
-        );
-        recipesCollection.deleteOne(filter);
-    }
+    //     //TODO: working code below!!! port to server!!!
+    //     //remove from database
+    //     MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+    //     Bson filter = Filters.and(
+    //             Filters.eq("username", username),
+    //             Filters.eq("title", recipeItem.getFullRecipeTitle()),
+    //             Filters.eq("description", recipeItem.getFullRecipeDescription())
+    //     );
+    //     recipesCollection.deleteOne(filter);
+    // }
 
 
     public void loadRecipes() {
@@ -96,7 +96,7 @@ class RecipeList extends VBox {
 
         String response = request.performRequest("GET", null, null, "ALL");
         //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
-        JSONObject response = new JSONObject(response);
+        JSONObject responses = new JSONObject(response);
 
         ArrayList<RecipeItem> recipeList = new ArrayList<>();
         for(RecipeItem recipe:recipeList){
