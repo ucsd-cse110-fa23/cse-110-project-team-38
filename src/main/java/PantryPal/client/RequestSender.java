@@ -29,6 +29,7 @@ public class RequestSender {
             }
             URL url = new URI(urlString).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestMethod(method);
             conn.setDoOutput(true);
 
@@ -36,9 +37,9 @@ public class RequestSender {
 
             // writes the json to the request body
             if (method.equals("POST") || method.equals("PUT")) {
-                OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
+                OutputStream out = conn.getOutputStream();
                 System.out.println(json.toString());
-                out.write(json.toString());
+                out.write(json.toString().getBytes());
                 out.flush();
                 out.close();
             }

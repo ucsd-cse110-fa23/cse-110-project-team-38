@@ -61,7 +61,7 @@ public class CreateRecipePage extends VBox {
         });
         saveButton(micButton);
 
-        generatingLabel = new Label("Generating...");
+        generatingLabel = new Label("Error generating from voice input, please go back and try again");
         generatingLabel.setStyle(defaultLabelStyle);
         generatingLabel.setVisible(false);
         generateButton = new Button("Generate Recipe");

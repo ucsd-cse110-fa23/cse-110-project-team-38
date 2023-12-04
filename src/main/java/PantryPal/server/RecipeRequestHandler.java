@@ -42,9 +42,9 @@ public class RecipeRequestHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
-        System.out.println(httpExchange.getRequestBody());
+        //System.out.println(httpExchange.getRequestBody().toString());
         System.out.println(method);
-        System.out.println(httpExchange.getRequestURI().toASCIIString());
+        //System.out.println(httpExchange.getRequestURI().toASCIIString());
         try {
             switch (method) {
                 case "GET":
@@ -148,15 +148,27 @@ public class RecipeRequestHandler implements HttpHandler {
     private String handlePost(HttpExchange httpExchange) {
         MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         String response = "got save POST";
-        JSONObject json = new JSONObject("{" + httpExchange.getRequestBody() + "}");
+        
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        try {
+            for (int length; (length = httpExchange.getRequestBody().read(buffer)) != -1; ) {
+                result.write(buffer, 0, length);
+            }
+        }
+        catch (Exception err) {
+            System.out.println("Error in getting request body");
+        }
+        String jsonBody = result.toString();
+        JSONObject json = new JSONObject(jsonBody);
         System.out.println(json.toString());
         String username = json.getString("username");
         // TODO: extract recipe from json
-        RecipeItem recipe = new RecipeItem();
-        recipe.setRecipeDescription(json.getString("description"));
-        recipe.setGenerated(json.getBoolean("isGenerated"));
-        recipe.setRecipeTitle(json.getString("title"));
-        recipe.setRecipeId(json.getString("id"));
+        //RecipeItem recipe = new RecipeItem();
+        //recipe.setRecipeDescription(json.getString("description"));
+        //recipe.setGenerated(json.getBoolean("isGenerated"));
+        //recipe.setRecipeTitle(json.getString("title"));
+        //recipe.setRecipeId(json.getString("id"));
         
         // Username is from RecipeList in Main... see there for info i guess
         // TODO: send to db
@@ -166,15 +178,16 @@ public class RecipeRequestHandler implements HttpHandler {
         
         
 
-        if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
+        if (!json.getBoolean("isGenerated")) {
             // Insert new recipe only if it's generated and not yet saved
+            recipeDoc.append("isGenerated", true);
             recipesCollection.insertOne(recipeDoc);
-            recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
-            recipe.setGenerated(false); // Reset the generated flag
+            //recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+            //recipe.setGenerated(false); // Reset the generated flag
         } else {
             // Update existing recipe
-            ObjectId id = new ObjectId(recipe.getRecipeId());
-            Bson filter = Filters.eq("_id", id);
+            //ObjectId id = new ObjectId(json.getString("id"));
+            Bson filter = Filters.eq("title", json.getString("title"));
             recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
         }
 
@@ -193,25 +206,28 @@ public class RecipeRequestHandler implements HttpHandler {
 
     private String handleDelete(HttpExchange httpExchange) throws IOException {
         String response = "Invalid DELETE request";
+        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        // username is in the constructor for RecipeList in main, so look there
 
         URI uri = httpExchange.getRequestURI();
-        JSONObject jsonObject = new JSONObject(httpExchange.getRequestBody());
-        String username = jsonObject.getString("username");
+        //System.out.println(json.toString());
         String query = uri.getRawQuery();
+        System.out.println(query);
+        String username = query.split("=")[2];
+        System.out.println("username: " + username);
         if (query != null) {
-            String encryptedTitle = query.substring(query.indexOf("=") + 1);
-            // do we really need anything here??
+            String specificQuery = query.split("/")[0];
+            specificQuery = specificQuery.replace("=", "");
+            // username is in the constructor for RecipeList in main, so look there
+            List<Document> recipes = recipesCollection.find(eq("username", username)).into(new ArrayList<>());
+            Bson filter = Filters.and(
+                    Filters.eq("username", username),
+                    Filters.eq("title", specificQuery));
+            recipesCollection.deleteOne(filter);
         }
-        //TODO: I dont actually know if you can send a request body in a DELETE or GET, so this method may not work
-        JSONObject json = new JSONObject(httpExchange.getRequestBody());
-
-        //TODO: encorporate the code!
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        Bson filter = Filters.and(
-                Filters.eq("username", username),
-                Filters.eq("title", query));
-        recipesCollection.deleteOne(filter);
-
+        else {
+            return "Recipe not in database";
+        }
         return response;
 
     }
