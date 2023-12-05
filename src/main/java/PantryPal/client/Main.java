@@ -228,21 +228,50 @@ class RecipeList extends VBox {
         this.getChildren().addAll(recipeItems);
     }
     
-    // public void filterRecipesByMealType(String mealType) {
-    //     this.getChildren().clear();
+  
+  
+    public void filterRecipesByMealType(String mealType) {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Check if the meal type is "all"; if yes, show all recipes
+        if ("all".equalsIgnoreCase(mealType)) {
+            this.getChildren().clear();
+            this.getChildren().addAll(recipeItems);
+            return; 
+        }
         
-    //     // Show all recipes if "all" is selected
-    //     if ("All".equalsIgnoreCase(mealType)) {
-    //         this.getChildren().addAll(originalRecipeList);
-    //     } else {
-    //         // Filter recipes based on the selected meal type
-    //         for (Node recipe : originalRecipeList) {
-    //             if (((RecipeItem) recipe).getMealType().equalsIgnoreCase(mealType)) {
-    //                 this.getChildren().add(recipe);
-    //             }
-    //         }
-    //     }
-    // }
+        List<RecipeItem> filteredRecipes = new ArrayList<>();
+
+        // Iterate through the recipe items and filter by meal type
+        for (Node node : recipeItems) {
+            if (node instanceof RecipeItem) {
+                RecipeItem recipe = (RecipeItem) node;
+                if (mealType.equalsIgnoreCase(recipe.getMealType())) {
+                // Add the recipe to the filtered list if it matches the specified meal type
+                filteredRecipes.add(recipe);
+                }
+            }
+        }
+         // Update the UI with the filtered list
+         this.getChildren().clear();
+         this.getChildren().addAll(filteredRecipes);
+}
+
+
+        // this.getChildren().clear();
+        
+        // // Show all recipes if "all" is selected
+        // if ("All".equalsIgnoreCase(mealType)) {
+        //     this.getChildren().addAll(originalRecipeList);
+        // } else {
+        //     // Filter recipes based on the selected meal type
+        //     for (Node recipe : originalRecipeList) {
+        //         if (((RecipeItem) recipe).getMealType().equalsIgnoreCase(mealType)) {
+        //             this.getChildren().add(recipe);
+        //         }
+        //     }
+        // }
+    //}
 
 
     // public List<Node> getOriginalRecipes() {
@@ -317,23 +346,23 @@ class Header extends VBox {
 
         // Create a dropdown menu for filtering by meal type
 
-        // ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
-        // mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
-        // mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        // mealTypeFilterComboBox.setPrefSize(140, 40);
+        ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
+        mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
+        mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        mealTypeFilterComboBox.setPrefSize(140, 40);
    
-        // mealTypeFilterComboBox.setOnAction(e -> {
-        //     if (mealTypeFilterComboBox.getValue() != null) {
-        //         if (this.getParent() instanceof AppFrame) {
-        //             AppFrame appFrame = (AppFrame) this.getParent();
-        //             String filterByMealType = mealTypeFilterComboBox.getValue();
-        //             appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
-        //         }
-        //     }
-        // });
+        mealTypeFilterComboBox.setOnAction(e -> {
+            if (mealTypeFilterComboBox.getValue() != null) {
+                if (this.getParent() instanceof AppFrame) {
+                    AppFrame appFrame = (AppFrame) this.getParent();
+                    String filterByMealType = mealTypeFilterComboBox.getValue();
+                    appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
+                }
+            }
+        });
    
-      // upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
-       upperRowRight.getChildren().addAll(sortByComboBox);
+        upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+       //upperRowRight.getChildren().addAll(sortByComboBox);
        this.getChildren().addAll(upperRowRight);
     
     }
