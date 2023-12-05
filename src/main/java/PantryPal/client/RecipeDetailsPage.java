@@ -92,7 +92,6 @@ class RecipeDetailsPage extends VBox {
                 if (!appFrame.getRecipeList().getChildren().contains(currentRecipeItem)) {
                     appFrame.getRecipeList().getChildren().add(0, currentRecipeItem);
                 }
-        
                 this.generated = false; //reset the flag after saving
                 appFrame.getRecipeList().saveRecipes();
             } else {
@@ -105,7 +104,7 @@ class RecipeDetailsPage extends VBox {
                 obj.put("username", appFrame.getRecipeList().username);
                 RequestSender request = new RequestSender();
                 String response = request.performRequest("PUT", null, obj, null, appFrame.getRecipeList().username);
-                appFrame.getRecipeList().saveRecipes();
+                //appFrame.getRecipeList().saveRecipes();
             }
         
             setEditableMode(false);

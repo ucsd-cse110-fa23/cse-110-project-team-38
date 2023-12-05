@@ -11,6 +11,7 @@ import PantryPal.client.RecipeItem;
 import PantryPal.client.Whisper;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.*;
 
 import java.io.*;
 import java.net.*;
@@ -21,6 +22,10 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import com.mongodb.client.result.UpdateResult;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
+import com.mongodb.client.model.UpdateOptions;
 
 import com.sun.net.httpserver.*;
 import java.io.*;
@@ -197,7 +202,8 @@ public class RecipeRequestHandler implements HttpHandler {
         } else {
             // Update existing recipe
             //ObjectId id = new ObjectId(json.getString("id"));
-            Bson filter = Filters.eq("title", json.getString("title"));
+            Bson filter = Filters.and(eq("title", json.getString("title")), 
+                                     eq("username", json.getString("username")));
             recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
         }
 
@@ -231,7 +237,8 @@ public class RecipeRequestHandler implements HttpHandler {
                 .append("description", json.getString("description"));
 
         Bson filter = Filters.eq("title", json.getString("title"));
-        recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
+        Bson updateOperation = set("description", json.getString("description"));
+        recipesCollection.updateOne(filter, updateOperation);
 
         return response;
     }

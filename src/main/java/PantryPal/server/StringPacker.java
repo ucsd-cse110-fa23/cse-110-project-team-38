@@ -35,7 +35,12 @@ public class StringPacker {
         byte[] byteArr = new byte[strArr.length];
         
         for (int j = 0; j < byteArr.length; j++) {
-            byteArr[j] = Byte.parseByte(strArr[j]);
+            try {
+                byteArr[j] = Byte.parseByte(strArr[j]);
+            }
+            catch (Exception err) {
+                continue;
+            }
         }
         return new String(byteArr);
     }
