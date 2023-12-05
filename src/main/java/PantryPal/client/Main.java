@@ -64,7 +64,8 @@ class Constants {
 
 class RecipeList extends VBox {
     public String username;
-    private List<Node> originalRecipeList;
+
+    //private List<Node> originalRecipeList;
 
     RecipeList(String username) {
         this.username = username;
@@ -130,7 +131,7 @@ class RecipeList extends VBox {
             
             
             //have a copy of original recipes
-            originalRecipeList.add(item);
+            //originalRecipeList.add(item);
             }
 
         }
@@ -227,26 +228,26 @@ class RecipeList extends VBox {
         this.getChildren().addAll(recipeItems);
     }
     
-    public void filterRecipesByMealType(String mealType) {
-        this.getChildren().clear();
+    // public void filterRecipesByMealType(String mealType) {
+    //     this.getChildren().clear();
         
-        // Show all recipes if "all" is selected
-        if ("All".equalsIgnoreCase(mealType)) {
-            this.getChildren().addAll(originalRecipeList);
-        } else {
-            // Filter recipes based on the selected meal type
-            for (Node recipe : originalRecipeList) {
-                if (((RecipeItem) recipe).getMealType().equalsIgnoreCase(mealType)) {
-                    this.getChildren().add(recipe);
-                }
-            }
-        }
-    }
+    //     // Show all recipes if "all" is selected
+    //     if ("All".equalsIgnoreCase(mealType)) {
+    //         this.getChildren().addAll(originalRecipeList);
+    //     } else {
+    //         // Filter recipes based on the selected meal type
+    //         for (Node recipe : originalRecipeList) {
+    //             if (((RecipeItem) recipe).getMealType().equalsIgnoreCase(mealType)) {
+    //                 this.getChildren().add(recipe);
+    //             }
+    //         }
+    //     }
+    // }
 
 
-    public List<Node> getOriginalRecipes() {
-        return this.originalRecipeList;
-    }
+    // public List<Node> getOriginalRecipes() {
+    //     return this.originalRecipeList;
+    // }
     
     
 
@@ -316,22 +317,23 @@ class Header extends VBox {
 
         // Create a dropdown menu for filtering by meal type
 
-        ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
-        mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
-        mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        mealTypeFilterComboBox.setPrefSize(140, 40);
+        // ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
+        // mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
+        // mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        // mealTypeFilterComboBox.setPrefSize(140, 40);
    
-        mealTypeFilterComboBox.setOnAction(e -> {
-            if (mealTypeFilterComboBox.getValue() != null) {
-                if (this.getParent() instanceof AppFrame) {
-                    AppFrame appFrame = (AppFrame) this.getParent();
-                    String filterByMealType = mealTypeFilterComboBox.getValue();
-                    appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
-                }
-            }
-        });
+        // mealTypeFilterComboBox.setOnAction(e -> {
+        //     if (mealTypeFilterComboBox.getValue() != null) {
+        //         if (this.getParent() instanceof AppFrame) {
+        //             AppFrame appFrame = (AppFrame) this.getParent();
+        //             String filterByMealType = mealTypeFilterComboBox.getValue();
+        //             appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
+        //         }
+        //     }
+        // });
    
-       upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+      // upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+       upperRowRight.getChildren().addAll(sortByComboBox);
        this.getChildren().addAll(upperRowRight);
     
     }
