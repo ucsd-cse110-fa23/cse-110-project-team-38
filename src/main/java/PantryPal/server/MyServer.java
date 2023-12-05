@@ -42,7 +42,7 @@ public class MyServer {
 
     HttpContext context = server.createContext("/", new RecipeRequestHandler(recipes,recipeList));
     HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
-    HttpContext shareCotext = server.createContext("/recipe",new RecShareHandler(server));
+    HttpContext shareCotext = server.createContext("/share",new RecShareHandler(server));
     
     
     server.setExecutor(threadPoolExecutor);
@@ -73,8 +73,18 @@ public class MyServer {
       //get and extract the request body
       InputStream requestBody = httpExchange.getRequestBody();
       String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+      String method = httpExchange.getRequestMethod();
+      if(method != "POST"){
+        try {
+          throw new Exception("Must be a POST method");
+        } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
 
       //parse the body to get username and password
+      System.out.println("share called");
       String[] params = body.split("&");
       this.username = params[0].split("=")[1];
       this.title = params[1].split("=")[1];
