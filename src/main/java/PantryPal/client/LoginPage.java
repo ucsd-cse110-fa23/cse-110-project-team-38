@@ -98,9 +98,6 @@ public class LoginPage extends VBox {
                   });
               })
               .exceptionally(e -> {
-                  //shows connection errors when server not started
-                  Platform.runLater(() -> showAlert("Connection Error", "Unable to connect to the server."));
-                  e.printStackTrace();
                   return null;
               });
     }
