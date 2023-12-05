@@ -131,25 +131,14 @@ public class RecipeRequestHandler implements HttpHandler {
     }
 
     /*
-     * METHOD TO RETURN FROM VERSION SAVED ON SERVER!!!!!
-     * IS UNUSED 
-     * 
-     * Recipes sent in form
-     * {[12,43,65]+[51,33,75]}\n
-     * {R2 info}\n
-     * {R3 info}
-     * 
-     * for every recipedata, package its export() into {}
-     * put it into the response
+     * packs recipes from the DB document into a JSON
+     * returns the JSON with all recipes
      */
     private JSONArray loadRecipes(List<Document> recipes) {
-        // TODO: add the recipe info to the json
         JSONArray jsonArray = new JSONArray();
         for (Document recipeDoc : recipes) {
             JSONObject jsonObject = new JSONObject(recipeDoc.toJson());
-            jsonArray.put(jsonObject);
-            // TODO
-            
+            jsonArray.put(jsonObject);            
         }
 
         return jsonArray;
