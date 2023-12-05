@@ -178,6 +178,7 @@ public class RecipeRequestHandler implements HttpHandler {
         JSONObject json = new JSONObject(jsonBody);
         System.out.println(json.toString());
         String username = json.getString("username");
+        System.out.println("getting ready to save");
         // TODO: extract recipe from json
         //RecipeItem recipe = new RecipeItem();
         //recipe.setRecipeDescription(json.getString("description"));
@@ -192,10 +193,13 @@ public class RecipeRequestHandler implements HttpHandler {
                 .append("description", json.getString("description"))
                 .append("mealType", json.getString("mealType"));
         
-        
+        Bson filter = Filters.and(eq("title", json.getString("title")), 
+                                eq("username", json.getString("username")));
+
 
         if (!json.getBoolean("isGenerated")) {
             // Insert new recipe only if it's generated and not yet saved
+            System.out.println("inserting new");
             recipeDoc.append("isGenerated", true);
             recipesCollection.insertOne(recipeDoc);
             //recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
@@ -203,8 +207,7 @@ public class RecipeRequestHandler implements HttpHandler {
         } else {
             // Update existing recipe
             //ObjectId id = new ObjectId(json.getString("id"));
-            Bson filter = Filters.and(eq("title", json.getString("title")), 
-                                     eq("username", json.getString("username")));
+            System.out.println("updating");
             recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
         }
 
