@@ -127,12 +127,14 @@ class RecipeList extends VBox {
             item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
+            
+            
             //have a copy of original recipes
-            if (!item.isGenerated()) {
-                originalRecipeList.add(item);
+            originalRecipeList.add(item);
             }
+
         }
-        }
+
         catch (Exception err) {
             System.out.println("Empty");
         }
@@ -218,7 +220,7 @@ class RecipeList extends VBox {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
         // Sort the recipe items chronologically based on the creation timestamp
-        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()));
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()).reversed());
 
         // Clear the existing children and add the sorted recipe items
         this.getChildren().clear();
@@ -229,7 +231,7 @@ class RecipeList extends VBox {
         this.getChildren().clear();
         
         // Show all recipes if "all" is selected
-        if ("all".equalsIgnoreCase(mealType)) {
+        if ("All".equalsIgnoreCase(mealType)) {
             this.getChildren().addAll(originalRecipeList);
         } else {
             // Filter recipes based on the selected meal type
@@ -240,6 +242,8 @@ class RecipeList extends VBox {
             }
         }
     }
+
+
     public List<Node> getOriginalRecipes() {
         return this.originalRecipeList;
     }
