@@ -22,6 +22,8 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.util.prefs.Preferences;
+
 public class LoginPage extends VBox {
     private TextField usernameField;
     private PasswordField passwordField;
@@ -50,6 +52,7 @@ public class LoginPage extends VBox {
         createAccountButton.setOnAction(e -> navigateToCreateAccountPage(primaryStage));
 
         this.getChildren().addAll(new Label("Login"), usernameField, passwordField, rememberMeCheckbox, loginButton, createAccountButton);
+        checkForStoredCredentials(primaryStage);
     }
 
     private void handleLogin(Stage primaryStage) {
@@ -60,17 +63,6 @@ public class LoginPage extends VBox {
             showAlert("Error", "Username and password cannot be empty");
             return;
         }
-
-        // MongoCollection<Document> usersCollection = DatabaseConnect.getCollection("users");
-        // Bson filter = Filters.and(Filters.eq("username", username), Filters.eq("password", password)); // Consider hashing the password
-        // long userCount = usersCollection.countDocuments(filter);
-
-        // if (userCount == 1) {
-        //     //success login
-        //     navigateToMainApp(primaryStage, username);
-        // } else {
-        //     showAlert("Error", "Invalid username or password");
-        // }
 
         HttpClient client = HttpClient.newHttpClient();
 
@@ -90,7 +82,10 @@ public class LoginPage extends VBox {
               .thenApply(HttpResponse::body)
               .thenAccept(response -> {
                   Platform.runLater(() -> {
-                      if ("Success".equals(response)) {
+                    if ("Success".equals(response) && rememberMeCheckbox.isSelected()) {
+                          storeCredentials(username, password);
+                          navigateToMainApp(primaryStage, username);
+                    } else if ("Success".equals(response)) {
                           navigateToMainApp(primaryStage, username);
                       } else {
                           showAlert("Error", "Invalid username or password");
@@ -100,6 +95,57 @@ public class LoginPage extends VBox {
               .exceptionally(e -> {
                   return null;
               });
+    }
+
+    private void checkForStoredCredentials(Stage primaryStage) {
+        Preferences prefs = Preferences.userNodeForPackage(LoginPage.class);
+        String username = prefs.get("username", "");
+        String password = prefs.get("password", "");
+    
+        if (!username.isEmpty() && !password.isEmpty()) {
+            automaticLogin(primaryStage, username, password);
+        }
+    }
+
+    private void automaticLogin(Stage primaryStage, String username, String password) {
+        HttpClient client = HttpClient.newHttpClient();
+    
+        String formParams = "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) +
+                            "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8);
+    
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8100/autologin"))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(formParams))
+                .build();
+    
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+              .thenApply(HttpResponse::body)
+              .thenAccept(response -> {
+                  Platform.runLater(() -> {
+                      if ("Success".equals(response)) {
+                          navigateToMainApp(primaryStage, username);
+                      } else {
+                          clearStoredCredentials();
+                          showAlert("Login Error", "Automatic login failed. Please log in manually.");
+                      }
+                  });
+              })
+              .exceptionally(e -> {
+                  return null;
+              });
+    }
+    
+    private void storeCredentials(String username, String password) {
+        Preferences prefs = Preferences.userNodeForPackage(LoginPage.class);
+        prefs.put("username", username);
+        prefs.put("password", password);
+    }
+
+    private void clearStoredCredentials() {
+        Preferences prefs = Preferences.userNodeForPackage(LoginPage.class);
+        prefs.remove("username");
+        prefs.remove("password");
     }
 
     private void showAlert(String title, String content) {
