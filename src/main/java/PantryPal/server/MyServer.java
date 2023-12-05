@@ -42,7 +42,10 @@ public class MyServer {
 
     HttpContext context = server.createContext("/", new RecipeRequestHandler(recipes,recipeList));
     HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
-    HttpContext shareCotext = server.createContext("/recipe",new RecShareHandler(server));
+
+    //for sharing
+    Map<String,ShareHandler> shareMap = new Map<>();
+    HttpContext shareCotext = server.createContext("/share",new ShareHandler(shareMap, server));
     
     
     server.setExecutor(threadPoolExecutor);
@@ -55,53 +58,7 @@ public class MyServer {
   }
 
 
-  static class RecShareHandler implements HttpHandler {
-    private String username;
-    private String title;
-    private String desc;
-    private HttpServer server;
-    private String id;
-    private ArrayList<HttpContext> pages;
-
-    RecShareHandler(HttpServer server){
-      this.server = server;
-      pages = new ArrayList<>();
-    }
-
-    @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
-      //get and extract the request body
-      InputStream requestBody = httpExchange.getRequestBody();
-      String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
-
-      //parse the body to get username and password
-      String[] params = body.split("&");
-      this.username = params[0].split("=")[1];
-      this.title = params[1].split("=")[1];
-      this.desc = params[2].split("=")[1];
-      this.id = params[3].split("=")[1];
-
-
-      //Create a specific page
-      String name = "http://localhost:8100" + "/recipe/" + this.username + "/" + this.id;
-      System.out.println("server: " + name);
-      pages.add(this.server.createContext(name, new ShareRecipeHandler(this.title, this.desc)));
-
-      //HttpClient client = HttpClient.newHttpClient();
-
-
-      //POST request to server
-      HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(name))
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .GET()
-                .build();
-
-
-      
-
-    }
-}
+  
 
 
 

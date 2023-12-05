@@ -32,6 +32,10 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+
+/*
+ * creates the HTML for a specific recipe
+ */
 public class ShareRecipeHandler implements HttpHandler {
     private String title;
     private String description;
