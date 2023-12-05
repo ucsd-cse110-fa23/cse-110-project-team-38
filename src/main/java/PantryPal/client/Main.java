@@ -21,9 +21,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
 
 import java.io.File;
 import java.util.stream.Collectors;
-
-import PantryPal.server.serverTestApp.Model;
-
 import java.util.List;
 import java.util.Scanner;
 
@@ -52,6 +49,8 @@ import org.bson.conversions.Bson;
 import com.mongodb.client.FindIterable;
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
@@ -62,7 +61,7 @@ class Constants {
 }
 
 class RecipeList extends VBox {
-    private String username;
+    public String username;
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);
@@ -71,26 +70,27 @@ class RecipeList extends VBox {
         this.loadRecipes();
     }
 
-    // public void addMocks() {
-    //     RecipeItem mock1 = new RecipeItem();
-    //     mock1.setRecipeTitle("Bacon and Eggs");
-    //     mock1.setRecipeDescription("You take the moon and you take the sun");
-
-    //     RecipeItem mock2 = new RecipeItem();
-    //     mock2.setRecipeTitle("Shrimp Fried Rice");
-    //     mock2.setRecipeDescription("So you're telling me a SHRIMP fried this rice!?");
-
-    //     RecipeItem mock3 = new RecipeItem();
-    //     mock3.setRecipeTitle("Nothing burger");
-    //     mock3.setRecipeDescription("Absolutely nothing");
-
-    //     this.getChildren().addAll(mock1, mock2, mock3);
-    // }
+    public JSONObject buildRecipeJSON(RecipeItem recipeItem, JSONObject jsonObject) {
+        jsonObject.put("title", recipeItem.getFullRecipeTitle());
+        jsonObject.put("description", recipeItem.getFullRecipeDescription());
+        jsonObject.put("isGenerated", recipeItem.isGenerated());
+        jsonObject.put("username", username);
+        return jsonObject;
+    }
+        
 
     public void removeRecipe(RecipeItem recipeItem) {
         //remove from the UI
         this.getChildren().remove(recipeItem);
 
+        JSONObject json = new JSONObject();
+        //TODO: pack recipeitem into the json
+        json = buildRecipeJSON(recipeItem, json);
+
+        RequestSender request = new RequestSender();
+        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
+
+        //TODO: working code below!!! port to server!!!
         //remove from database
         MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         Bson filter = Filters.and(
@@ -103,56 +103,91 @@ class RecipeList extends VBox {
 
 
     public void loadRecipes() {
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
-        for (Document recipeDoc : recipes) {
-            RecipeItem recipe = new RecipeItem();
-            recipe.setRecipeTitle(recipeDoc.getString("title"));
-            recipe.setRecipeDescription(recipeDoc.getString("description"));
-            recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+        RequestSender request = new RequestSender();
+        ArrayList<RecipeItem> recipeList = new ArrayList<>();
+        System.out.println("Sending get request for all recipes");
+        String response = request.performRequest("GET", null, null, "ALL", username);
+        System.out.println(response);
+        //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
+        try {
+            JSONArray responseArray = new JSONArray(response);
+            for (int i = 0; i < responseArray.length(); i++) {
+            RecipeItem item = new RecipeItem();
+            item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
+            item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
+            item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
+            recipeList.add(item);
+        }
+        }
+        catch (Exception err) {
+            System.out.println("Empty");
+        }
+
+        for(RecipeItem recipe:recipeList){
+
+
             this.getChildren().add(recipe);
         }
+        
+
+
+        //TODO: working code below!!! PORT TO SERVER!
+        // MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        // FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
+        // for (Document recipeDoc : recipes) {
+        //     RecipeItem recipe = new RecipeItem();
+        //     recipe.setRecipeTitle(recipeDoc.getString("title"));
+        //     recipe.setRecipeDescription(recipeDoc.getString("description"));
+        //     recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+        //     this.getChildren().add(recipe);
+        // }
     }
 
     public void saveRecipes() {
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        RequestSender request = new RequestSender();
+        /*
+         * either call loop a post request for each client recipe, OR make one big json and send ONE request
+         */
+
+        //MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         for (Node node : this.getChildren()) {
             if (node instanceof RecipeItem) {
                 RecipeItem recipe = (RecipeItem) node;
-                Document recipeDoc = new Document("username", username)
-                                        .append("title", recipe.getFullRecipeTitle())
-                                        .append("description", recipe.getFullRecipeDescription());
+                JSONObject json = new JSONObject();
 
-                if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
-                    // Insert new recipe only if it's generated and not yet saved
-                    recipesCollection.insertOne(recipeDoc);
-                    recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
-                    recipe.setGenerated(false); // Reset the generated flag
-                } else {
-                    // Update existing recipe
-                    ObjectId id = new ObjectId(recipe.getRecipeId());
-                    Bson filter = Filters.eq("_id", id);
-                    recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
-                }
+                //TODO: pack recipe item data we need to save into json
+                json.put("title", recipe.getFullRecipeTitle());
+                json.put("description", recipe.getFullRecipeDescription());
+                json.put("isGenerated", recipe.isGenerated());
+                json.put("username", username);
+
+                System.out.println(json.toString());
+
+                String response = request.performRequest("POST", null, json, null, null); //perform a save post given json and no query
+
+                //TODO: working DB save code below! port to server!!!
+                // Document recipeDoc = new Document("username", username)
+                //                         .append("title", recipe.getFullRecipeTitle())
+                //                         .append("description", recipe.getFullRecipeDescription());
+
+                // if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
+                //     // Insert new recipe only if it's generated and not yet saved
+                //     recipesCollection.insertOne(recipeDoc);
+                //     recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
+                //     recipe.setGenerated(false); // Reset the generated flag
+                // } else {
+                //     // Update existing recipe
+                //     ObjectId id = new ObjectId(recipe.getRecipeId());
+                //     Bson filter = Filters.eq("_id", id);
+                //     recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
+                // }
+
+
             }
         }
     }
 
 
-    /*
-     * saves recipes to the HTTP server, if its running
-     */
-    public void saveRecipesToServer() {
-        Model request = new Model();
-        for (Node node : this.getChildren()) {
-            if (node instanceof RecipeItem) {
-                RecipeItem recipe = (RecipeItem) node;
-                String response = request.performRequest("PUT",recipe.getFullRecipeTitle(),recipe.getFullRecipeDescription(),null);
-                System.out.println("Response:" + response);
-            
-            }
-        }
-    }
     public void sortRecipesAlphabetically() {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
 

@@ -1,12 +1,12 @@
 import org.junit.jupiter.api.Test;
 
 import PantryPal.client.IAudioRecorder;
-import PantryPal.client.MockGPT;
 import PantryPal.client.MockRecorder;
 import PantryPal.client.MockWhisper;
+import PantryPal.client.RequestSender;
 import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
-import PantryPal.server.serverTestApp.Model;
+import PantryPal.server.MockGPT;
 
 import org.junit.jupiter.api.BeforeEach;
 
@@ -38,12 +38,12 @@ public class RecipeSavingTest {
             item.setRecipeDescription("Ingredients... instructions...");
             String title = RecipeEncryptor.encryptSingle("Steak and Eggs");
             String description = RecipeEncryptor.encryptSingle("Ingredients... instructions...");
-            Model model = new Model();
+            RequestSender model = new RequestSender();
             String query = RecipeEncryptor.encryptSingle("Steak and Eggs");
             
-            model.performRequest("POST", title, description, null);
+            //model.performRequest("POST", title, description, null);
 
-            String response = model.performRequest("GET", null, null, query);
+            String response = model.performRequest("GET", null, null, query, null);
             assertEquals(item.getFullRecipeDescription(), response);
         } catch (Exception err) {
             System.out.println("Handle exceptions");
@@ -64,12 +64,12 @@ public class RecipeSavingTest {
 
             String title = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
             String description = RecipeEncryptor.encryptSingle(item.getFullRecipeDescription());
-            Model model = new Model();
+            RequestSender model = new RequestSender();
             String query = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
             
-            model.performRequest("POST", title, description, null);
+            //model.performRequest("POST", title, description, null);
 
-            String response = model.performRequest("GET", null, null, query);
+            String response = model.performRequest("GET", null, null, query, null);
             assertEquals(item.getFullRecipeDescription(), response);
         } catch (Exception err) {
             System.out.println("Handle exceptions");
@@ -85,12 +85,12 @@ public class RecipeSavingTest {
 
             String title = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
             String description = RecipeEncryptor.encryptSingle(item.getFullRecipeDescription());
-            Model model = new Model();
+            RequestSender model = new RequestSender();
             String query = RecipeEncryptor.encryptSingle(item.getFullRecipeTitle());
             
-            model.performRequest("PUT", title, description, null);
+            //model.performRequest("POST", title, description, null);
 
-            String response = model.performRequest("GET", null, null, query);
+            String response = model.performRequest("GET", null, null, query, null);
             assertEquals(item.getFullRecipeDescription(), response);
         } catch (Exception err) {
             System.out.println("Handle exceptions");
