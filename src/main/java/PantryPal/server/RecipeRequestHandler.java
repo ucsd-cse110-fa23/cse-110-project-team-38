@@ -47,7 +47,7 @@ public class RecipeRequestHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
-        System.out.println(method);
+        System.out.println("RecipeRequestHandler got: " + method +", at: " + httpExchange.getRequestURI());
         try {
             switch (method) {
                 case "GET":
