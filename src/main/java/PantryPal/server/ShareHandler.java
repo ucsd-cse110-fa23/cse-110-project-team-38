@@ -21,12 +21,12 @@ class ShareHandler implements HttpHandler {
     private HttpServer server;
     private String path;
     private HTMLDocument pageHTML;
-    private Map<String,HttpContext> contextMap;
+    private Map<String, HttpContext> contextMap;
     private String id;
 
-    RecShareHandler(Map<String,HttpContext> contextMap, HttpServer server){
+    ShareHandler(Map<String, HttpContext> contextMap, HttpServer server) {
         this.contextMap = contextMap;
-      this.server = server;
+        this.server = server;
     }
 
     @Override
@@ -78,8 +78,7 @@ class ShareHandler implements HttpHandler {
         return pageHTML.toString();
     }
 
-
-    public String handlePost(HttpExchange httpExchange){
+    public String handlePost(HttpExchange httpExchange) {
         // get and extract the request body
         InputStream requestBody = httpExchange.getRequestBody();
         String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
@@ -97,14 +96,14 @@ class ShareHandler implements HttpHandler {
         System.out.println("server: " + name);
 
         // Create a new context {id, context}
-        contextMap.put(this.id,this.server.createContext(name, new ShareRecipeHandler(this.title, this.desc)));
+        contextMap.put(this.id, this.server.createContext(name, new ShareRecipeHandler(this.title, this.desc)));
 
         // POST request to server
         // HttpRequest request = HttpRequest.newBuilder()
-        //         .uri(URI.create(name))
-        //         .header("Content-Type", "application/x-www-form-urlencoded")
-        //         .GET()
-        //         .build();
+        // .uri(URI.create(name))
+        // .header("Content-Type", "application/x-www-form-urlencoded")
+        // .GET()
+        // .build();
 
         /*
          * TODO: Create the HTML for this page right here!!!!
@@ -113,12 +112,13 @@ class ShareHandler implements HttpHandler {
         return name;
     }
 
-    public String handlePut(HttpExchange httpExchange){
+    public String handlePut(HttpExchange httpExchange) {
         return "IDK what to do with this...";
     }
-    public String handleDelete(HttpExchange httpExchange){
+
+    public String handleDelete(HttpExchange httpExchange) {
         server.removeContext(path);
-        return "removed!";//TODO fix this.... its stupid and untested and weird
+        return "removed!";// TODO fix this.... its stupid and untested and weird
     }
 
 }
