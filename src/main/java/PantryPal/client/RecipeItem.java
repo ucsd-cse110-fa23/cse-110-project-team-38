@@ -133,12 +133,12 @@ public class RecipeItem extends HBox {
 
         //POST request to server
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8100/recipe"))
+                .uri(URI.create("http://localhost:8100/share"))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(formParams))
                 .build();
 
-        return ("http://localhost:8100/recipe" + "/" + username + "/" + Id);
+        return ("http://localhost:8100/sr" + "/" + username + "/" + Id);
     }
 
 }

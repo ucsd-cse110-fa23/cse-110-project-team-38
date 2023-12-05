@@ -88,7 +88,7 @@ class RecipeList extends VBox {
         json = buildRecipeJSON(recipeItem, json);
 
         RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
+        String response = request.performRequest("DELETE", "recipe", json, recipeItem.getFullRecipeTitle(), username);
 
         //TODO: working code below!!! port to server!!!
         //remove from database
@@ -106,7 +106,7 @@ class RecipeList extends VBox {
         RequestSender request = new RequestSender();
         ArrayList<RecipeItem> recipeList = new ArrayList<>();
         System.out.println("Sending get request for all recipes");
-        String response = request.performRequest("GET", null, null, "ALL", username);
+        String response = request.performRequest("GET", "recipe", null, "ALL", username);
         System.out.println(response);
         //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
         try {
@@ -163,7 +163,7 @@ class RecipeList extends VBox {
 
                 System.out.println(json.toString());
 
-                String response = request.performRequest("POST", null, json, null, null); //perform a save post given json and no query
+                String response = request.performRequest("POST", "recipe", json, null, null); //perform a save post given json and no query
 
                 //TODO: working DB save code below! port to server!!!
                 // Document recipeDoc = new Document("username", username)

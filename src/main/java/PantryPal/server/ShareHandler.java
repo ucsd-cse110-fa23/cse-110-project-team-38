@@ -35,7 +35,7 @@ class ShareHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
-        System.out.println(method);
+        System.out.println("Sharehandler got: " + method + ", @" + httpExchange.getRequestURI());
         try {
             switch (method) {
                 case "GET":
@@ -92,9 +92,9 @@ class ShareHandler implements HttpHandler {
         this.id = params[3].split("=")[1];
 
         // Create a specific page
-        String name = "http://localhost:8100" + "/recipe/" + this.username + "/"
+        String name = "http://localhost:8100" + "/sr/" + this.username + "/"
                 + this.id;
-        System.out.println("server: " + name);
+        //System.out.println("server: " + name);
 
         // Create a new context {id, context}
         contextMap.put(this.id, this.server.createContext(name, new ShareRecipeHandler(this.title, this.desc)));

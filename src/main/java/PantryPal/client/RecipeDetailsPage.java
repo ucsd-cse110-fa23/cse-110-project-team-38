@@ -104,7 +104,7 @@ class RecipeDetailsPage extends VBox {
                 obj.put("description", currentRecipeItem.getFullRecipeDescription());
                 obj.put("username", appFrame.getRecipeList().username);
                 RequestSender request = new RequestSender();
-                String response = request.performRequest("PUT", null, obj, null, appFrame.getRecipeList().username);
+                String response = request.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
                 this.generated = false;
                 //appFrame.getRecipeList().saveRecipes();
             }
@@ -216,7 +216,7 @@ class RecipeDetailsPage extends VBox {
         RequestSender request = new RequestSender();
         String newFileName = titleField.getText().replaceAll("\\s", "");
         String newPath = "images/" + newFileName + ".jpg";
-        String response = request.performRequest("GET", null, null, titleField.getText().replace(" ", ""), null);
+        String response = request.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
         JSONObject responsePath = new JSONObject(response);
         String imageURL = responsePath.getString("imageURL");
         try(
