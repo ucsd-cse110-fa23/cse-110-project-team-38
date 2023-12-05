@@ -58,7 +58,7 @@ class ShareHandler implements HttpHandler {
                     throw new Exception("Not Valid Request Method");
             }
         } catch (Exception e) {
-            System.out.println("RecipeRequest Handler got an Exception:");
+            System.out.println("ShareHandler Handler got an Exception:");
             response = e.toString();
             e.printStackTrace();
         }
