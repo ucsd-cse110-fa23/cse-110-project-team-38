@@ -43,7 +43,7 @@ public class RecipeSavingTest {
             
             //model.performRequest("POST", title, description, null);
 
-            String response = model.performRequest("GET", null, null, query, null);
+            String response = model.performRequest("POST", null, null, query, null);
             assertEquals(item.getFullRecipeDescription(), response);
         } catch (Exception err) {
             System.out.println("Handle exceptions");
