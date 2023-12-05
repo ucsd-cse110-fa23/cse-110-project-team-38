@@ -189,7 +189,8 @@ public class RecipeRequestHandler implements HttpHandler {
         // TODO: send to db
         Document recipeDoc = new Document("username", username)
                 .append("title", json.getString("title"))
-                .append("description", json.getString("description"));
+                .append("description", json.getString("description"))
+                .append("mealType", json.getString("mealType"));
         
         
 

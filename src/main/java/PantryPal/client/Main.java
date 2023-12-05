@@ -77,6 +77,7 @@ class RecipeList extends VBox {
         jsonObject.put("description", recipeItem.getFullRecipeDescription());
         jsonObject.put("isGenerated", recipeItem.isGenerated());
         jsonObject.put("username", username);
+        jsonObject.put("mealType", recipeItem.getMealType());
         return jsonObject;
     }
         
@@ -117,6 +118,7 @@ class RecipeList extends VBox {
             item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
             item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
             item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
+            item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
         }
         }
@@ -161,6 +163,7 @@ class RecipeList extends VBox {
                 json.put("description", recipe.getFullRecipeDescription());
                 json.put("isGenerated", recipe.isGenerated());
                 json.put("username", username);
+                json.put("mealType", recipe.getMealType());
 
                 System.out.println(json.toString());
 

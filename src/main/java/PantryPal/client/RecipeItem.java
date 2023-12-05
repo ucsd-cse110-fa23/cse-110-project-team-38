@@ -13,10 +13,12 @@ public class RecipeItem extends HBox {
     private VBox detailsBox;
     private Label recipeTitleLabel;
     private Label recipeDescriptionLabel;
+    private Label mealTypeLabel;
     private String fullRecipeTitle;
     private String fullRecipeDescription;
     private String recipeId;
     private boolean generated;
+    private String mealType;
     private LocalDateTime creationTimestamp;
 
     public RecipeItem() {
@@ -31,6 +33,11 @@ public class RecipeItem extends HBox {
         detailsBox.setAlignment(Pos.CENTER_LEFT);
         detailsBox.setPadding(new Insets(0, 0, 0, 10));
 
+        mealTypeLabel = new Label();
+        mealTypeLabel.setStyle("-fx-font-size: 16px;");
+        mealTypeLabel.setWrapText(true);
+        detailsBox.getChildren().add(mealTypeLabel);
+        
         recipeTitleLabel = new Label();
         recipeTitleLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
         recipeTitleLabel.setMaxWidth(250);
@@ -111,4 +118,12 @@ public class RecipeItem extends HBox {
         this.generated = generated;
     }
 
+    public void setMealType(String mealType) {
+        this.mealType = mealType;
+        this.mealTypeLabel.setText(mealType);
+    }
+
+    public String getMealType() {
+        return this.mealType;
+    } 
 }
