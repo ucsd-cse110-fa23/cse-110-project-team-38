@@ -60,15 +60,24 @@ public class APIRequestHandler implements HttpHandler{
 
     private String handlePost(HttpExchange httpExchange) throws IOException, URISyntaxException, InterruptedException {
         String response = "got API post";
-
+        String mealType = "";
         
         // forward our request to whisper
         String whisperResponse = forwardToWhisper(httpExchange);
+        if (whisperResponse.contains("Breakfast") || whisperResponse.contains("breakfast")) {
+            mealType = "Breakfast";
+        }
+        else if (whisperResponse.contains("Lunch") || whisperResponse.contains("lunch")) {
+            mealType = "Lunch";
+        }
+        else {
+            mealType = "Dinner";
+        }
         System.out.println("Whisper Response: " + whisperResponse);
         //send to GPT
         String gptResponse = sendToGPT(whisperResponse);
         System.out.println("GPT response: " + gptResponse);
-        response = StringPacker.encrypt(gptResponse);
+        response = StringPacker.encrypt(mealType + "\n" + gptResponse);
         return response;
     }
 
