@@ -64,6 +64,8 @@ class Constants {
 
 class RecipeList extends VBox {
     public String username;
+    private List<Node> originalRecipeList;
+
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);
@@ -81,6 +83,10 @@ class RecipeList extends VBox {
         return jsonObject;
     }
         
+    private void loadOriginalRecipes() {
+        this.getChildren().clear();
+        this.getChildren().addAll(originalRecipeList);
+    }
 
     public void removeRecipe(RecipeItem recipeItem) {
         //remove from the UI
@@ -110,6 +116,11 @@ class RecipeList extends VBox {
         System.out.println("Sending get request for all recipes");
         String response = request.performRequest("GET", null, null, "ALL", username);
         System.out.println(response);
+
+        originalRecipeList.addAll(this.getChildren());
+
+
+
         //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
         try {
             JSONArray responseArray = new JSONArray(response);
@@ -213,6 +224,27 @@ class RecipeList extends VBox {
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
+    
+    public void filterRecipesByMealType(String mealType) {
+        this.getChildren().clear();
+        
+        // Show all recipes if "all" is selected
+        if ("all".equalsIgnoreCase(mealType)) {
+            this.getChildren().addAll(originalRecipeList);
+        } else {
+            // Filter recipes based on the selected meal type
+            for (Node recipe : originalRecipeList) {
+                if (((RecipeItem) recipe).getMealType().equalsIgnoreCase(mealType)) {
+                    this.getChildren().add(recipe);
+                }
+            }
+        }
+    }
+    
+
+
+
+
 
 
 }
@@ -277,8 +309,28 @@ class Header extends VBox {
         upperRowRight.getChildren().addAll(sortByComboBox);
 
         this.getChildren().addAll(upperRowRight);
+
+
+         // Create a dropdown menu for filtering by meal type
+         ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
+         mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
+         mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+         mealTypeFilterComboBox.setPrefSize(140, 40);
+ 
+         mealTypeFilterComboBox.setOnAction(e -> {
+             if (mealTypeFilterComboBox.getValue() != null) {
+                 if (this.getParent() instanceof AppFrame) {
+                     AppFrame appFrame = (AppFrame) this.getParent();
+                     String filterByMealType = mealTypeFilterComboBox.getValue();
+                     appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
+                 }
+             }
+         });
+ 
+         upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
     
     }
+
 
     public Button getAddButton() {
         return addButton;
