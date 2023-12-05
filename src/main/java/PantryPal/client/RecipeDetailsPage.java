@@ -81,7 +81,7 @@ class RecipeDetailsPage extends VBox {
                 return;
             }
         
-            if (generated) {
+            if (this.generated) {
                 if (currentRecipeItem == null) {
                     currentRecipeItem = new RecipeItem();
                 }
@@ -104,6 +104,7 @@ class RecipeDetailsPage extends VBox {
                 obj.put("username", appFrame.getRecipeList().username);
                 RequestSender request = new RequestSender();
                 String response = request.performRequest("PUT", null, obj, null, appFrame.getRecipeList().username);
+                this.generated = false;
                 //appFrame.getRecipeList().saveRecipes();
             }
         
