@@ -64,7 +64,11 @@ class Constants {
 
 class RecipeList extends VBox {
     public String username;
-
+    private List<RecipeItem> allRecipes;
+    private List<RecipeItem> breakfastRecipes;
+    private List<RecipeItem> lunchRecipes;
+    private List<RecipeItem> dinnerRecipes;
+   
     //private List<Node> originalRecipeList;
 
     RecipeList(String username) {
@@ -73,6 +77,11 @@ class RecipeList extends VBox {
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
         this.loadRecipes();
+        this.allRecipes = new ArrayList<>();
+        this.breakfastRecipes = new ArrayList<>();
+        this.lunchRecipes = new ArrayList<>();
+        this.dinnerRecipes = new ArrayList<>();
+    
     }
 
     public JSONObject buildRecipeJSON(RecipeItem recipeItem, JSONObject jsonObject) {
@@ -128,10 +137,26 @@ class RecipeList extends VBox {
             item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
+
+
+             // Add the recipe to the appropriate list based on meal type
+             allRecipes.add(item);
+             switch (item.getMealType().toLowerCase()) {
+                 case "breakfast":
+                     breakfastRecipes.add(item);
+                     break;
+                 case "lunch":
+                     lunchRecipes.add(item);
+                     break;
+                 case "dinner":
+                     dinnerRecipes.add(item);
+                     break;
+                 default:
+                     break;
+
             
-            
-            //have a copy of original recipes
-            //originalRecipeList.add(item);
+             }
+           
             }
 
         }
@@ -141,6 +166,7 @@ class RecipeList extends VBox {
         }
 
         for(RecipeItem recipe:recipeList){
+
 
 
             this.getChildren().add(recipe);
@@ -227,59 +253,64 @@ class RecipeList extends VBox {
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
-    
-  
-  
+
     public void filterRecipesByMealType(String mealType) {
-        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+        // Clear existing children to prepare for the updated lists
+        this.getChildren().clear();
 
-        // Check if the meal type is "all"; if yes, show all recipes
-        if ("all".equalsIgnoreCase(mealType)) {
-            this.getChildren().clear();
-            this.getChildren().addAll(recipeItems);
-            return; 
+        // Determine which list to use based on the specified meal type
+        List<RecipeItem> filteredList;
+        switch (mealType.toLowerCase()) {
+            case "all":
+                filteredList = allRecipes;
+                break;
+            case "breakfast":
+                filteredList = breakfastRecipes;
+                break;
+            case "lunch":
+                filteredList = lunchRecipes;
+                break;
+            case "dinner":
+                filteredList = dinnerRecipes;
+                break;
+            default:
+                // If an unknown meal type is specified, default to "all"
+                filteredList = allRecipes;
+                break;
         }
-        
-        List<RecipeItem> filteredRecipes = new ArrayList<>();
 
-        // Iterate through the recipe items and filter by meal type
-        for (Node node : recipeItems) {
-            if (node instanceof RecipeItem) {
-                RecipeItem recipe = (RecipeItem) node;
-                if (mealType.equalsIgnoreCase(recipe.getMealType())) {
-                // Add the recipe to the filtered list if it matches the specified meal type
-                filteredRecipes.add(recipe);
-                }
-            }
-        }
-         // Update the UI with the filtered list
-         this.getChildren().clear();
-         this.getChildren().addAll(filteredRecipes);
-}
-
-
-        // this.getChildren().clear();
-        
-        // // Show all recipes if "all" is selected
-        // if ("All".equalsIgnoreCase(mealType)) {
-        //     this.getChildren().addAll(originalRecipeList);
-        // } else {
-        //     // Filter recipes based on the selected meal type
-        //     for (Node recipe : originalRecipeList) {
-        //         if (((RecipeItem) recipe).getMealType().equalsIgnoreCase(mealType)) {
-        //             this.getChildren().add(recipe);
-        //         }
-        //     }
-        // }
-    //}
-
-
-    // public List<Node> getOriginalRecipes() {
-    //     return this.originalRecipeList;
-    // }
+        // Add the recipes from the selected list to the UI
+        this.getChildren().addAll(filteredList);
+    }
     
-    
+  
+  
+    // public void filterRecipesByMealType(String mealType) {
+    //     List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
+    //     // Check if the meal type is "all"; if yes, show all recipes
+    //     if ("all".equalsIgnoreCase(mealType)) {
+    //         this.getChildren().clear();
+    //         this.getChildren().addAll(recipeItems);
+    //         return; 
+    //     }
+        
+    //     List<RecipeItem> filteredRecipes = new ArrayList<>();
+
+    //     // Iterate through the recipe items and filter by meal type
+    //     for (Node node : recipeItems) {
+    //         if (node instanceof RecipeItem) {
+    //             RecipeItem recipe = (RecipeItem) node;
+    //             if (mealType.equalsIgnoreCase(recipe.getMealType())) {
+    //             // Add the recipe to the filtered list if it matches the specified meal type
+    //             filteredRecipes.add(recipe);
+    //             }
+    //         }
+    //     }
+    //      // Update the UI with the filtered list
+    //      this.getChildren().clear();
+    //      this.getChildren().addAll(filteredRecipes);
+//}
 
 
 
