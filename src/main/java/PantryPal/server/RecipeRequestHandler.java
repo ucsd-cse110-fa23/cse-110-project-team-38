@@ -3,6 +3,7 @@ package PantryPal.server;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.sun.glass.ui.SystemClipboard;
 import com.sun.net.httpserver.*;
 
 import PantryPal.client.DatabaseConnect;
@@ -88,7 +89,7 @@ public class RecipeRequestHandler implements HttpHandler {
      * all GET requests should be for loading recipes from the DB
      */
     private String handleGet(HttpExchange httpExchange) throws IOException {
-
+        //System.out.println("Recipe Request Handler.Get");
         URI uri = httpExchange.getRequestURI();
         //System.out.println(json.toString());
         String query = uri.getRawQuery();
