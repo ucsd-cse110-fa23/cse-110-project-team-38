@@ -286,12 +286,24 @@ class Header extends VBox {
 
 class Footer extends HBox {
     private Button logoutButton;
+    private Label usernameLabel;
 
-    Footer() {
+    Footer(String username) {
         this.setAlignment(Pos.CENTER);
         this.setPadding(new Insets(10));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
+        // Username label
+        usernameLabel = new Label("Logged in as: " + username);
+        usernameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+        this.getChildren().add(usernameLabel);
+
+        // Spacer
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        this.getChildren().add(spacer);
+
+        // Logout button
         logoutButton = new Button("Logout");
         logoutButton.setOnAction(e -> handleLogout());
         this.getChildren().add(logoutButton);
@@ -336,7 +348,7 @@ class AppFrame extends BorderPane {
 
         addButton = header.getAddButton();
 
-        footer = new Footer();
+        footer = new Footer(username);
         this.setBottom(footer);
 
         addListeners();
