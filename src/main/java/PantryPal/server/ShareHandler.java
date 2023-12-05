@@ -15,6 +15,7 @@ import org.w3c.dom.html.HTMLDListElement;
  * 
  */
 class ShareHandler implements HttpHandler {
+    private static final String StandardCharsets = null;
     private String username;
     private String title;
     private String desc;
@@ -24,7 +25,7 @@ class ShareHandler implements HttpHandler {
     private Map<String, HttpContext> contextMap;
     private String id;
 
-    ShareHandler(Map<String, HttpContext> contextMap, HttpServer server) {
+    public ShareHandler(Map<String, HttpContext> contextMap, HttpServer server) {
         this.contextMap = contextMap;
         this.server = server;
     }
@@ -78,10 +79,10 @@ class ShareHandler implements HttpHandler {
         return pageHTML.toString();
     }
 
-    public String handlePost(HttpExchange httpExchange) {
+    public String handlePost(HttpExchange httpExchange) throws IOException {
         // get and extract the request body
         InputStream requestBody = httpExchange.getRequestBody();
-        String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+        String body = new String(requestBody.readAllBytes());
 
         // parse the body to get username and password
         String[] params = body.split("&");

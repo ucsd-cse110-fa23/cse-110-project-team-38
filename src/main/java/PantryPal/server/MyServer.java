@@ -44,8 +44,8 @@ public class MyServer {
     HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
 
     //for sharing
-    Map<String,ShareHandler> shareMap = new Map<>();
-    HttpContext shareCotext = server.createContext("/share",new ShareHandler(shareMap, server));
+    Map<String,HttpContext> shareMap = new HashMap<>();
+    HttpContext shareContext = server.createContext("/share",new ShareHandler(shareMap, server));
     
     
     server.setExecutor(threadPoolExecutor);
