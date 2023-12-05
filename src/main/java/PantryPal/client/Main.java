@@ -52,6 +52,8 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.prefs.Preferences;
+
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
     public static final String SECONDARY_COLOR = "#D5D8DC";
@@ -84,7 +86,6 @@ class RecipeList extends VBox {
         this.getChildren().remove(recipeItem);
 
         JSONObject json = new JSONObject();
-        //TODO: pack recipeitem into the json
         json = buildRecipeJSON(recipeItem, json);
 
         RequestSender request = new RequestSender();
@@ -297,10 +298,17 @@ class Footer extends HBox {
     }
 
     private void handleLogout() {
+        clearStoredCredentials();
         Stage stage = (Stage) this.getScene().getWindow();
         LoginPage loginPage = new LoginPage(stage);
         Scene scene = new Scene(loginPage, 300, 200);
         stage.setScene(scene);
+    }
+
+    private void clearStoredCredentials() {
+        Preferences prefs = Preferences.userNodeForPackage(LoginPage.class);
+        prefs.remove("username");
+        prefs.remove("password");
     }
 }
 
