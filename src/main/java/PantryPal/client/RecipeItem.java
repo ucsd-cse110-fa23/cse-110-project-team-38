@@ -7,6 +7,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 public class RecipeItem extends HBox {
@@ -109,6 +115,30 @@ public class RecipeItem extends HBox {
     
     public void setGenerated(boolean generated) {
         this.generated = generated;
+    }
+
+    public String shareRecipe(String username){
+        HttpClient client = HttpClient.newHttpClient();
+
+        //request body format
+        //System.out.println(username);
+        //System.out.println(fullRecipeTitle);
+        //System.out.println(fullRecipeDescription);
+        String Id = Integer.toString(this.hashCode());
+        System.out.println(Id);
+        String formParams = "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) +
+                            "&title=" + URLEncoder.encode(this.fullRecipeTitle, StandardCharsets.UTF_8) +
+                            "&description=" + URLEncoder.encode(this.fullRecipeDescription, StandardCharsets.UTF_8) +
+                            "&id=" + URLEncoder.encode(Id, StandardCharsets.UTF_8);
+
+        //POST request to server
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8100/recipe"))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(formParams))
+                .build();
+
+        return ("http://localhost:8100/recipe" + "/" + username + "/" + Id);
     }
 
 }

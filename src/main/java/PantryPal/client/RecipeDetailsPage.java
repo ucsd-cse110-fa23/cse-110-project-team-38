@@ -39,6 +39,7 @@ class RecipeDetailsPage extends VBox {
     private Button editButton;
     private Button deleteButton;
     private Button regenerateButton;
+    private Button shareButton;
     private RecipeItem currentRecipeItem;
     private AppFrame appFrame;
     private boolean generated = false;
@@ -126,6 +127,10 @@ class RecipeDetailsPage extends VBox {
         regenerateButton.setVisible(generated);
         regenerateButton.setOnAction(e -> regenerateRecipe());
 
+        shareButton = new Button("Share");
+        styleButton(shareButton);
+        shareButton.setOnAction(e -> shareRecipe());
+
         String imagePath = generateImage();
         Image image = new Image(new File(imagePath).toURI().toString());
         imageView.setImage(image);
@@ -133,7 +138,7 @@ class RecipeDetailsPage extends VBox {
         imageView.setFitWidth(250);
         imageView.setPreserveRatio(true);
 
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton, regenerateButton);
+        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton, regenerateButton, shareButton);
     }
 
     private void setEditableMode(boolean editable) {
@@ -150,6 +155,12 @@ class RecipeDetailsPage extends VBox {
         }
         parentList.saveRecipes();
         goBack();
+    }
+
+    private void shareRecipe() {
+        RecipeList parentList = (RecipeList) currentRecipeItem.getParent();
+        String link = currentRecipeItem.shareRecipe(parentList.username);
+        System.out.println("link: " + link);
     }
 
     private void goBack() {

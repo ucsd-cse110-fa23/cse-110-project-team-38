@@ -43,7 +43,7 @@ public class RecipeRequestHandler implements HttpHandler {
         this.recipeList = recipeList;
         this.recipes = recipes;
     }
-
+    
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
