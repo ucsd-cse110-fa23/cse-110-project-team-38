@@ -83,10 +83,6 @@ class RecipeList extends VBox {
         return jsonObject;
     }
         
-    private void loadOriginalRecipes() {
-        this.getChildren().clear();
-        this.getChildren().addAll(originalRecipeList);
-    }
 
     public void removeRecipe(RecipeItem recipeItem) {
         //remove from the UI
@@ -131,6 +127,10 @@ class RecipeList extends VBox {
             item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
+            //have a copy of original recipes
+            if (!item.isGenerated()) {
+                originalRecipeList.add(item);
+            }
         }
         }
         catch (Exception err) {
@@ -240,6 +240,10 @@ class RecipeList extends VBox {
             }
         }
     }
+    public List<Node> getOriginalRecipes() {
+        return this.originalRecipeList;
+    }
+    
     
 
 
@@ -306,30 +310,33 @@ class Header extends VBox {
             }
         });
 
-        upperRowRight.getChildren().addAll(sortByComboBox);
+        // Create a dropdown menu for filtering by meal type
 
-        this.getChildren().addAll(upperRowRight);
-
-
-         // Create a dropdown menu for filtering by meal type
-         ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
-         mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
-         mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-         mealTypeFilterComboBox.setPrefSize(140, 40);
- 
-         mealTypeFilterComboBox.setOnAction(e -> {
-             if (mealTypeFilterComboBox.getValue() != null) {
-                 if (this.getParent() instanceof AppFrame) {
-                     AppFrame appFrame = (AppFrame) this.getParent();
-                     String filterByMealType = mealTypeFilterComboBox.getValue();
-                     appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
-                 }
-             }
-         });
- 
-         upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+        ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
+        mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
+        mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+        mealTypeFilterComboBox.setPrefSize(140, 40);
+   
+        mealTypeFilterComboBox.setOnAction(e -> {
+            if (mealTypeFilterComboBox.getValue() != null) {
+                if (this.getParent() instanceof AppFrame) {
+                    AppFrame appFrame = (AppFrame) this.getParent();
+                    String filterByMealType = mealTypeFilterComboBox.getValue();
+                    appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
+                }
+            }
+        });
+   
+       upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+       this.getChildren().addAll(upperRowRight);
     
     }
+       
+   
+
+       
+
+       
 
 
     public Button getAddButton() {
