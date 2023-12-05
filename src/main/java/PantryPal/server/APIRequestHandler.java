@@ -125,7 +125,14 @@ public class APIRequestHandler implements HttpHandler{
         // //chatGPT call used to get back chatGPT output
         ChatGPT chatGPT = new ChatGPT();
         System.out.println("Processing request...");
-        response = chatGPT.processRequest(prompt + " generate a recipe");
+        if (!prompt.contains("Breakfast") || !prompt.contains("breakfast")
+            || !prompt.contains("Lunch") || !prompt.contains("lunch")
+            || !prompt.contains("Dinner") || !prompt.contains("dinner")) {
+                response = chatGPT.processRequest("Dinner" + prompt + " generate a recipe");
+        }
+        else {
+            response = chatGPT.processRequest(prompt + " generate a recipe");
+        }
         return response;
     }
 }
