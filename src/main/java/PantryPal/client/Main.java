@@ -113,7 +113,7 @@ class RecipeList extends VBox {
         String response = request.performRequest("GET", null, null, "ALL", username);
         System.out.println(response);
 
-        originalRecipeList.addAll(this.getChildren());
+        //originalRecipeList.addAll(this.getChildren());
 
 
 
