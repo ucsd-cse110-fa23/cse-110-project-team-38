@@ -272,7 +272,7 @@ class RecipeList extends VBox {
 
     public void filterRecipesByMealType(String mealType) {
         // Clear existing children to prepare for the updated lists
-        this.getChildren().clear();
+        //this.getChildren().clear();
     
         // Determine which list to use based on the specified meal type
         List<RecipeItem> filteredList;
