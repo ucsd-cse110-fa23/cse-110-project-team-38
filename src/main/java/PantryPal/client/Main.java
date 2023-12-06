@@ -52,6 +52,8 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.prefs.Preferences;
+
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
     public static final String SECONDARY_COLOR = "#D5D8DC";
@@ -75,6 +77,7 @@ class RecipeList extends VBox {
         jsonObject.put("description", recipeItem.getFullRecipeDescription());
         jsonObject.put("isGenerated", recipeItem.isGenerated());
         jsonObject.put("username", username);
+        jsonObject.put("mealType", recipeItem.getMealType());
         return jsonObject;
     }
         
@@ -84,7 +87,6 @@ class RecipeList extends VBox {
         this.getChildren().remove(recipeItem);
 
         JSONObject json = new JSONObject();
-        //TODO: pack recipeitem into the json
         json = buildRecipeJSON(recipeItem, json);
 
         String response = RequestSender.performRequest("DELETE", "recipe", json, recipeItem.getFullRecipeTitle(), username);
@@ -114,6 +116,7 @@ class RecipeList extends VBox {
             item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
             item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
             item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
+            item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
         }
         }
@@ -144,6 +147,7 @@ class RecipeList extends VBox {
                 json.put("description", recipe.getFullRecipeDescription());
                 json.put("isGenerated", recipe.isGenerated());
                 json.put("username", username);
+                json.put("mealType", recipe.getMealType());
 
                 System.out.println(json.toString());
 
@@ -250,22 +254,41 @@ class Header extends VBox {
 
 class Footer extends HBox {
     private Button logoutButton;
+    private Label usernameLabel;
 
-    Footer() {
+    Footer(String username) {
         this.setAlignment(Pos.CENTER);
         this.setPadding(new Insets(10));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
+        // Username label
+        usernameLabel = new Label("Logged in as: " + username);
+        usernameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
+        this.getChildren().add(usernameLabel);
+
+        // Spacer
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        this.getChildren().add(spacer);
+
+        // Logout button
         logoutButton = new Button("Logout");
         logoutButton.setOnAction(e -> handleLogout());
         this.getChildren().add(logoutButton);
     }
 
     private void handleLogout() {
+        clearStoredCredentials();
         Stage stage = (Stage) this.getScene().getWindow();
         LoginPage loginPage = new LoginPage(stage);
         Scene scene = new Scene(loginPage, 300, 200);
         stage.setScene(scene);
+    }
+
+    private void clearStoredCredentials() {
+        Preferences prefs = Preferences.userNodeForPackage(LoginPage.class);
+        prefs.remove("username");
+        prefs.remove("password");
     }
 }
 
@@ -293,7 +316,7 @@ class AppFrame extends BorderPane {
 
         addButton = header.getAddButton();
 
-        footer = new Footer();
+        footer = new Footer(username);
         this.setBottom(footer);
 
         addListeners();

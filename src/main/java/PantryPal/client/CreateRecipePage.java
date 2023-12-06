@@ -87,9 +87,12 @@ public class CreateRecipePage extends VBox {
                 String[] parts = response.split("\n");
                 System.out.println("GPT response: " + response);
                 RecipeItem newRecipe = new RecipeItem();
-                newRecipe.setRecipeTitle(parts[2]);
-                String detailsWithNoTitle = response.replace(parts[2], "");
-                newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n", ""));
+                newRecipe.setRecipeTitle(parts[3]);
+                String detailsWithNoTag = response.replace(parts[0], "");
+                String detailsWithNoTitle = detailsWithNoTag.replace(parts[3], "");
+                newRecipe.setRecipeDescription(detailsWithNoTitle.replace("\n\n\n\n\n", ""));
+                System.out.println(parts[0]);
+                newRecipe.setMealType(parts[0]);
 
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, newRecipe, true, true);
                 Stage stage = (Stage) this.getScene().getWindow();

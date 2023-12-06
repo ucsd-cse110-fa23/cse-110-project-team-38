@@ -53,6 +53,9 @@ class RecipeDetailsPage extends VBox {
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
+        Label mealTypeLabel = new Label(recipeItem.getMealType());
+        styleLabels(mealTypeLabel);
+
         Label titleLabel = new Label("What To Cook Today?");
         styleLabels(titleLabel);
         titleField = new TextField(recipeItem.getFullRecipeTitle());
@@ -139,7 +142,7 @@ class RecipeDetailsPage extends VBox {
         imageView.setFitWidth(250);
         imageView.setPreserveRatio(true);
 
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton, regenerateButton, shareButton);
+        this.getChildren().addAll(backButton, mealTypeLabel, titleLabel, titleField, descriptionLabel, descriptionField, imageView, editButton, deleteButton, doneButton, regenerateButton, shareButton);
     }
 
     private void setEditableMode(boolean editable) {
@@ -259,9 +262,12 @@ class RecipeDetailsPage extends VBox {
         // //parse output of ChatGPT
         String[] parts = response.split("\n");
         System.out.println("GPT response: " + response);
-        titleField.setText(parts[2]);
-        String detailsWithNoTitle = response.replace(parts[2], "");
-        descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n", ""));
+        titleField.setText(parts[3]);
+        String detailsWithNoTag = response.replace(parts[0], "");
+        String detailsWithNoTitle = detailsWithNoTag.replace(parts[3], "");
+        descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n\n", ""));
+        System.out.println(parts[0]);
+        currentRecipeItem.setMealType(parts[0]);
 
         String imagePath = generateImage();
         Image image = new Image(new File(imagePath).toURI().toString());
