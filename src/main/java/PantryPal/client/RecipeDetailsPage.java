@@ -174,7 +174,7 @@ class RecipeDetailsPage extends VBox {
         shareHBox.getChildren().addAll(shareButton, shareCopyLabel);
 
 
-        this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView,
+        this.getChildren().addAll(backButton, mealTypeLabel, titleLabel, titleField, descriptionLabel, descriptionField, imageView,
                 editButton, deleteButton, doneButton, regenerateButton, shareHBox);
     }
 
