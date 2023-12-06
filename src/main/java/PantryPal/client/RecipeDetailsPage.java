@@ -99,7 +99,8 @@ class RecipeDetailsPage extends VBox {
                 }
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
-       
+                currentRecipeItem.setGenerated(false);
+        
                 //only add newRecipe to the list if it's a newly generated recipe
                 if (!appFrame.getRecipeList().getChildren().contains(currentRecipeItem)) {
                     appFrame.getRecipeList().getChildren().add(0, currentRecipeItem);

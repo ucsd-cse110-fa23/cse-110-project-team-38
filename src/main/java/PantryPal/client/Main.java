@@ -106,22 +106,7 @@ class RecipeList extends VBox {
             json = buildRecipeJSON(recipeItem, json);
 
             RequestSender request = new RequestSender();
-            System.out.println("Calling DELETE request");
-            String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
-
-            // TODO: working code below!!! port to server!!!
-            // MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-            // Bson filter = Filters.and(
-            //         Filters.eq("username", username),
-            //         Filters.eq("title", recipeItem.getFullRecipeTitle()),
-            //         Filters.eq("description", recipeItem.getFullRecipeDescription())
-            // );
-            // recipesCollection.deleteOne(filter);
-        }
-
-
-    public void addThenCategorizeRecipe(RecipeItem recipe) {
-        categorizeRecipe(recipe);
+            String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle().replace(" ", "+"), username);
     }
 
 
@@ -133,17 +118,17 @@ class RecipeList extends VBox {
         try {
             JSONArray responseArray = new JSONArray(response);
             for (int i = 0; i < responseArray.length(); i++) {
-                RecipeItem item = new RecipeItem();
-                item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
-                item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
-                item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
-                item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
-                categorizeRecipe(item);
-            }
+            RecipeItem item = new RecipeItem();
+            item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
+            item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
+            item.setGenerated(true);
+            item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
+            categorizeRecipe(item);
+            } 
         } catch (Exception err) {
-            System.out.println("Error loading recipes: " + err.getMessage());
+                System.out.println("Error loading recipes: " + err.getMessage());
+            this.getChildren().addAll(allRecipes);
         }
-        this.getChildren().addAll(allRecipes);
     }
 
 
@@ -177,6 +162,10 @@ class RecipeList extends VBox {
         this.getChildren().addAll(filteredList);
     }
 
+    public void addThenCategorizeRecipe(RecipeItem recipe) {
+        categorizeRecipe(recipe);
+    }
+
 
 
 
@@ -205,15 +194,11 @@ class RecipeList extends VBox {
                 json.put("username", username);
                 json.put("mealType", recipe.getMealType());
 
-
-
+                recipe.setGenerated(true);
 
                 System.out.println(json.toString());
 
-
-
-
-                String response = request.performRequest("POST", null, json, null, null); //perform a save post given json and no query
+                String response = request.performRequest("POST", null, json, null, username); //perform a save post given json and no query
 
 
 
