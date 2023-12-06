@@ -1,5 +1,6 @@
 package PantryPal.client;
 
+
 import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -19,10 +20,16 @@ import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+
+
+
 import java.io.File;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Scanner;
+
+
+
 
 import javafx.scene.layout.Region;
 import java.io.PrintWriter;
@@ -32,15 +39,27 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
+
+
 import java.util.Comparator;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
+
+
+
+
+
+
 
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
+
+
+
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -52,7 +71,13 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
+
+
 import java.util.prefs.Preferences;
+
+
+
 
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
@@ -61,6 +86,9 @@ class Constants {
     public static final int MAX_TITLE_LENGTH = 15;
     public static final int MAX_DESCRIPTION_LENGTH = 40;
 }
+
+
+
 
 class RecipeList extends VBox {
     public String username;
@@ -71,18 +99,23 @@ class RecipeList extends VBox {
    
     //private List<Node> originalRecipeList;
 
+
+
+
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
-        this.loadRecipes();
-        // this.allRecipes = new ArrayList<>();
-        // this.breakfastRecipes = new ArrayList<>();
-        // this.lunchRecipes = new ArrayList<>();
-        // this.dinnerRecipes = new ArrayList<>();
-    
+        this.allRecipes = new ArrayList<>();
+        this.breakfastRecipes = new ArrayList<>();
+        this.lunchRecipes = new ArrayList<>();
+        this.dinnerRecipes = new ArrayList<>();
+        loadRecipes();
     }
+
+
+
 
     public JSONObject buildRecipeJSON(RecipeItem recipeItem, JSONObject jsonObject) {
         jsonObject.put("title", recipeItem.getFullRecipeTitle());
@@ -92,17 +125,29 @@ class RecipeList extends VBox {
         jsonObject.put("mealType", recipeItem.getMealType());
         return jsonObject;
     }
-        
+       
+
+
+
 
     public void removeRecipe(RecipeItem recipeItem) {
         //remove from the UI
         this.getChildren().remove(recipeItem);
 
+
+
+
         JSONObject json = new JSONObject();
         json = buildRecipeJSON(recipeItem, json);
 
+
+
+
         RequestSender request = new RequestSender();
         String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
+
+
+
 
         //TODO: working code below!!! port to server!!!
         //remove from database
@@ -116,70 +161,67 @@ class RecipeList extends VBox {
     }
 
 
+    public void addThenCategorizeRecipe(RecipeItem recipe) {
+        categorizeRecipe(recipe);
+    }
+
+
+
+
     public void loadRecipes() {
         RequestSender request = new RequestSender();
-        ArrayList<RecipeItem> recipeList = new ArrayList<>();
-        System.out.println("Sending get request for all recipes");
         String response = request.performRequest("GET", null, null, "ALL", username);
-        System.out.println(response);
-
-        //originalRecipeList.addAll(this.getChildren());
-
-
-
-        //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
         try {
             JSONArray responseArray = new JSONArray(response);
             for (int i = 0; i < responseArray.length(); i++) {
-            RecipeItem item = new RecipeItem();
-            item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
-            item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
-            item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
-            item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
-            recipeList.add(item);
+                RecipeItem item = new RecipeItem();
+                item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
+                item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
+                item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
+                item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
+                categorizeRecipe(item);
             }
-
-        for (RecipeItem item : recipeList) {
-            allRecipes.add(item);
-
-            String mealType = item.getMealType().toLowerCase();
-            if ("breakfast".equals(mealType)) {
-                breakfastRecipes.add(item);
-            } else if ("lunch".equals(mealType)) {
-                lunchRecipes.add(item);
-            } else if ("dinner".equals(mealType)) {
-                dinnerRecipes.add(item);
-            }
+        } catch (Exception err) {
+            System.out.println("Error loading recipes: " + err.getMessage());
         }
-    
-
-        }
-
-
-        catch (Exception err) {
-            System.out.println("Empty");
-        }
-
-        for(RecipeItem recipe:recipeList){
-
-
-
-            this.getChildren().add(recipe);
-        }
-        
-
-
-        //TODO: working code below!!! PORT TO SERVER!
-        // MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        // FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
-        // for (Document recipeDoc : recipes) {
-        //     RecipeItem recipe = new RecipeItem();
-        //     recipe.setRecipeTitle(recipeDoc.getString("title"));
-        //     recipe.setRecipeDescription(recipeDoc.getString("description"));
-        //     recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
-        //     this.getChildren().add(recipe);
-        // }
+        this.getChildren().addAll(allRecipes);
     }
+
+
+
+
+    private void categorizeRecipe(RecipeItem recipe) {
+        allRecipes.add(recipe);
+        String mealType = recipe.getMealType().toLowerCase();
+        switch (mealType) {
+            case "breakfast":
+                breakfastRecipes.add(recipe);
+                break;
+            case "lunch":
+                lunchRecipes.add(recipe);
+                break;
+            case "dinner":
+                dinnerRecipes.add(recipe);
+                break;
+        }
+    }
+
+
+
+
+    public void filterRecipesByMealType(String mealType) {
+        this.getChildren().clear();
+        List<RecipeItem> filteredList = switch (mealType.toLowerCase()) {
+            case "breakfast" -> breakfastRecipes;
+            case "lunch" -> lunchRecipes;
+            case "dinner" -> dinnerRecipes;
+            default -> allRecipes;
+        };
+        this.getChildren().addAll(filteredList);
+    }
+
+
+
 
     public void saveRecipes() {
         RequestSender request = new RequestSender();
@@ -187,11 +229,17 @@ class RecipeList extends VBox {
          * either call loop a post request for each client recipe, OR make one big json and send ONE request
          */
 
+
+
+
         //MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         for (Node node : this.getChildren()) {
             if (node instanceof RecipeItem) {
                 RecipeItem recipe = (RecipeItem) node;
                 JSONObject json = new JSONObject();
+
+
+
 
                 //TODO: pack recipe item data we need to save into json
                 json.put("title", recipe.getFullRecipeTitle());
@@ -200,14 +248,26 @@ class RecipeList extends VBox {
                 json.put("username", username);
                 json.put("mealType", recipe.getMealType());
 
+
+
+
                 System.out.println(json.toString());
 
+
+
+
                 String response = request.performRequest("POST", null, json, null, null); //perform a save post given json and no query
+
+
+
 
                 //TODO: working DB save code below! port to server!!!
                 // Document recipeDoc = new Document("username", username)
                 //                         .append("title", recipe.getFullRecipeTitle())
                 //                         .append("description", recipe.getFullRecipeDescription());
+
+
+
 
                 // if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
                 //     // Insert new recipe only if it's generated and not yet saved
@@ -222,42 +282,72 @@ class RecipeList extends VBox {
                 // }
 
 
+
+
+
+
+
+
             }
         }
     }
 
 
+
+
+
+
+
+
     public void sortRecipesAlphabetically() {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+
+
 
         // Sort the recipe items alphabetically based on the recipe titles
         Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getRecipeTitle()));
 
+
+
+
         // Clear the existing children and add the sorted recipe items
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
+
+
+
 
     public void sortRecipesChronologically() {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
+
+
+
         // Sort the recipe items chronologically based on the creation timestamp
         Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()).reversed());
+
+
+
 
         // Clear the existing children and add the sorted recipe items
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
 
+
+
+
     // public void filterRecipesByMealType(String mealType) {
     //     // Clear existing children to prepare for the updated lists
     //     this.getChildren().clear();
-    
+   
     //     // Determine which list to use based on the specified meal type
-    //     List<Node> filteredList;
-    
+    //     List<RecipeItem> filteredList;
+   
     //     String lowerCaseMealType = mealType.toLowerCase();
-        
+       
     //     if ("all".equals(lowerCaseMealType)) {
     //         filteredList = allRecipes;
     //     } else if ("breakfast".equals(lowerCaseMealType)) {
@@ -270,45 +360,99 @@ class RecipeList extends VBox {
     //         // If an unknown meal type is specified, default to "all"
     //         filteredList = allRecipes;
     //     }
-    
+   
     //     // Add the recipes from the selected list to the UI
     //     this.getChildren().addAll(filteredList);
     // }
-    public void filterRecipesByMealType(String mealType){
-        this.getChildren().clear();
-        List<RecipeItem> filteredList = switch(mealType.toLowerCase()){
-            case "breakfast" -> breakfastRecipes;
-            case "lunch" ->lunchRecipes;
-            case "dinner" -> dinnerRecipes;
-            default -> allRecipes;
+   
+ 
+ 
+    // public void filterRecipesByMealType(String mealType) {
+    //     List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
 
-        };
-        this.getChildren().addAll(filteredList);
-    }
 
-    
-  
+
+    //     // Check if the meal type is "all"; if yes, show all recipes
+    //     if ("all".equalsIgnoreCase(mealType)) {
+    //         this.getChildren().clear();
+    //         this.getChildren().addAll(recipeItems);
+    //         return;
+    //     }
+       
+    //     List<RecipeItem> filteredRecipes = new ArrayList<>();
+
+
+
+
+    //     // Iterate through the recipe items and filter by meal type
+    //     for (Node node : recipeItems) {
+    //         if (node instanceof RecipeItem) {
+    //             RecipeItem recipe = (RecipeItem) node;
+    //             if (mealType.equalsIgnoreCase(recipe.getMealType())) {
+    //             // Add the recipe to the filtered list if it matches the specified meal type
+    //             filteredRecipes.add(recipe);
+    //             }
+    //         }
+    //     }
+    //      // Update the UI with the filtered list
+    //      this.getChildren().clear();
+    //      this.getChildren().addAll(filteredRecipes);
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 }
 
+
+
+
 class Header extends VBox {
+
+
+
 
     private Button addButton;
     // private Button sortButton;
+
+
+
 
     Header() {
         this.setPrefSize(500, 60);
         this.setStyle("-fx-background-color: white; -fx-alignment: center;");
 
+
+
+
         HBox upperRow = new HBox();
         upperRow.setAlignment(Pos.CENTER);
 
+
+
+
         HBox upperRowRight = new HBox();
         upperRowRight.setAlignment(Pos.TOP_RIGHT);
+
+
+
 
         String addButtonStyle = "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 18px;";
         addButton = new Button("+");
@@ -317,19 +461,37 @@ class Header extends VBox {
         upperRow.getChildren().add(addButton);
         HBox.setMargin(addButton, new Insets(0, 10, 0, 10));
 
+
+
+
         Region leftSpacer = new Region();
         HBox.setHgrow(leftSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(leftSpacer);
+
+
+
 
         Text titleText = new Text("Pantry Pal");
         titleText.setStyle("-fx-font-weight: bold; -fx-font-size: 20;");
         upperRow.getChildren().add(titleText);
 
+
+
+
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(rightSpacer);
 
+
+
+
         this.getChildren().addAll(upperRow);
+
+
+
+
+
+
 
 
         //create a dropdown menu
@@ -337,6 +499,9 @@ class Header extends VBox {
         sortByComboBox.setPromptText("Sort By");
         sortByComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
         sortByComboBox.setPrefSize(140, 40);
+
+
+
 
         sortByComboBox.setOnAction(e -> {
             if (sortByComboBox.getValue() != null) {
@@ -352,7 +517,13 @@ class Header extends VBox {
             }
         });
 
+
+
+
         // Create a dropdown menu for filtering by meal type
+
+
+
 
         ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
         mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
@@ -372,47 +543,83 @@ class Header extends VBox {
         upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
        //upperRowRight.getChildren().addAll(sortByComboBox);
        this.getChildren().addAll(upperRowRight);
-    
+   
     }
        
    
 
-       
+
+
 
        
+
+
+
+
+       
+
+
+
+
+
+
 
 
     public Button getAddButton() {
         return addButton;
     }
 
+
+
+
 }
+
+
+
+
+
+
 
 
 class Footer extends HBox {
     private Button logoutButton;
     private Label usernameLabel;
 
+
+
+
     Footer(String username) {
         this.setAlignment(Pos.CENTER);
         this.setPadding(new Insets(10));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
+
+
+
 
         // Username label
         usernameLabel = new Label("Logged in as: " + username);
         usernameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: black;");
         this.getChildren().add(usernameLabel);
 
+
+
+
         // Spacer
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         this.getChildren().add(spacer);
+
+
+
 
         // Logout button
         logoutButton = new Button("Logout");
         logoutButton.setOnAction(e -> handleLogout());
         this.getChildren().add(logoutButton);
     }
+
+
+
 
     private void handleLogout() {
         clearStoredCredentials();
@@ -422,6 +629,9 @@ class Footer extends HBox {
         stage.setScene(scene);
     }
 
+
+
+
     private void clearStoredCredentials() {
         Preferences prefs = Preferences.userNodeForPackage(LoginPage.class);
         prefs.remove("username");
@@ -430,12 +640,24 @@ class Footer extends HBox {
 }
 
 
+
+
+
+
+
+
 class AppFrame extends BorderPane {
+
+
+
 
     private Header header;
     private Footer footer;
     private RecipeList recipeList;
     private Button addButton;
+
+
+
 
     AppFrame(String username) {
         this.setStyle("-fx-background-color: linear-gradient(to bottom, " + Constants.PRIMARY_COLOR + ", "
@@ -443,7 +665,13 @@ class AppFrame extends BorderPane {
         header = new Header();
         recipeList = new RecipeList(username);
 
+
+
+
         this.setTop(header);
+
+
+
 
         ScrollPane scroller = new ScrollPane();
         scroller.setContent(recipeList);
@@ -451,13 +679,25 @@ class AppFrame extends BorderPane {
         scroller.setFitToHeight(true);
         this.setCenter(scroller);
 
+
+
+
         addButton = header.getAddButton();
+
+
+
 
         footer = new Footer(username);
         this.setBottom(footer);
 
+
+
+
         addListeners();
     }
+
+
+
 
     public void addListeners() {
         addButton.setOnAction(e -> {
@@ -472,12 +712,21 @@ class AppFrame extends BorderPane {
         });
     }
 
+
+
+
     public RecipeList getRecipeList() {
         return recipeList;
     }
 }
 
+
+
+
 public class Main extends Application {
+
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -488,14 +737,20 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+
+
+
     @Override
     public void stop(){
         //deletes existing images of recipes
-        for(File file: new File("images").listFiles()) 
-        if (!file.isDirectory()) 
+        for(File file: new File("images").listFiles())
+        if (!file.isDirectory())
             file.delete();
         System.out.println("Stage is closing");
     }
+
+
+
 
     public static void main(String[] args) {
         launch(args);
