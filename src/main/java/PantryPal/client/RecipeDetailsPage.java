@@ -1,5 +1,6 @@
 package PantryPal.client;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -52,6 +53,7 @@ class RecipeDetailsPage extends VBox {
     private ImageView imageView = new ImageView();
     private Label shareCopyLabel = new Label();
 
+
     public RecipeDetailsPage(AppFrame appFrame, RecipeItem recipeItem, boolean isEditable, boolean generated)
             throws IOException, InterruptedException, URISyntaxException {
         this.appFrame = appFrame;
@@ -98,6 +100,8 @@ class RecipeDetailsPage extends VBox {
                 showAlert("Incomplete Recipe Details", "Please make sure there are no empty fields!");
                 return;
             }
+
+
             if (this.generated) {
                 if (currentRecipeItem == null) {
                     currentRecipeItem = new RecipeItem();
@@ -105,12 +109,12 @@ class RecipeDetailsPage extends VBox {
                 currentRecipeItem.setRecipeTitle(titleField.getText());
                 currentRecipeItem.setRecipeDescription(descriptionField.getText());
                 currentRecipeItem.setGenerated(false);
-        
+       
                 //only add newRecipe to the list if it's a newly generated recipe
                 if (!appFrame.getRecipeList().getChildren().contains(currentRecipeItem)) {
                     appFrame.getRecipeList().getChildren().add(0, currentRecipeItem);
                 }
-                this.generated = false; //reset the flag after saving
+                this.generated = false; // reset the flag after saving
                 appFrame.getRecipeList().addThenCategorizeRecipe(currentRecipeItem);
                 appFrame.getRecipeList().saveRecipes();
             } else {
@@ -122,14 +126,17 @@ class RecipeDetailsPage extends VBox {
                 obj.put("description", currentRecipeItem.getFullRecipeDescription());
                 obj.put("username", appFrame.getRecipeList().username);
 
-                RequestSender request = new RequestSender();
-                String response = request.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
+
+
+
+                String response = RequestSender.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
                 this.generated = false;
                 // appFrame.getRecipeList().saveRecipes();
             }
+
+
             setEditableMode(false);
         });
-       
 
 
         editButton = new Button("Edit");
@@ -148,9 +155,11 @@ class RecipeDetailsPage extends VBox {
         regenerateButton.setVisible(generated);
         regenerateButton.setOnAction(e -> regenerateRecipe());
 
+
         shareButton = new Button("Share");
         styleButton(shareButton);
         shareButton.setOnAction(e -> shareRecipe());
+
 
         String imagePath = generateImage();
         Image image = new Image(new File(imagePath).toURI().toString());
@@ -159,9 +168,11 @@ class RecipeDetailsPage extends VBox {
         imageView.setFitWidth(250);
         imageView.setPreserveRatio(true);
 
+
         // make an HBox in the place of shareButton
         HBox shareHBox = new HBox();
         shareHBox.getChildren().addAll(shareButton, shareCopyLabel);
+
 
         this.getChildren().addAll(backButton, titleLabel, titleField, descriptionLabel, descriptionField, imageView,
                 editButton, deleteButton, doneButton, regenerateButton, shareHBox);
@@ -185,6 +196,7 @@ class RecipeDetailsPage extends VBox {
         goBack();
     }
 
+
     private void shareRecipe() {
         RecipeList parentList = (RecipeList) currentRecipeItem.getParent();
         String link = RequestSender.SERVER_URL + currentRecipeItem.shareRecipe(parentList.username);
@@ -196,6 +208,8 @@ class RecipeDetailsPage extends VBox {
         System.out.println("should have copoied link to clipboard...");
 
 
+
+
         this.shareCopyLabel.setText("Copied to Clipboard!!");
         // this.shareCopyLabel.setOnAction((event) -> {
         //     Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -204,9 +218,11 @@ class RecipeDetailsPage extends VBox {
         //     clipboard.setContent(content);
         //     System.out.println("should have copoied link to clipboard...");
 
+
         // });
         // this.showAlert("Link Generated: ", link);
     }
+
 
     private void goBack() {
         Stage stage = (Stage) this.getScene().getWindow();
@@ -232,6 +248,7 @@ class RecipeDetailsPage extends VBox {
     private void styleTextInputControl(TextInputControl control, boolean isTextArea, String fontFamily) {
         control.setPrefHeight(40);
 
+
         if (isTextArea) {
             control.setStyle("-fx-font-size: 14px; -fx-font-family: '" + fontFamily
                     + "';-fx-background-color: #F5F5F5; -fx-border-radius: 5; -fx-border-color: #CCCCCC; -fx-padding: 5 10;");
@@ -241,6 +258,7 @@ class RecipeDetailsPage extends VBox {
                     + "'; -fx-background-color: #F5F5F5; -fx-border-radius: 5; -fx-border-color: #CCCCCC; -fx-padding: 5 10; -fx-font-weight: bold;");
         }
     }
+
 
     private void styleButton(Button button) {
         button.setStyle("-fx-font-size: 16px; -fx-font-family: Impact;-fx-background-color: " + Constants.PRIMARY_COLOR
@@ -255,10 +273,10 @@ class RecipeDetailsPage extends VBox {
 
 
     private String generateImage() throws MalformedURLException, IOException, URISyntaxException {
-        RequestSender request = new RequestSender();
+       
         String newFileName = titleField.getText().replaceAll("\\s", "");
         String newPath = "images/" + newFileName + ".jpg";
-        String response = request.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
+        String response = RequestSender.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
         JSONObject responsePath = new JSONObject(response);
         String imageURL = responsePath.getString("imageURL");
         currentRecipeItem.setImgURL(imageURL);

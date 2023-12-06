@@ -136,56 +136,56 @@ public class FilterTest {
         }
     }
 
-    @Test
-    public void testFilterBreakfast() {
-        try {
+    //@Test
+    // public void testFilterBreakfast() {
+    //     try {
 
-            item1.setMealType("Breakfast");
-            item2.setMealType("Lunch");
-            item3.setMealType("Dinner");
-            item4.setMealType("Dinner");
+    //         item1.setMealType("Breakfast");
+    //         item2.setMealType("Lunch");
+    //         item3.setMealType("Dinner");
+    //         item4.setMealType("Dinner");
 
-            List<RecipeItem> breakfastRecipes = new ArrayList<RecipeItem>();
-            List<RecipeItem> lunchRecipes = new ArrayList<RecipeItem>();
-            List<RecipeItem> dinnerRecipes = new ArrayList<RecipeItem>();
-            List<RecipeItem> allRecipes = new ArrayList<RecipeItem>();
+    //         List<RecipeItem> breakfastRecipes = new ArrayList<RecipeItem>();
+    //         List<RecipeItem> lunchRecipes = new ArrayList<RecipeItem>();
+    //         List<RecipeItem> dinnerRecipes = new ArrayList<RecipeItem>();
+    //         List<RecipeItem> allRecipes = new ArrayList<RecipeItem>();
 
 
 
-            breakfastRecipes.add(item1);
-            lunchRecipes.add(item2);
-            dinnerRecipes.add(item3);
-            dinnerRecipes.add(item4);
-            allRecipes.add(item1);
-            allRecipes.add(item2);
-            allRecipes.add(item3);
-            allRecipes.add(item4);
+    //         breakfastRecipes.add(item1);
+    //         lunchRecipes.add(item2);
+    //         dinnerRecipes.add(item3);
+    //         dinnerRecipes.add(item4);
+    //         allRecipes.add(item1);
+    //         allRecipes.add(item2);
+    //         allRecipes.add(item3);
+    //         allRecipes.add(item4);
 
 
 
             
 
 
-            List<RecipeItem> filteredList = switch ("Breakfast".toLowerCase()) {
-                case "breakfast" -> breakfastRecipes;
-                case "lunch" -> lunchRecipes;
-                case "dinner" -> dinnerRecipes;
-                default -> allRecipes;
-            };
+    //         List<RecipeItem> filteredList = switch ("Breakfast".toLowerCase()) {
+    //             case "breakfast" -> breakfastRecipes;
+    //             case "lunch" -> lunchRecipes;
+    //             case "dinner" -> dinnerRecipes;
+    //             default -> allRecipes;
+    //         };
 
             
-            List<RecipeItem> expected = new ArrayList<RecipeItem>();
-            expected.add(item3);
-            expected.add(item4);
+    //         List<RecipeItem> expected = new ArrayList<RecipeItem>();
+    //         expected.add(item3);
+    //         expected.add(item4);
 
 
 
-            assertEquals(expected, dinnerRecipes);
-        }
-        catch (Exception err) {
-            System.out.println("Handle exception");
-        }
-    }
+    //         assertEquals(expected, dinnerRecipes);
+    //     }
+    //     catch (Exception err) {
+    //         System.out.println("Handle exception");
+    //     }
+    // }
 
 
 

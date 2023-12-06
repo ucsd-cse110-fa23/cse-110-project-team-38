@@ -19,10 +19,12 @@ import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+
 import java.io.File;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Scanner;
+
 
 import javafx.scene.layout.Region;
 import java.io.PrintWriter;
@@ -32,6 +34,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
 import java.util.Comparator;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
@@ -40,6 +43,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
+
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -51,7 +55,9 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 import java.util.prefs.Preferences;
+
 
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
@@ -68,8 +74,8 @@ class RecipeList extends VBox {
     private List<RecipeItem> breakfastRecipes;
     private List<RecipeItem> lunchRecipes;
     private List<RecipeItem> dinnerRecipes;
-   
-    //private List<Node> originalRecipeList;
+
+
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);
@@ -79,8 +85,9 @@ class RecipeList extends VBox {
         this.breakfastRecipes = new ArrayList<>();
         this.lunchRecipes = new ArrayList<>();
         this.dinnerRecipes = new ArrayList<>();
-        loadRecipes();
+        this.loadRecipes();
     }
+
 
     public JSONObject buildRecipeJSON(RecipeItem recipeItem, JSONObject jsonObject) {
         jsonObject.put("title", recipeItem.getFullRecipeTitle());
@@ -91,28 +98,47 @@ class RecipeList extends VBox {
         return jsonObject;
     }
        
+
+
     public void removeRecipe(RecipeItem recipeItem) {
-            //remove from all lists
-            allRecipes.remove(recipeItem);
-            breakfastRecipes.remove(recipeItem);
-            lunchRecipes.remove(recipeItem);
-            dinnerRecipes.remove(recipeItem);
+        //remove from all List
+        allRecipes.remove(recipeItem);
+        breakfastRecipes.remove(recipeItem);
+        lunchRecipes.remove(recipeItem);
+        dinnerRecipes.remove(recipeItem);
 
-            //remove from the UI
-            this.getChildren().remove(recipeItem);
 
-            //prep the request for server
-            JSONObject json = new JSONObject();
-            json = buildRecipeJSON(recipeItem, json);
+        //remove from the UI
+        this.getChildren().remove(recipeItem);
 
-            RequestSender request = new RequestSender();
-            String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle().replace(" ", "+"), username);
+
+        JSONObject json = new JSONObject();
+        json = buildRecipeJSON(recipeItem, json);
+
+
+        String response = RequestSender.performRequest("DELETE", "recipe", json, recipeItem.getFullRecipeTitle(), username);
+
+
+        //TODO: working code below!!! port to server!!!
+        //remove from database
+        /*MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        Bson filter = Filters.and(
+                Filters.eq("username", username),
+                Filters.eq("title", recipeItem.getFullRecipeTitle()),
+                Filters.eq("description", recipeItem.getFullRecipeDescription())
+        );
+        recipesCollection.deleteOne(filter);*/
     }
 
 
+
+
     public void loadRecipes() {
-        RequestSender request = new RequestSender();
-        String response = request.performRequest("GET", null, null, "ALL", username);
+        ArrayList<RecipeItem> recipeList = new ArrayList<>();
+        System.out.println("Sending get request for all recipes");
+        String response = RequestSender.performRequest("GET", "recipe", null, "ALL", username);
+        System.out.println(response);
+        //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
         try {
             JSONArray responseArray = new JSONArray(response);
             for (int i = 0; i < responseArray.length(); i++) {
@@ -122,11 +148,15 @@ class RecipeList extends VBox {
             item.setGenerated(true);
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             categorizeRecipe(item);
-            } 
-        } catch (Exception err) {
-                System.out.println("Error loading recipes: " + err.getMessage());
-            this.getChildren().addAll(allRecipes);
         }
+        }
+        catch (Exception err) {
+            System.out.println("Empty");
+            err.printStackTrace();
+        }
+
+
+        this.getChildren().addAll(allRecipes);
     }
 
 
@@ -147,22 +177,21 @@ class RecipeList extends VBox {
     }
 
 
-
-
     public void filterRecipesByMealType(String mealType) {
-        this.getChildren().clear();
-        List<RecipeItem> filteredList = switch (mealType.toLowerCase()) {
-            case "breakfast" -> breakfastRecipes;
-            case "lunch" -> lunchRecipes;
-            case "dinner" -> dinnerRecipes;
-            default -> allRecipes;
-        };
-        this.getChildren().addAll(filteredList);
-    }
+       this.getChildren().clear();
+       List<RecipeItem> filteredList = switch (mealType.toLowerCase()) {
+           case "breakfast" -> breakfastRecipes;
+           case "lunch" -> lunchRecipes;
+           case "dinner" -> dinnerRecipes;
+           default -> allRecipes;
+       };
+       this.getChildren().addAll(filteredList);
+   }
 
-    public void addThenCategorizeRecipe(RecipeItem recipe) {
-        categorizeRecipe(recipe);
-    }
+
+   public void addThenCategorizeRecipe(RecipeItem recipe) {
+       categorizeRecipe(recipe);
+   }
 
 
 
@@ -173,15 +202,11 @@ class RecipeList extends VBox {
          */
 
 
-
-
         //MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         for (Node node : this.getChildren()) {
             if (node instanceof RecipeItem) {
                 RecipeItem recipe = (RecipeItem) node;
                 JSONObject json = new JSONObject();
-
-
 
 
                 //TODO: pack recipe item data we need to save into json
@@ -191,133 +216,47 @@ class RecipeList extends VBox {
                 json.put("username", username);
                 json.put("mealType", recipe.getMealType());
 
+
                 recipe.setGenerated(true);
+
 
                 System.out.println(json.toString());
 
-                RequestSender request = new RequestSender();
-                String response = request.performRequest("POST", "recipe", json, null, null); //perform a save post given json and no query
+
+                String response = RequestSender.performRequest("POST", "recipe", json, null, null); //perform a save post given json and no query
             }
         }
     }
+
+
 
 
     public void sortRecipesAlphabetically() {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
 
-
-
         // Sort the recipe items alphabetically based on the recipe titles
         Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getRecipeTitle()));
-
-
 
 
         // Clear the existing children and add the sorted recipe items
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
-
-
 
 
     public void sortRecipesChronologically() {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
 
-
-
         // Sort the recipe items chronologically based on the creation timestamp
-        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()).reversed());
-
-
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()));
 
 
         // Clear the existing children and add the sorted recipe items
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
-
-
-
-
-    // public void filterRecipesByMealType(String mealType) {
-    //     // Clear existing children to prepare for the updated lists
-    //     this.getChildren().clear();
-   
-    //     // Determine which list to use based on the specified meal type
-    //     List<RecipeItem> filteredList;
-   
-    //     String lowerCaseMealType = mealType.toLowerCase();
-       
-    //     if ("all".equals(lowerCaseMealType)) {
-    //         filteredList = allRecipes;
-    //     } else if ("breakfast".equals(lowerCaseMealType)) {
-    //         filteredList = breakfastRecipes;
-    //     } else if ("lunch".equals(lowerCaseMealType)) {
-    //         filteredList = lunchRecipes;
-    //     } else if ("dinner".equals(lowerCaseMealType)) {
-    //         filteredList = dinnerRecipes;
-    //     } else {
-    //         // If an unknown meal type is specified, default to "all"
-    //         filteredList = allRecipes;
-    //     }
-   
-    //     // Add the recipes from the selected list to the UI
-    //     this.getChildren().addAll(filteredList);
-    // }
-   
- 
- 
-    // public void filterRecipesByMealType(String mealType) {
-    //     List<Node> recipeItems = new ArrayList<>(this.getChildren());
-
-
-
-
-    //     // Check if the meal type is "all"; if yes, show all recipes
-    //     if ("all".equalsIgnoreCase(mealType)) {
-    //         this.getChildren().clear();
-    //         this.getChildren().addAll(recipeItems);
-    //         return;
-    //     }
-       
-    //     List<RecipeItem> filteredRecipes = new ArrayList<>();
-
-
-
-
-    //     // Iterate through the recipe items and filter by meal type
-    //     for (Node node : recipeItems) {
-    //         if (node instanceof RecipeItem) {
-    //             RecipeItem recipe = (RecipeItem) node;
-    //             if (mealType.equalsIgnoreCase(recipe.getMealType())) {
-    //             // Add the recipe to the filtered list if it matches the specified meal type
-    //             filteredRecipes.add(recipe);
-    //             }
-    //         }
-    //     }
-    //      // Update the UI with the filtered list
-    //      this.getChildren().clear();
-    //      this.getChildren().addAll(filteredRecipes);
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -325,17 +264,11 @@ class RecipeList extends VBox {
 }
 
 
-
-
 class Header extends VBox {
-
-
 
 
     private Button addButton;
     // private Button sortButton;
-
-
 
 
     Header() {
@@ -343,18 +276,12 @@ class Header extends VBox {
         this.setStyle("-fx-background-color: white; -fx-alignment: center;");
 
 
-
-
         HBox upperRow = new HBox();
         upperRow.setAlignment(Pos.CENTER);
 
 
-
-
         HBox upperRowRight = new HBox();
         upperRowRight.setAlignment(Pos.TOP_RIGHT);
-
-
 
 
         String addButtonStyle = "-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 18px;";
@@ -365,13 +292,9 @@ class Header extends VBox {
         HBox.setMargin(addButton, new Insets(0, 10, 0, 10));
 
 
-
-
         Region leftSpacer = new Region();
         HBox.setHgrow(leftSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(leftSpacer);
-
-
 
 
         Text titleText = new Text("Pantry Pal");
@@ -379,20 +302,12 @@ class Header extends VBox {
         upperRow.getChildren().add(titleText);
 
 
-
-
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         upperRow.getChildren().add(rightSpacer);
 
 
-
-
         this.getChildren().addAll(upperRow);
-
-
-
-
 
 
 
@@ -402,8 +317,6 @@ class Header extends VBox {
         sortByComboBox.setPromptText("Sort By");
         sortByComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
         sortByComboBox.setPrefSize(140, 40);
-
-
 
 
         sortByComboBox.setOnAction(e -> {
@@ -421,51 +334,26 @@ class Header extends VBox {
         });
 
 
-
-
-        // Create a dropdown menu for filtering by meal type
-
-
-
-
-        ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
-        mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
-        mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
-        mealTypeFilterComboBox.setPrefSize(140, 40);
-   
-        mealTypeFilterComboBox.setOnAction(e -> {
-            if (mealTypeFilterComboBox.getValue() != null) {
-                if (this.getParent() instanceof AppFrame) {
-                    AppFrame appFrame = (AppFrame) this.getParent();
-                    String filterByMealType = mealTypeFilterComboBox.getValue();
-                    appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
-                }
-            }
-        });
-   
-        upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
-       //upperRowRight.getChildren().addAll(sortByComboBox);
-       this.getChildren().addAll(upperRowRight);
+       ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
+       mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
+       mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+       mealTypeFilterComboBox.setPrefSize(140, 40);
+ 
+       mealTypeFilterComboBox.setOnAction(e -> {
+           if (mealTypeFilterComboBox.getValue() != null) {
+               if (this.getParent() instanceof AppFrame) {
+                   AppFrame appFrame = (AppFrame) this.getParent();
+                   String filterByMealType = mealTypeFilterComboBox.getValue();
+                   appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
+               }
+           }
+       });
+ 
+       upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+      //upperRowRight.getChildren().addAll(sortByComboBox);
+      this.getChildren().addAll(upperRowRight);
    
     }
-       
-   
-
-
-
-
-       
-
-
-
-
-       
-
-
-
-
-
-
 
 
     public Button getAddButton() {
@@ -473,13 +361,7 @@ class Header extends VBox {
     }
 
 
-
-
 }
-
-
-
-
 
 
 
@@ -489,14 +371,10 @@ class Footer extends HBox {
     private Label usernameLabel;
 
 
-
-
     Footer(String username) {
         this.setAlignment(Pos.CENTER);
         this.setPadding(new Insets(10));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
-
-
 
 
         // Username label
@@ -505,14 +383,10 @@ class Footer extends HBox {
         this.getChildren().add(usernameLabel);
 
 
-
-
         // Spacer
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         this.getChildren().add(spacer);
-
-
 
 
         // Logout button
@@ -522,8 +396,6 @@ class Footer extends HBox {
     }
 
 
-
-
     private void handleLogout() {
         clearStoredCredentials();
         Stage stage = (Stage) this.getScene().getWindow();
@@ -531,8 +403,6 @@ class Footer extends HBox {
         Scene scene = new Scene(loginPage, 300, 200);
         stage.setScene(scene);
     }
-
-
 
 
     private void clearStoredCredentials() {
@@ -545,21 +415,13 @@ class Footer extends HBox {
 
 
 
-
-
-
-
 class AppFrame extends BorderPane {
-
-
 
 
     private Header header;
     private Footer footer;
     private RecipeList recipeList;
     private Button addButton;
-
-
 
 
     AppFrame(String username) {
@@ -569,11 +431,7 @@ class AppFrame extends BorderPane {
         recipeList = new RecipeList(username);
 
 
-
-
         this.setTop(header);
-
-
 
 
         ScrollPane scroller = new ScrollPane();
@@ -583,23 +441,15 @@ class AppFrame extends BorderPane {
         this.setCenter(scroller);
 
 
-
-
         addButton = header.getAddButton();
-
-
 
 
         footer = new Footer(username);
         this.setBottom(footer);
 
 
-
-
         addListeners();
     }
-
-
 
 
     public void addListeners() {
@@ -616,19 +466,13 @@ class AppFrame extends BorderPane {
     }
 
 
-
-
     public RecipeList getRecipeList() {
         return recipeList;
     }
 }
 
 
-
-
 public class Main extends Application {
-
-
 
 
     @Override
@@ -641,8 +485,6 @@ public class Main extends Application {
     }
 
 
-
-
     @Override
     public void stop(){
         //deletes existing images of recipes
@@ -653,9 +495,9 @@ public class Main extends Application {
     }
 
 
-
-
     public static void main(String[] args) {
         launch(args);
     }
 }
+
+
