@@ -261,8 +261,10 @@ public class RecipeRequestHandler implements HttpHandler {
         if (query != null) {
             String specificQuery = query.split("/")[0];
             specificQuery = specificQuery.replace("=", "");
+            specificQuery = specificQuery.replace("+", " ");
+            System.out.println(specificQuery);
             // username is in the constructor for RecipeList in main, so look there
-            List<Document> recipes = recipesCollection.find(eq("username", username)).into(new ArrayList<>());
+            //List<Document> recipes = recipesCollection.find(eq("username", username)).into(new ArrayList<>());
             Bson filter = Filters.and(
                     Filters.eq("username", username),
                     Filters.eq("title", specificQuery));

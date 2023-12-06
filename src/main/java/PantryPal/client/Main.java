@@ -90,17 +90,17 @@ class RecipeList extends VBox {
         json = buildRecipeJSON(recipeItem, json);
 
         RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
+        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle().replace(" ", "+"), username);
 
         //TODO: working code below!!! port to server!!!
         //remove from database
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        /*MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         Bson filter = Filters.and(
                 Filters.eq("username", username),
                 Filters.eq("title", recipeItem.getFullRecipeTitle()),
                 Filters.eq("description", recipeItem.getFullRecipeDescription())
         );
-        recipesCollection.deleteOne(filter);
+        recipesCollection.deleteOne(filter);*/
     }
 
 
