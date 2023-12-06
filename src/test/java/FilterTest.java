@@ -23,9 +23,11 @@ public class FilterTest {
     private RecipeItem item1;
     private RecipeItem item2;
     private RecipeItem item3;
+    private RecipeItem item4;
+
     private MockGPT mockGPT;
     private MockWhisper mockWhisper;
-    private RecipeList list1;
+   // private RecipeList list1;
 
 
 
@@ -36,7 +38,6 @@ public class FilterTest {
     }
 
     @Test
-    //Test use of sorting alphabetically
     public void testFilterBreakfast() {
         try {
 
@@ -48,12 +49,22 @@ public class FilterTest {
             List<RecipeItem> breakfastRecipes = new ArrayList<RecipeItem>();
             List<RecipeItem> lunchRecipes = new ArrayList<RecipeItem>();
             List<RecipeItem> dinnerRecipes = new ArrayList<RecipeItem>();
+            List<RecipeItem> allRecipes = new ArrayList<RecipeItem>();
+
 
 
             breakfastRecipes.add(item1);
             lunchRecipes.add(item2);
             dinnerRecipes.add(item3);
             dinnerRecipes.add(item4);
+            allRecipes.add(item1);
+            allRecipes.add(item2);
+            allRecipes.add(item3);
+            allRecipes.add(item4);
+
+
+
+            
 
 
             List<RecipeItem> filteredList = switch ("Breakfast".toLowerCase()) {
