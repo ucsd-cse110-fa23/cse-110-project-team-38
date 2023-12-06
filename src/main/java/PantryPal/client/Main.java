@@ -92,13 +92,13 @@ class RecipeList extends VBox {
 
         //TODO: working code below!!! port to server!!!
         //remove from database
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        /*MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         Bson filter = Filters.and(
                 Filters.eq("username", username),
                 Filters.eq("title", recipeItem.getFullRecipeTitle()),
                 Filters.eq("description", recipeItem.getFullRecipeDescription())
         );
-        recipesCollection.deleteOne(filter);
+        recipesCollection.deleteOne(filter);*/
     }
 
 
@@ -114,7 +114,7 @@ class RecipeList extends VBox {
             RecipeItem item = new RecipeItem();
             item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
             item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
-            item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
+            item.setGenerated(true);
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
         }
@@ -148,6 +148,8 @@ class RecipeList extends VBox {
                 json.put("isGenerated", recipe.isGenerated());
                 json.put("username", username);
                 json.put("mealType", recipe.getMealType());
+
+                recipe.setGenerated(true);
 
                 System.out.println(json.toString());
 
