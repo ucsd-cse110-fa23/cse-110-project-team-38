@@ -141,27 +141,13 @@ public class RecipeItem extends HBox {
         json.put("id", id);
 
         System.out.println("Constructed a JSON for Recipe " + this.fullRecipeTitle);
-        
+
         String response = RequestSender.performRequest("POST", "share", json, null, username);
         
         // json = new JSONObject(response);
 
-        return response;
+        return response.substring(1); //return such that it doesnt contain the first "/"
         
-
-        // String formParams = "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) +
-        //         "&title=" + URLEncoder.encode(this.fullRecipeTitle, StandardCharsets.UTF_8) +
-        //         "&description=" + URLEncoder.encode(this.fullRecipeDescription, StandardCharsets.UTF_8) +
-        //         "&id=" + URLEncoder.encode(id, StandardCharsets.UTF_8);
-
-        // // POST request to server
-        // HttpRequest request = HttpRequest.newBuilder()
-        //         .uri(URI.create("http://localhost:8100/share"))
-        //         .header("Content-Type", "application/x-www-form-urlencoded")
-        //         .POST(HttpRequest.BodyPublishers.ofString(formParams))
-        //         .build();
-
-        // return ("http://localhost:8100/sr" + "/" + username + "/" + id);
     }
 
 }

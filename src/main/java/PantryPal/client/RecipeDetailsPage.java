@@ -160,7 +160,7 @@ class RecipeDetailsPage extends VBox {
 
     private void shareRecipe() {
         RecipeList parentList = (RecipeList) currentRecipeItem.getParent();
-        String link = currentRecipeItem.shareRecipe(parentList.username);
+        String link = RequestSender.SERVER_URL + currentRecipeItem.shareRecipe(parentList.username);
         System.out.println("link: " + link);
     }
 
