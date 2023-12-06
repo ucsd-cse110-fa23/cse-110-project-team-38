@@ -4,6 +4,8 @@ import com.sun.net.httpserver.*;
 
 import java.io.*;
 
+import org.json.JSONObject;
+
 
 /*
  * creates the HTML for a specific recipe
@@ -11,10 +13,14 @@ import java.io.*;
 public class ShareRecipeHandler implements HttpHandler {
     private String title;
     private String description;
+    private String imgURL;
+    private String tag;
 
-    public ShareRecipeHandler(String title, String description){
-        this.title = title;
-        this.description = description;
+    public ShareRecipeHandler(JSONObject json){        
+        this.title = json.getString("title");
+        this.description = json.getString("description");
+        this.imgURL = json.getString("imgURL");
+        this.tag = json.getString("tag");
     }
 
     @Override
@@ -54,14 +60,27 @@ public class ShareRecipeHandler implements HttpHandler {
             htmlBuilder
                     .append("<html>")
                     .append("<body>")
+                    .append("<H4>")
+                    .append(this.tag)
+                    .append("</H4>")
+
                     .append("<h1>")
-                    .append("")/////////////
+
+                    //title
                     .append(this.title)
                     .append("</h1>")
+
+                    //description
+                    .append("<h2>")
+                    .append(this.description.replace(".",".<br>"))
+                    .append("</h2>")
+
+                    //image
                     .append("<h1>")
-                    .append("") //////////
-                    .append(this.description)
+                    .append(" <img src="+ this.imgURL + " alt=\"alternatetext\">")
                     .append("</h1>")
+
+
                     .append("</body>")
                     .append("</html>");
             response = htmlBuilder.toString();

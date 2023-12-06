@@ -122,6 +122,7 @@ class RecipeList extends VBox {
         }
         catch (Exception err) {
             System.out.println("Empty");
+            err.printStackTrace();
         }
 
         for(RecipeItem recipe:recipeList){

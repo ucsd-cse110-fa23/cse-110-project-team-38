@@ -30,6 +30,7 @@ public class RecipeItem extends HBox {
     private boolean generated;
     private String mealType;
     private LocalDateTime creationTimestamp;
+    private String imgURL;
 
     public RecipeItem() {
         this.creationTimestamp = LocalDateTime.now();
@@ -146,6 +147,8 @@ public class RecipeItem extends HBox {
         json.put("title", this.fullRecipeTitle);
         json.put("description", this.fullRecipeDescription);
         json.put("id", id);
+        json.put("imgURL",this.imgURL);
+        json.put("tag",this.mealType);
 
         System.out.println("Constructed a JSON for Recipe " + this.fullRecipeTitle);
 
@@ -165,4 +168,12 @@ public class RecipeItem extends HBox {
     public String getMealType() {
         return this.mealType;
     } 
+
+    public void setImgURL(String URL){
+        this.imgURL = URL;
+    }
+
+    public String getImgURL(){
+        return this.imgURL;
+    }
 }

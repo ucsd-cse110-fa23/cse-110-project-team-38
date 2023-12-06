@@ -17,8 +17,6 @@ import org.json.JSONObject;
 class ShareHandler implements HttpHandler {
     private static final String StandardCharsets = null;
     private String username;
-    private String title;
-    private String desc;
     private HttpServer server;
     private String path;
     private Map<String, HttpContext> contextMap;
@@ -71,15 +69,13 @@ class ShareHandler implements HttpHandler {
         // get and extract the request body
         InputStream requestBody = httpExchange.getRequestBody();
         String body = new String(requestBody.readAllBytes());
-
         JSONObject json = new JSONObject(body);
 
 
         // parse the body to get username and password
         this.username = json.getString("username");
-        this.title = json.getString("title");
-        this.desc = json.getString("description");
         this.id = json.getString("id");
+        
 
         // Create a specific page
         this.path = "/sr/" + this.username + "/" + this.id;
@@ -87,7 +83,7 @@ class ShareHandler implements HttpHandler {
 
         // Create a new context {id, context} where the context has path 'path'
         // 
-        contextMap.put(this.id, this.server.createContext(path, new ShareRecipeHandler(this.title, this.desc)));
+        contextMap.put(this.id, this.server.createContext(path, new ShareRecipeHandler(json)));
         System.out.println("========== SUCCESS! share context with path " + path + "==========");
 
         return path;

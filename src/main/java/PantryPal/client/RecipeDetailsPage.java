@@ -210,6 +210,7 @@ class RecipeDetailsPage extends VBox {
         String response = RequestSender.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
         JSONObject responsePath = new JSONObject(response);
         String imageURL = responsePath.getString("imageURL");
+        currentRecipeItem.setImgURL(imageURL);
         try(
             InputStream in = new URI(imageURL).toURL().openStream()
         )
@@ -222,33 +223,6 @@ class RecipeDetailsPage extends VBox {
     }
 
     private void regenerateRecipe() {
-        //TODO: move logic to server side
-        
-        /*try {
-            //whisper API used to get text from audio
-            Whisper whisper = new Whisper();
-            String prompt = whisper.sendRequest(); //the audio
-            System.out.println("Request sent");
-            
-            //chatGPT call used to get back chatGPT output
-            ChatGPT chatGPT = new ChatGPT();
-            String details = chatGPT.processRequest(prompt + " generate a recipe");
-
-            //parse output of ChatGPT
-            String[] parts = details.split("\n");
-            System.out.println(details);
-            titleField.setText(parts[2]);
-            String detailsWithNoTitle = details.replace(parts[2], "");
-            descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n", ""));
-
-            String imagePath = generateImage();
-            Image image = new Image(new File(imagePath).toURI().toString());
-            imageView.setImage(image);
-        }
-        catch (Exception err) {
-            System.out.println("Error regenerating" + err);
-        }*/
-
         try {
         // //whisper API used to get text from audio
         Whisper whisper = new Whisper();
