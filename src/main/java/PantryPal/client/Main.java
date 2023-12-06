@@ -35,8 +35,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
-
-
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
@@ -89,8 +88,7 @@ class RecipeList extends VBox {
         JSONObject json = new JSONObject();
         json = buildRecipeJSON(recipeItem, json);
 
-        RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle().replace(" ", "+"), username);
+        String response = RequestSender.performRequest("DELETE", "recipe", json, recipeItem.getFullRecipeTitle(), username);
 
         //TODO: working code below!!! port to server!!!
         //remove from database
@@ -105,10 +103,9 @@ class RecipeList extends VBox {
 
 
     public void loadRecipes() {
-        RequestSender request = new RequestSender();
         ArrayList<RecipeItem> recipeList = new ArrayList<>();
         System.out.println("Sending get request for all recipes");
-        String response = request.performRequest("GET", null, null, "ALL", username);
+        String response = RequestSender.performRequest("GET", "recipe", null, "ALL", username);
         System.out.println(response);
         //TODO: given a response in json form, unpack and turn into many RecipeItem or however you want to do this
         try {
@@ -124,6 +121,7 @@ class RecipeList extends VBox {
         }
         catch (Exception err) {
             System.out.println("Empty");
+            err.printStackTrace();
         }
 
         Collections.reverse(recipeList);
@@ -133,23 +131,9 @@ class RecipeList extends VBox {
 
             this.getChildren().add(recipe);
         }
-        
-
-
-        //TODO: working code below!!! PORT TO SERVER!
-        // MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        // FindIterable<Document> recipes = recipesCollection.find(eq("username", username));
-        // for (Document recipeDoc : recipes) {
-        //     RecipeItem recipe = new RecipeItem();
-        //     recipe.setRecipeTitle(recipeDoc.getString("title"));
-        //     recipe.setRecipeDescription(recipeDoc.getString("description"));
-        //     recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
-        //     this.getChildren().add(recipe);
-        // }
     }
 
     public void saveRecipes() {
-        RequestSender request = new RequestSender();
         /*
          * either call loop a post request for each client recipe, OR make one big json and send ONE request
          */
@@ -171,26 +155,7 @@ class RecipeList extends VBox {
 
                 System.out.println(json.toString());
 
-                String response = request.performRequest("POST", null, json, null, username); //perform a save post given json and no query
-
-                //TODO: working DB save code below! port to server!!!
-                // Document recipeDoc = new Document("username", username)
-                //                         .append("title", recipe.getFullRecipeTitle())
-                //                         .append("description", recipe.getFullRecipeDescription());
-
-                // if (recipe.getRecipeId() == null || recipe.getRecipeId().isEmpty() || recipe.isGenerated()) {
-                //     // Insert new recipe only if it's generated and not yet saved
-                //     recipesCollection.insertOne(recipeDoc);
-                //     recipe.setRecipeId(recipeDoc.getObjectId("_id").toString());
-                //     recipe.setGenerated(false); // Reset the generated flag
-                // } else {
-                //     // Update existing recipe
-                //     ObjectId id = new ObjectId(recipe.getRecipeId());
-                //     Bson filter = Filters.eq("_id", id);
-                //     recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
-                // }
-
-
+                String response = RequestSender.performRequest("POST", "recipe", json, null, null); //perform a save post given json and no query
             }
         }
     }

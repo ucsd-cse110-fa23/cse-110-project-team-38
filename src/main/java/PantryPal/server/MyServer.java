@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +39,14 @@ public class MyServer {
     addMocks(recipeList);
 
     HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_HOSTNAME,SERVER_PORT),0);
-    
-    HttpContext context = server.createContext("/", new RecipeRequestHandler(recipes,recipeList));
+
+    //handles recipes at path '/recipe'
+    HttpContext context = server.createContext("/recipe", new RecipeRequestHandler(recipes,recipeList));
+    //handles api calls at path '/api'
     HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
+    //handles sharing at path 'share'
+    Map<String,HttpContext> contextMap = new HashMap<>();
+    HttpContext shareContext = server.createContext("/share",new ShareHandler(contextMap, server));
     
     server.setExecutor(threadPoolExecutor);
     server.start();

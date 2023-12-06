@@ -7,7 +7,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+
+import org.bson.json.JsonObject;
+import org.bson.json.JsonParseException;
+import org.json.JSONObject;
 
 public class RecipeItem extends HBox {
     private VBox detailsBox;
@@ -20,6 +30,7 @@ public class RecipeItem extends HBox {
     private boolean generated;
     private String mealType;
     private LocalDateTime creationTimestamp;
+    private String imgURL;
 
     public RecipeItem() {
         this.creationTimestamp = LocalDateTime.now();
@@ -61,8 +72,7 @@ public class RecipeItem extends HBox {
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);
-            }
-            catch (Exception err) {
+            } catch (Exception err) {
                 System.out.println("Error generating details page");
             }
         });
@@ -73,7 +83,9 @@ public class RecipeItem extends HBox {
 
     public void setRecipeTitle(String title) {
         this.fullRecipeTitle = title;
-        String truncatedTitle = title.length() > Constants.MAX_TITLE_LENGTH ? title.substring(0, Constants.MAX_TITLE_LENGTH) + "..." : title;
+        String truncatedTitle = title.length() > Constants.MAX_TITLE_LENGTH
+                ? title.substring(0, Constants.MAX_TITLE_LENGTH) + "..."
+                : title;
         this.recipeTitleLabel.setText(truncatedTitle);
     }
 
@@ -87,17 +99,20 @@ public class RecipeItem extends HBox {
 
     public void setRecipeDescription(String description) {
         this.fullRecipeDescription = description;
-        String truncatedDescription = description.length() > Constants.MAX_DESCRIPTION_LENGTH ? description.substring(0, Constants.MAX_DESCRIPTION_LENGTH) + "..." : description;
+        String truncatedDescription = description.length() > Constants.MAX_DESCRIPTION_LENGTH
+                ? description.substring(0, Constants.MAX_DESCRIPTION_LENGTH) + "..."
+                : description;
         this.recipeDescriptionLabel.setText(truncatedDescription);
     }
 
-    public String getFullRecipeDescription(){
+    public String getFullRecipeDescription() {
         return this.fullRecipeDescription;
     }
 
     public String getRecipeDescription() {
         return this.recipeDescriptionLabel.getText();
     }
+
     public LocalDateTime getCreationTimestamp() {
         return creationTimestamp;
     }
@@ -113,9 +128,36 @@ public class RecipeItem extends HBox {
     public boolean isGenerated() {
         return generated;
     }
-    
+
     public void setGenerated(boolean generated) {
         this.generated = generated;
+    }
+
+    public String shareRecipe(String username) {
+        HttpClient client = HttpClient.newHttpClient();
+
+        // request body format
+        // System.out.println(username);
+        // System.out.println(fullRecipeTitle); 
+        // System.out.println(fullRecipeDescription);
+        String id = Integer.toString(this.hashCode());
+        
+        JSONObject json = new JSONObject();
+        json.put("username", username);
+        json.put("title", this.fullRecipeTitle);
+        json.put("description", this.fullRecipeDescription);
+        json.put("id", id);
+        json.put("imgURL",this.imgURL);
+        json.put("tag",this.mealType);
+
+        System.out.println("Constructed a JSON for Recipe " + this.fullRecipeTitle);
+
+        String response = RequestSender.performRequest("POST", "share", json, null, username);
+        
+        // json = new JSONObject(response);
+
+        return response.substring(1); //return such that it doesnt contain the first "/"
+        
     }
 
     public void setMealType(String mealType) {
@@ -126,4 +168,12 @@ public class RecipeItem extends HBox {
     public String getMealType() {
         return this.mealType;
     } 
+
+    public void setImgURL(String URL){
+        this.imgURL = URL;
+    }
+
+    public String getImgURL(){
+        return this.imgURL;
+    }
 }
