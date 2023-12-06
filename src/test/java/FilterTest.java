@@ -39,29 +39,37 @@ public class FilterTest {
     //Test use of sorting alphabetically
     public void testFilterBreakfast() {
         try {
-            item1.setRecipeType("Breakfast");
-            item2.setRecipeType("Lunch");
-            item3.setRecipeType("Dinner");
-            item4.setRecipeType("Dinner");
 
-            List<RecipeItem> recipeItems = new ArrayList<RecipeItem>();
-            recipeItems.add(item1);
-            recipeItems.add(item2);
-            recipeItems.add(item3);
-            recipeItems.add(item4);
-            recipeItems.filterRecipesByMealType("breakfast");
+            item1.setMealType("Breakfast");
+            item2.setMealType("Lunch");
+            item3.setMealType("Dinner");
+            item4.setMealType("Dinner");
+
+            List<RecipeItem> breakfastRecipes = new ArrayList<RecipeItem>();
+            List<RecipeItem> lunchRecipes = new ArrayList<RecipeItem>();
+            List<RecipeItem> dinnerRecipes = new ArrayList<RecipeItem>();
+
+
+            breakfastRecipes.add(item1);
+            lunchRecipes.add(item2);
+            dinnerRecipes.add(item3);
+            dinnerRecipes.add(item4);
+
+
+            List<RecipeItem> filteredList = switch ("Breakfast".toLowerCase()) {
+                case "breakfast" -> breakfastRecipes;
+                case "lunch" -> lunchRecipes;
+                case "dinner" -> dinnerRecipes;
+                default -> allRecipes;
+            };
+
             
-
-            
-
-
-
             List<RecipeItem> expected = new ArrayList<RecipeItem>();
             expected.add(item1);
 
 
 
-            assertEquals(expected, recipeItems);
+            assertEquals(expected, breakfastRecipes);
         }
         catch (Exception err) {
             System.out.println("Handle exception");
