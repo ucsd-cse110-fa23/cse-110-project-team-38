@@ -126,6 +126,8 @@ class RecipeList extends VBox {
             System.out.println("Empty");
         }
 
+        Collections.reverse(recipeList);
+
         for(RecipeItem recipe:recipeList){
 
 
@@ -203,7 +205,31 @@ class RecipeList extends VBox {
         this.getChildren().addAll(recipeItems);
     }
 
+    public void sortRecipesAlphabeticallyBackwards() {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Sort the recipe items alphabetically based on the recipe titles
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getRecipeTitle()));
+        Collections.reverse(recipeItems);
+        
+        // Clear the existing children and add the sorted recipe items
+        this.getChildren().clear();
+        this.getChildren().addAll(recipeItems);
+    }
+
     public void sortRecipesChronologically() {
+        List<Node> recipeItems = new ArrayList<>(this.getChildren());
+
+        // Sort the recipe items chronologically based on the creation timestamp
+        Collections.sort(recipeItems, Comparator.comparing(node -> ((RecipeItem) node).getCreationTimestamp()));
+        Collections.reverse(recipeItems);
+        
+        // Clear the existing children and add the sorted recipe items
+        this.getChildren().clear();
+        this.getChildren().addAll(recipeItems);
+    }
+
+    public void sortRecipesChronologicallyBackwards() {
         List<Node> recipeItems = new ArrayList<>(this.getChildren());
 
         // Sort the recipe items chronologically based on the creation timestamp
@@ -213,7 +239,6 @@ class RecipeList extends VBox {
         this.getChildren().clear();
         this.getChildren().addAll(recipeItems);
     }
-
 
 }
 
@@ -255,7 +280,7 @@ class Header extends VBox {
 
 
         //create a dropdown menu
-        ComboBox<String> sortByComboBox = new ComboBox<>(FXCollections.observableArrayList("Time", "A to Z"));
+        ComboBox<String> sortByComboBox = new ComboBox<>(FXCollections.observableArrayList("Newest to Oldest", "Oldest to Newest", "A to Z", "Z to A"));
         sortByComboBox.setPromptText("Sort By");
         sortByComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
         sortByComboBox.setPrefSize(140, 40);
@@ -265,10 +290,14 @@ class Header extends VBox {
                 if (this.getParent() instanceof AppFrame) {
                     AppFrame appFrame = (AppFrame) this.getParent();
                     String sortBy = sortByComboBox.getValue();
-                    if ("Time".equals(sortBy)) {
+                    if ("Newest to Oldest".equals(sortBy)) {
                         appFrame.getRecipeList().sortRecipesChronologically();
+                    } else if ("Oldest to Newest".equals(sortBy)) {
+                        appFrame.getRecipeList().sortRecipesChronologicallyBackwards();
                     } else if ("A to Z".equals(sortBy)) {
                         appFrame.getRecipeList().sortRecipesAlphabetically();
+                    } else if ("Z to A".equals(sortBy)) {
+                        appFrame.getRecipeList().sortRecipesAlphabeticallyBackwards();
                     }
                 }
             }

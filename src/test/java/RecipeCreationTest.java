@@ -43,7 +43,7 @@ public class RecipeCreationTest {
                 item.setRecipeTitle(parts[0]);
                 item.setRecipeDescription(details.replace(parts[0], ""));
 
-                assertEquals(true,item == null);
+                assertEquals(true,item);
             } catch (Exception err) {
                 System.out.println("Handle Exceptions");
             }
