@@ -103,8 +103,9 @@ class RecipeDetailsPage extends VBox {
                 obj.put("title", currentRecipeItem.getFullRecipeTitle());
                 obj.put("description", currentRecipeItem.getFullRecipeDescription());
                 obj.put("username", appFrame.getRecipeList().username);
-                RequestSender request = new RequestSender();
-                String response = request.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
+
+
+                String response = RequestSender.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
                 this.generated = false;
                 //appFrame.getRecipeList().saveRecipes();
             }
@@ -200,23 +201,10 @@ class RecipeDetailsPage extends VBox {
     }
 
     private String generateImage() throws MalformedURLException, IOException, URISyntaxException {
-        //TODO: Convert to server call logic when ready
-        //ideally have server call do the generation and this function will return the image path
         
-        /*DallE dalle = new DallE();
-        String imagePath;
-        try {
-            imagePath = dalle.processRequest(titleField.getText());
-        }
-        catch (Exception err) {
-            String imageName = titleField.getText().replaceAll("\\s", "");
-            imagePath = "images/" + imageName + ".jpg";
-        }*/
-
-        RequestSender request = new RequestSender();
         String newFileName = titleField.getText().replaceAll("\\s", "");
         String newPath = "images/" + newFileName + ".jpg";
-        String response = request.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
+        String response = RequestSender.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
         JSONObject responsePath = new JSONObject(response);
         String imageURL = responsePath.getString("imageURL");
         try(

@@ -15,6 +15,10 @@ import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
+import org.bson.json.JsonObject;
+import org.bson.json.JsonParseException;
+import org.json.JSONObject;
+
 public class RecipeItem extends HBox {
     private VBox detailsBox;
     private Label recipeTitleLabel;
@@ -60,8 +64,7 @@ public class RecipeItem extends HBox {
                 RecipeDetailsPage detailsPage = new RecipeDetailsPage(appFrame, this, false, false);
                 Stage stage = (Stage) this.getScene().getWindow();
                 stage.getScene().setRoot(detailsPage);
-            }
-            catch (Exception err) {
+            } catch (Exception err) {
                 System.out.println("Error generating details page");
             }
         });
@@ -72,7 +75,9 @@ public class RecipeItem extends HBox {
 
     public void setRecipeTitle(String title) {
         this.fullRecipeTitle = title;
-        String truncatedTitle = title.length() > Constants.MAX_TITLE_LENGTH ? title.substring(0, Constants.MAX_TITLE_LENGTH) + "..." : title;
+        String truncatedTitle = title.length() > Constants.MAX_TITLE_LENGTH
+                ? title.substring(0, Constants.MAX_TITLE_LENGTH) + "..."
+                : title;
         this.recipeTitleLabel.setText(truncatedTitle);
     }
 
@@ -86,17 +91,20 @@ public class RecipeItem extends HBox {
 
     public void setRecipeDescription(String description) {
         this.fullRecipeDescription = description;
-        String truncatedDescription = description.length() > Constants.MAX_DESCRIPTION_LENGTH ? description.substring(0, Constants.MAX_DESCRIPTION_LENGTH) + "..." : description;
+        String truncatedDescription = description.length() > Constants.MAX_DESCRIPTION_LENGTH
+                ? description.substring(0, Constants.MAX_DESCRIPTION_LENGTH) + "..."
+                : description;
         this.recipeDescriptionLabel.setText(truncatedDescription);
     }
 
-    public String getFullRecipeDescription(){
+    public String getFullRecipeDescription() {
         return this.fullRecipeDescription;
     }
 
     public String getRecipeDescription() {
         return this.recipeDescriptionLabel.getText();
     }
+
     public LocalDateTime getCreationTimestamp() {
         return creationTimestamp;
     }
@@ -112,34 +120,48 @@ public class RecipeItem extends HBox {
     public boolean isGenerated() {
         return generated;
     }
-    
+
     public void setGenerated(boolean generated) {
         this.generated = generated;
     }
 
-    public String shareRecipe(String username){
+    public String shareRecipe(String username) {
         HttpClient client = HttpClient.newHttpClient();
 
-        //request body format
-        //System.out.println(username);
-        //System.out.println(fullRecipeTitle);
-        //System.out.println(fullRecipeDescription);
-        String Id = Integer.toString(this.hashCode());
-        System.out.println(Id);
-        String formParams = "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) +
-                            "&title=" + URLEncoder.encode(this.fullRecipeTitle, StandardCharsets.UTF_8) +
-                            "&description=" + URLEncoder.encode(this.fullRecipeDescription, StandardCharsets.UTF_8) +
-                            "&id=" + URLEncoder.encode(Id, StandardCharsets.UTF_8);
+        // request body format
+        // System.out.println(username);
+        // System.out.println(fullRecipeTitle);
+        // System.out.println(fullRecipeDescription);
+        String id = Integer.toString(this.hashCode());
+        
+        JSONObject json = new JSONObject();
+        json.put("username", username);
+        json.put("title", this.fullRecipeTitle);
+        json.put("description", this.fullRecipeDescription);
+        json.put("id", id);
 
-        //POST request to server
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8100/share"))
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .POST(HttpRequest.BodyPublishers.ofString(formParams))
-                .build();
-                
+        System.out.println("Constructed a JSON for Recipe " + this.fullRecipeTitle);
+        
+        String response = RequestSender.performRequest("POST", "share", json, null, username);
+        
+        // json = new JSONObject(response);
 
-        return ("http://localhost:8100/sr" + "/" + username + "/" + Id);
+        return response;
+        
+
+        // String formParams = "username=" + URLEncoder.encode(username, StandardCharsets.UTF_8) +
+        //         "&title=" + URLEncoder.encode(this.fullRecipeTitle, StandardCharsets.UTF_8) +
+        //         "&description=" + URLEncoder.encode(this.fullRecipeDescription, StandardCharsets.UTF_8) +
+        //         "&id=" + URLEncoder.encode(id, StandardCharsets.UTF_8);
+
+        // // POST request to server
+        // HttpRequest request = HttpRequest.newBuilder()
+        //         .uri(URI.create("http://localhost:8100/share"))
+        //         .header("Content-Type", "application/x-www-form-urlencoded")
+        //         .POST(HttpRequest.BodyPublishers.ofString(formParams))
+        //         .build();
+
+        // return ("http://localhost:8100/sr" + "/" + username + "/" + id);
     }
 
 }

@@ -21,7 +21,7 @@ public class ShareRecipeHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
-        System.out.println("===============SUCCESS!!! Got a request for ShareRecipeHandler at: " + httpExchange.getRequestURI());
+        System.out.println("========= SUCCESS!!! Got a request for ShareRecipeHandler at: " + httpExchange.getRequestURI() + " ========");
 
         try {
             if (method.equals("GET")) {
@@ -55,11 +55,11 @@ public class ShareRecipeHandler implements HttpHandler {
                     .append("<html>")
                     .append("<body>")
                     .append("<h1>")
-                    .append("Hello ")
+                    .append("")/////////////
                     .append(this.title)
                     .append("</h1>")
                     .append("<h1>")
-                    .append("Hello ")
+                    .append("") //////////
                     .append(this.description)
                     .append("</h1>")
                     .append("</body>")

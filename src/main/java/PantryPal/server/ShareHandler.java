@@ -9,6 +9,8 @@ import java.util.*;
 
 import javax.swing.text.html.HTMLDocument;
 
+import org.json.JSONObject;
+
 /*
  * 
  */
@@ -70,21 +72,23 @@ class ShareHandler implements HttpHandler {
         InputStream requestBody = httpExchange.getRequestBody();
         String body = new String(requestBody.readAllBytes());
 
+        JSONObject json = new JSONObject(body);
+
+
         // parse the body to get username and password
-        String[] params = body.split("&");
-        this.username = params[0].split("=")[1];
-        this.title = params[1].split("=")[1];
-        this.desc = params[2].split("=")[1];
-        this.id = params[3].split("=")[1];
+        this.username = json.getString("username");
+        this.title = json.getString("title");
+        this.desc = json.getString("description");
+        this.id = json.getString("id");
 
         // Create a specific page
-        this.path = "http://localhost:8100" + "/sr/" + this.username + "/"
-                + this.id;
+        this.path = "/sr/" + this.username + "/" + this.id;
+        System.out.println("========== share path: " + this.path + " ===========");
 
         // Create a new context {id, context} where the context has path 'path'
         // 
         contextMap.put(this.id, this.server.createContext(path, new ShareRecipeHandler(this.title, this.desc)));
-        System.out.println("Created share context with path! check this URL: " + path);
+        System.out.println("========== SUCCESS! share context with path " + path + "==========");
 
         return path;
     }
