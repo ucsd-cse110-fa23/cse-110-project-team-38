@@ -64,10 +64,10 @@ class Constants {
 
 class RecipeList extends VBox {
     public String username;
-    private List<RecipeItem> allRecipes;
-    private List<RecipeItem> breakfastRecipes;
-    private List<RecipeItem> lunchRecipes;
-    private List<RecipeItem> dinnerRecipes;
+    private List<Node> allRecipes;
+    private List<Node> breakfastRecipes;
+    private List<Node> lunchRecipes;
+    private List<Node> dinnerRecipes;
    
     //private List<Node> originalRecipeList;
 
@@ -272,10 +272,10 @@ class RecipeList extends VBox {
 
     public void filterRecipesByMealType(String mealType) {
         // Clear existing children to prepare for the updated lists
-        //this.getChildren().clear();
+        this.getChildren().clear();
     
         // Determine which list to use based on the specified meal type
-        List<RecipeItem> filteredList;
+        List<Node> filteredList;
     
         String lowerCaseMealType = mealType.toLowerCase();
         
