@@ -16,10 +16,11 @@ import org.json.JSONObject;
 import java.net.URI;
 
 public class RequestSender {
-    public String performRequest(String method, String path, JSONObject json, String query, String username) {
+    public final static String SERVER_URL = "http://localhost:8100/";
+    public static String performRequest(String method,String path, JSONObject json, String query, String username) {
         // Implement your HTTP request logic here and return the response
         try {
-            String urlString = "http://localhost:8100/";
+            String urlString = SERVER_URL;
             //used to add "api" or something if necessary
             if(path != null) {urlString += path;}
 
