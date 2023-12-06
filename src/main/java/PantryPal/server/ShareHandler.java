@@ -1,15 +1,15 @@
 package PantryPal.server;
 
+import java.net.http.HttpRequest;
 import com.sun.net.httpserver.*;
+
 import java.io.*;
 import java.net.*;
-import java.net.http.HttpRequest;
 import java.util.*;
 
-import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 
-import org.w3c.dom.html.HTMLDListElement;
+import org.json.JSONObject;
 
 /*
  * 
@@ -17,11 +17,8 @@ import org.w3c.dom.html.HTMLDListElement;
 class ShareHandler implements HttpHandler {
     private static final String StandardCharsets = null;
     private String username;
-    private String title;
-    private String desc;
     private HttpServer server;
     private String path;
-    private HTMLDocument pageHTML;
     private Map<String, HttpContext> contextMap;
     private String id;
 
@@ -35,13 +32,9 @@ class ShareHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
-        System.out.println("Sharehandler got: " + method + ", @" + httpExchange.getRequestURI());
+        System.out.println("ShareHandler got: " + method + ", at" + httpExchange.getRequestURI());
         try {
-            switch (method) {
-                case "GET":
-                    response = handleGet(httpExchange);
-
-                    break;
+            switch (method) {// only needs POST, PUT, and DELETE
                 case "POST":
                     response = handlePost(httpExchange);
 
@@ -72,45 +65,28 @@ class ShareHandler implements HttpHandler {
 
     }
 
-    /*
-     * gets should return the recipe page html
-     */
-    public String handleGet(HttpExchange httpExchange) {
-        return pageHTML.toString();
-    }
-
     public String handlePost(HttpExchange httpExchange) throws IOException {
         // get and extract the request body
         InputStream requestBody = httpExchange.getRequestBody();
         String body = new String(requestBody.readAllBytes());
+        JSONObject json = new JSONObject(body);
+
 
         // parse the body to get username and password
-        String[] params = body.split("&");
-        this.username = params[0].split("=")[1];
-        this.title = params[1].split("=")[1];
-        this.desc = params[2].split("=")[1];
-        this.id = params[3].split("=")[1];
+        this.username = json.getString("username");
+        this.id = json.getString("id");
+        
 
         // Create a specific page
-        String name = "http://localhost:8100" + "/sr/" + this.username + "/"
-                + this.id;
-        //System.out.println("server: " + name);
+        this.path = "/sr/" + this.username + "/" + this.id;
+        System.out.println("========== share path: " + this.path + " ===========");
 
-        // Create a new context {id, context}
-        contextMap.put(this.id, this.server.createContext(name, new ShareRecipeHandler(this.title, this.desc)));
+        // Create a new context {id, context} where the context has path 'path'
+        // 
+        contextMap.put(this.id, this.server.createContext(path, new ShareRecipeHandler(json)));
+        System.out.println("========== SUCCESS! share context with path " + path + "==========");
 
-        // POST request to server
-        // HttpRequest request = HttpRequest.newBuilder()
-        // .uri(URI.create(name))
-        // .header("Content-Type", "application/x-www-form-urlencoded")
-        // .GET()
-        // .build();
-
-        /*
-         * TODO: Create the HTML for this page right here!!!!
-         */
-        this.pageHTML = new HTMLDocument();
-        return name;
+        return path;
     }
 
     public String handlePut(HttpExchange httpExchange) {

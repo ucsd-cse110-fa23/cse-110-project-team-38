@@ -40,13 +40,13 @@ public class MyServer {
 
     HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_HOSTNAME,SERVER_PORT),0);
 
+    //handles recipes at path '/recipe'
     HttpContext context = server.createContext("/recipe", new RecipeRequestHandler(recipes,recipeList));
+    //handles api calls at path '/api'
     HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
-
-    //for sharing
-    Map<String,HttpContext> shareMap = new HashMap<>();
-    HttpContext shareContext = server.createContext("/share",new ShareHandler(shareMap, server));
-    
+    //handles sharing at path 'share'
+    Map<String,HttpContext> contextMap = new HashMap<>();
+    HttpContext shareContext = server.createContext("/share",new ShareHandler(contextMap, server));
     
     server.setExecutor(threadPoolExecutor);
     server.start();
@@ -54,13 +54,16 @@ public class MyServer {
     MongoDatabase database = DatabaseConnect.getDatabase();
     HttpContext loginContext = server.createContext("/login", new LoginHandler(database));
 
+    HttpContext autoLoginContext = server.createContext("/autologin", new AutoLoginHandler(database));
+    
     System.out.println("Server Started on port " + SERVER_PORT);
   }
 
-
-  
-
-
+  static boolean validateUser(MongoDatabase database, String username, String password) {
+    MongoCollection<Document> usersCollection = database.getCollection("users");
+    Document foundUser = usersCollection.find(and(eq("username", username), eq("password", password))).first();
+    return foundUser != null;
+  }
 
   static class LoginHandler implements HttpHandler {
     private MongoDatabase database;
@@ -82,8 +85,7 @@ public class MyServer {
             String password = params[1].split("=")[1];
 
             //validate credentials
-            boolean isValidUser = validateUser(username, password);
-      
+            boolean isValidUser = MyServer.validateUser(database, username, password);
 
             //send response back to client
             String response = isValidUser ? "Success" : "Failure";
@@ -94,15 +96,35 @@ public class MyServer {
         }
     }
 
-
-    private boolean validateUser(String username, String password) {
-      MongoCollection<Document> usersCollection = database.getCollection("users");
-      Document foundUser = usersCollection.find(and(eq("username", username), eq("password", password))).first();
-      return foundUser != null;
   }
 
-}
+  static class AutoLoginHandler implements HttpHandler {
+    private MongoDatabase database;
 
+    AutoLoginHandler(MongoDatabase database) {
+        this.database = database;
+    }
+
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+        if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+            InputStream requestBody = exchange.getRequestBody();
+            String body = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+
+            String[] params = body.split("&");
+            String username = params[0].split("=")[1];
+            String password = params[1].split("=")[1];
+
+            boolean isValidUser = MyServer.validateUser(database, username, password);
+
+            String response = isValidUser ? "Success" : "Failure";
+            exchange.sendResponseHeaders(isValidUser ? 200 : 401, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        }
+    }
+  }
 
   public static void addMocks(ArrayList<RecipeData> list) {
     RecipeData mock1 = new RecipeData();

@@ -57,6 +57,9 @@ class RecipeDetailsPage extends VBox {
         this.setPadding(new Insets(10, 20, 10, 20));
         this.setStyle("-fx-background-color: " + Constants.SECONDARY_COLOR + ";");
 
+        Label mealTypeLabel = new Label(recipeItem.getMealType());
+        styleLabels(mealTypeLabel);
+
         Label titleLabel = new Label("What To Cook Today?");
         styleLabels(titleLabel);
         titleField = new TextField(recipeItem.getFullRecipeTitle());
@@ -107,8 +110,9 @@ class RecipeDetailsPage extends VBox {
                 obj.put("title", currentRecipeItem.getFullRecipeTitle());
                 obj.put("description", currentRecipeItem.getFullRecipeDescription());
                 obj.put("username", appFrame.getRecipeList().username);
-                RequestSender request = new RequestSender();
-                String response = request.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
+
+
+                String response = RequestSender.performRequest("PUT", "recipe", obj, null, appFrame.getRecipeList().username);
                 this.generated = false;
                 // appFrame.getRecipeList().saveRecipes();
             }
@@ -167,7 +171,7 @@ class RecipeDetailsPage extends VBox {
 
     private void shareRecipe() {
         RecipeList parentList = (RecipeList) currentRecipeItem.getParent();
-        String link = currentRecipeItem.shareRecipe(parentList.username);
+        String link = RequestSender.SERVER_URL + currentRecipeItem.shareRecipe(parentList.username);
         System.out.println("link: " + link);
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
@@ -231,30 +235,17 @@ class RecipeDetailsPage extends VBox {
     }
 
     private String generateImage() throws MalformedURLException, IOException, URISyntaxException {
-        // TODO: Convert to server call logic when ready
-        // ideally have server call do the generation and this function will return the
-        // image path
-
-        /*
-         * DallE dalle = new DallE();
-         * String imagePath;
-         * try {
-         * imagePath = dalle.processRequest(titleField.getText());
-         * }
-         * catch (Exception err) {
-         * String imageName = titleField.getText().replaceAll("\\s", "");
-         * imagePath = "images/" + imageName + ".jpg";
-         * }
-         */
-
-        RequestSender request = new RequestSender();
+        
         String newFileName = titleField.getText().replaceAll("\\s", "");
         String newPath = "images/" + newFileName + ".jpg";
-        String response = request.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
+        String response = RequestSender.performRequest("GET", "recipe", null, titleField.getText().replace(" ", ""), null);
         JSONObject responsePath = new JSONObject(response);
         String imageURL = responsePath.getString("imageURL");
-        try (
-                InputStream in = new URI(imageURL).toURL().openStream()) {
+        currentRecipeItem.setImgURL(imageURL);
+        try(
+            InputStream in = new URI(imageURL).toURL().openStream()
+        )
+        {
             Files.copy(in, Paths.get(newPath));
         } catch (Exception err) {
         }
@@ -262,59 +253,34 @@ class RecipeDetailsPage extends VBox {
     }
 
     private void regenerateRecipe() {
-        // TODO: move logic to server side
-
-        /*
-         * try {
-         * //whisper API used to get text from audio
-         * Whisper whisper = new Whisper();
-         * String prompt = whisper.sendRequest(); //the audio
-         * System.out.println("Request sent");
-         * 
-         * //chatGPT call used to get back chatGPT output
-         * ChatGPT chatGPT = new ChatGPT();
-         * String details = chatGPT.processRequest(prompt + " generate a recipe");
-         * 
-         * //parse output of ChatGPT
-         * String[] parts = details.split("\n");
-         * System.out.println(details);
-         * titleField.setText(parts[2]);
-         * String detailsWithNoTitle = details.replace(parts[2], "");
-         * descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n", ""));
-         * 
-         * String imagePath = generateImage();
-         * Image image = new Image(new File(imagePath).toURI().toString());
-         * imageView.setImage(image);
-         * }
-         * catch (Exception err) {
-         * System.out.println("Error regenerating" + err);
-         * }
-         */
-
         try {
-            // //whisper API used to get text from audio
-            Whisper whisper = new Whisper();
-            System.out.println("sending request to server...");
-            String response = whisper.sendRequest(); // send request via Whisper, recieve a gpt response
+        // //whisper API used to get text from audio
+        Whisper whisper = new Whisper();
+        System.out.println("sending request to server...");
+        String response = whisper.sendRequest(); //send request via Whisper, recieve a gpt response
+        
 
-            // //--------------------------
+        // //--------------------------
 
-            // //parse output of ChatGPT
-            String[] parts = response.split("\n");
-            System.out.println("GPT response: " + response);
-            titleField.setText(parts[2]);
-            String detailsWithNoTitle = response.replace(parts[2], "");
-            descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n", ""));
 
-            String imagePath = generateImage();
-            Image image = new Image(new File(imagePath).toURI().toString());
-            imageView.setImage(image);
+        // //parse output of ChatGPT
+        String[] parts = response.split("\n");
+        System.out.println("GPT response: " + response);
+        titleField.setText(parts[3]);
+        String detailsWithNoTag = response.replace(parts[0], "");
+        String detailsWithNoTitle = detailsWithNoTag.replace(parts[3], "");
+        descriptionField.setText(detailsWithNoTitle.replace("\n\n\n\n\n", ""));
+        System.out.println(parts[0]);
+        currentRecipeItem.setMealType(parts[0]);
 
-        } catch (Exception ex) {
-            System.out.println("Error Generating!");
-            ex.printStackTrace();
-        }
-        ;
+        String imagePath = generateImage();
+        Image image = new Image(new File(imagePath).toURI().toString());
+        imageView.setImage(image);
+
+    } catch (Exception ex){
+        System.out.println("Error Generating!");
+        ex.printStackTrace();
+    };
     }
 
 }
