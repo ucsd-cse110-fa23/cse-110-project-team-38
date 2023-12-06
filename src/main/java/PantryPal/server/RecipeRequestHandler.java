@@ -3,6 +3,7 @@ package PantryPal.server;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.sun.glass.ui.SystemClipboard;
 import com.sun.net.httpserver.*;
 
 import PantryPal.client.DatabaseConnect;
@@ -43,13 +44,11 @@ public class RecipeRequestHandler implements HttpHandler {
         this.recipeList = recipeList;
         this.recipes = recipes;
     }
-
+    
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
-        //System.out.println(httpExchange.getRequestBody().toString());
-        System.out.println(method);
-        //System.out.println(httpExchange.getRequestURI().toASCIIString());
+        System.out.println("RecipeRequestHandler got: " + method +", at: " + httpExchange.getRequestURI());
         try {
             switch (method) {
                 case "GET":
@@ -90,7 +89,7 @@ public class RecipeRequestHandler implements HttpHandler {
      * all GET requests should be for loading recipes from the DB
      */
     private String handleGet(HttpExchange httpExchange) throws IOException {
-
+        //System.out.println("Recipe Request Handler.Get");
         URI uri = httpExchange.getRequestURI();
         //System.out.println(json.toString());
         String query = uri.getRawQuery();
@@ -133,25 +132,14 @@ public class RecipeRequestHandler implements HttpHandler {
     }
 
     /*
-     * METHOD TO RETURN FROM VERSION SAVED ON SERVER!!!!!
-     * IS UNUSED 
-     * 
-     * Recipes sent in form
-     * {[12,43,65]+[51,33,75]}\n
-     * {R2 info}\n
-     * {R3 info}
-     * 
-     * for every recipedata, package its export() into {}
-     * put it into the response
+     * packs recipes from the DB document into a JSON
+     * returns the JSON with all recipes
      */
     private JSONArray loadRecipes(List<Document> recipes) {
-        // TODO: add the recipe info to the json
         JSONArray jsonArray = new JSONArray();
         for (Document recipeDoc : recipes) {
             JSONObject jsonObject = new JSONObject(recipeDoc.toJson());
-            jsonArray.put(jsonObject);
-            // TODO
-            
+            jsonArray.put(jsonObject);            
         }
 
         return jsonArray;
