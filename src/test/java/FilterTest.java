@@ -24,6 +24,8 @@ public class FilterTest {
     private RecipeItem item2;
     private RecipeItem item3;
     private RecipeItem item4;
+    private RecipeItem item5;
+    private RecipeItem item6;
 
     private MockGPT mockGPT;
     private MockWhisper mockWhisper;
@@ -93,6 +95,8 @@ public class FilterTest {
             item2.setMealType("Lunch");
             item3.setMealType("Dinner");
             item4.setMealType("Dinner");
+            item5.setMealType("Lunch");
+            item6.setMealType("Lunch");
 
             List<RecipeItem> breakfastRecipes = new ArrayList<RecipeItem>();
             List<RecipeItem> lunchRecipes = new ArrayList<RecipeItem>();
@@ -103,12 +107,21 @@ public class FilterTest {
 
             breakfastRecipes.add(item1);
             lunchRecipes.add(item2);
+            lunchRecipes.add(item5);
+            lunchRecipes.add(item6);
+
+
+
             dinnerRecipes.add(item3);
             dinnerRecipes.add(item4);
             allRecipes.add(item1);
             allRecipes.add(item2);
             allRecipes.add(item3);
             allRecipes.add(item4);
+            allRecipes.add(item5);
+            allRecipes.add(item6);
+
+
 
 
 
@@ -125,6 +138,9 @@ public class FilterTest {
             
             List<RecipeItem> expected = new ArrayList<RecipeItem>();
             expected.add(item2);
+            expected.add(item5);
+            expected.add(item6);
+
 
 
 
