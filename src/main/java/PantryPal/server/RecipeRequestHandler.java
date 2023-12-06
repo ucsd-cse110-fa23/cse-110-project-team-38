@@ -1,22 +1,27 @@
 package PantryPal.server;
 
+
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.sun.glass.ui.SystemClipboard;
 import com.sun.net.httpserver.*;
 
+
 import PantryPal.client.DatabaseConnect;
 import PantryPal.client.RecipeEncryptor;
 import PantryPal.client.RecipeItem;
 import PantryPal.client.Whisper;
 
+
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.*;
+
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -28,23 +33,27 @@ import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.UpdateOptions;
 
+
 import com.sun.net.httpserver.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
+
 public class RecipeRequestHandler implements HttpHandler {
+
 
     // Recipe Info is encoded as UTF-8 Arrays as key value pairs [1,2,3],[1,2,3]
     // must convert to UTF-8 strings when accessing recipes
     private final Map<String, String> recipes;
     private final ArrayList<RecipeData> recipeList;
 
+
     public RecipeRequestHandler(Map<String, String> recipes, ArrayList<RecipeData> recipeList) {
         this.recipeList = recipeList;
         this.recipes = recipes;
     }
-    
+   
     public void handle(HttpExchange httpExchange) throws IOException {
         String response = "Request Received";
         String method = httpExchange.getRequestMethod();
@@ -54,19 +63,24 @@ public class RecipeRequestHandler implements HttpHandler {
                 case "GET":
                     response = handleGet(httpExchange);
 
+
                     break;
                 case "POST":
                     response = handlePost(httpExchange);
+
 
                     break;
                 case "PUT":
                     response = handlePut(httpExchange);
 
+
                     break;
                 case "DELETE":
                     response = handleDelete(httpExchange);
 
+
                     break;
+
 
                 default:
                     throw new Exception("Not Valid Request Method");
@@ -77,13 +91,16 @@ public class RecipeRequestHandler implements HttpHandler {
             e.printStackTrace();
         }
 
+
         // Sending back response to the client
         httpExchange.sendResponseHeaders(200, response.length());
         OutputStream outStream = httpExchange.getResponseBody();
         outStream.write(response.getBytes());
         outStream.close();
 
+
     }
+
 
     /*
      * all GET requests should be for loading recipes from the DB
@@ -128,8 +145,10 @@ public class RecipeRequestHandler implements HttpHandler {
             }
         }
 
+
         return "Does not exist";
     }
+
 
     /*
      * packs recipes from the DB document into a JSON
@@ -142,8 +161,10 @@ public class RecipeRequestHandler implements HttpHandler {
             jsonArray.put(jsonObject);            
         }
 
+
         return jsonArray;
     }
+
 
     /*
      * Assuming all POSTs are save requests given ONE recipe in json form
@@ -151,7 +172,7 @@ public class RecipeRequestHandler implements HttpHandler {
     private String handlePost(HttpExchange httpExchange) {
         MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         String response = "got save POST";
-        
+       
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         try {
@@ -173,16 +194,18 @@ public class RecipeRequestHandler implements HttpHandler {
         //recipe.setGenerated(json.getBoolean("isGenerated"));
         //recipe.setRecipeTitle(json.getString("title"));
         //recipe.setRecipeId(json.getString("id"));
-        
+       
         // Username is from RecipeList in Main... see there for info i guess
         // TODO: send to db
         Document recipeDoc = new Document("username", username)
                 .append("title", json.getString("title"))
                 .append("description", json.getString("description"))
                 .append("mealType", json.getString("mealType"));
-        
-        Bson filter = Filters.and(eq("title", json.getString("title")), 
+       
+        Bson filter = Filters.and(eq("title", json.getString("title")),
                                 eq("username", json.getString("username")));
+
+
 
 
         if (!json.getBoolean("isGenerated")) {
@@ -199,8 +222,10 @@ public class RecipeRequestHandler implements HttpHandler {
             recipesCollection.updateOne(filter, new Document("$set", recipeDoc));
         }
 
+
         return response;
     }
+
 
     /*
      * PUT MUST BE IN FORM
@@ -209,8 +234,9 @@ public class RecipeRequestHandler implements HttpHandler {
     private String handlePut(HttpExchange httpExchange) throws IOException {
         String response = "got PUT";
 
+
         MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        
+       
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         try {
@@ -224,21 +250,26 @@ public class RecipeRequestHandler implements HttpHandler {
         String jsonBody = result.toString();
         JSONObject json = new JSONObject(jsonBody);
 
+
         Document recipeDoc = new Document("username", json.getString("username"))
                 .append("title", json.getString("title"))
                 .append("description", json.getString("description"));
+
 
         Bson filter = Filters.eq("title", json.getString("title"));
         Bson updateOperation = set("description", json.getString("description"));
         recipesCollection.updateOne(filter, updateOperation);
 
+
         return response;
     }
+
 
     private String handleDelete(HttpExchange httpExchange) throws IOException {
         String response = "Invalid DELETE request";
         MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         // username is in the constructor for RecipeList in main, so look there
+
 
         URI uri = httpExchange.getRequestURI();
         //System.out.println(json.toString());
@@ -262,6 +293,7 @@ public class RecipeRequestHandler implements HttpHandler {
             return "Recipe not in database";
         }
         return response;
+
 
     }
 }
