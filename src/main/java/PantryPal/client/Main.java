@@ -116,7 +116,7 @@ class RecipeList extends VBox {
         json = buildRecipeJSON(recipeItem, json);
 
 
-        String response = RequestSender.performRequest("DELETE", "recipe", json, recipeItem.getFullRecipeTitle(), username);
+        String response = RequestSender.performRequest("DELETE", "recipe", json, recipeItem.getFullRecipeTitle().replace(" ", "+"), username);
 
 
         //TODO: working code below!!! port to server!!!
