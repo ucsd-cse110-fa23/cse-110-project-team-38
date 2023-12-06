@@ -133,6 +133,10 @@ public class Whisper implements IWhisper {
         OutputStream outputStream = connection.getOutputStream();
         // Write model parameter to request body
         writeParameterToOutputStream(outputStream, "model", MODEL, boundary);
+
+        // Set language restriction parameter to English ONLY
+        writeParameterToOutputStream(outputStream, "language", "en", boundary);
+        
         // Write file parameter to request body
         writeFileToOutputStream(outputStream, file, boundary);
         // Write closing boundary to request body
