@@ -27,7 +27,6 @@ public class FilterTest {
 
     private MockGPT mockGPT;
     private MockWhisper mockWhisper;
-   // private RecipeList list1;
 
 
 
@@ -137,7 +136,7 @@ public class FilterTest {
     }
 
     @Test
-    public void testFilterBreakfast() {
+    public void testFilterDinner() {
         try {
 
             item1.setMealType("Breakfast");
