@@ -137,29 +137,45 @@ class RecipeList extends VBox {
             item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
-
-
-             // Add the recipe to the appropriate list based on meal type
-             allRecipes.add(item);
-             switch (item.getMealType().toLowerCase()) {
-                 case "breakfast":
-                     breakfastRecipes.add(item);
-                     break;
-                 case "lunch":
-                     lunchRecipes.add(item);
-                     break;
-                 case "dinner":
-                     dinnerRecipes.add(item);
-                     break;
-                 default:
-                     break;
-
-            
-             }
-           
             }
 
+
+            //  // Add the recipe to the appropriate list based on meal type
+            //  allRecipes.add(item);
+            //  switch (item.getMealType().toLowerCase()) {
+            //      case "breakfast":
+            //          breakfastRecipes.add(item);
+            //          break;
+            //      case "lunch":
+            //          lunchRecipes.add(item);
+            //          break;
+            //      case "dinner":
+            //          dinnerRecipes.add(item);
+            //          break;
+            //      default:
+            //          break;
+
+            
+            //  }
+           
+            // }
+
+        for (RecipeItem item : recipeList) {
+            allRecipes.add(item);
+
+            String mealType = item.getMealType().toLowerCase();
+            if ("breakfast".equals(mealType)) {
+                breakfastRecipes.add(item);
+            } else if ("lunch".equals(mealType)) {
+                lunchRecipes.add(item);
+            } else if ("dinner".equals(mealType)) {
+                dinnerRecipes.add(item);
+            }
         }
+    
+
+        }
+
 
         catch (Exception err) {
             System.out.println("Empty");
@@ -257,28 +273,25 @@ class RecipeList extends VBox {
     public void filterRecipesByMealType(String mealType) {
         // Clear existing children to prepare for the updated lists
         this.getChildren().clear();
-
+    
         // Determine which list to use based on the specified meal type
         List<RecipeItem> filteredList;
-        switch (mealType.toLowerCase()) {
-            case "all":
-                filteredList = allRecipes;
-                break;
-            case "breakfast":
-                filteredList = breakfastRecipes;
-                break;
-            case "lunch":
-                filteredList = lunchRecipes;
-                break;
-            case "dinner":
-                filteredList = dinnerRecipes;
-                break;
-            default:
-                // If an unknown meal type is specified, default to "all"
-                filteredList = allRecipes;
-                break;
+    
+        String lowerCaseMealType = mealType.toLowerCase();
+        
+        if ("all".equals(lowerCaseMealType)) {
+            filteredList = allRecipes;
+        } else if ("breakfast".equals(lowerCaseMealType)) {
+            filteredList = breakfastRecipes;
+        } else if ("lunch".equals(lowerCaseMealType)) {
+            filteredList = lunchRecipes;
+        } else if ("dinner".equals(lowerCaseMealType)) {
+            filteredList = dinnerRecipes;
+        } else {
+            // If an unknown meal type is specified, default to "all"
+            filteredList = allRecipes;
         }
-
+    
         // Add the recipes from the selected list to the UI
         this.getChildren().addAll(filteredList);
     }
