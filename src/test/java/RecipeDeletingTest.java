@@ -42,7 +42,7 @@ public class RecipeDeletingTest {
             
             //model.performRequest("POST", title, description, null);
 
-            model.performRequest("DELETE", null, null, query, null);
+            RequestSender.performRequest("DELETE", null, null, query, null);
 
             String response = RequestSender.performRequest("GET", null, null, query, null);
 
@@ -71,7 +71,7 @@ public class RecipeDeletingTest {
 
                 //model.performRequest("POST", title, description, null);
 
-                model.performRequest("DELETE", null, null, query, null);
+                RequestSender.performRequest("DELETE", null, null, query, null);
 
                 String response = RequestSender.performRequest("GET", null, null, query, null);
 
