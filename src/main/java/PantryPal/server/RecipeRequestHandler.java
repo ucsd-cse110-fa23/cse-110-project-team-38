@@ -15,6 +15,7 @@ import static com.mongodb.client.model.Updates.*;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.bson.Document;
@@ -66,7 +67,6 @@ public class RecipeRequestHandler implements HttpHandler {
                     break;
                 case "DELETE":
                     response = handleDelete(httpExchange);
-
                     break;
 
                 default:
@@ -102,7 +102,7 @@ public class RecipeRequestHandler implements HttpHandler {
         List<Document> recipes = recipesCollection.find(eq("username", username)).into(new ArrayList<>());
         if (query != null) {
             String specificQuery = query.split("/")[0];
-            System.out.println(specificQuery);
+            //System.out.println(specificQuery);
             if (specificQuery != null) {
                 // do we really need to even be checking for the query?
                 if (specificQuery.equals("=ALL")) {
@@ -176,7 +176,7 @@ public class RecipeRequestHandler implements HttpHandler {
         }
         String jsonBody = result.toString();
         JSONObject json = new JSONObject(jsonBody);
-        System.out.println(json.toString());
+        //System.out.println(json.toString());
         String username = json.getString("username");
         // TODO: extract recipe from json
         //RecipeItem recipe = new RecipeItem();
@@ -271,4 +271,5 @@ public class RecipeRequestHandler implements HttpHandler {
         return response;
 
     }
+
 }

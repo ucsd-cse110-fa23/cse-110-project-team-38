@@ -9,15 +9,15 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.json.JSONObject;
 
 import java.net.URI;
 
 public class RequestSender {
-    public String performRequest(String method,String path, JSONObject json, String query, String username) {
+    public String performRequest(String method, String path, JSONObject json, String query, String username) {
         // Implement your HTTP request logic here and return the response
-
         try {
             String urlString = "http://localhost:8100/";
             //used to add "api" or something if necessary
@@ -50,6 +50,7 @@ public class RequestSender {
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String response = in.readLine();
             in.close();
+            System.out.println(response);
             return response;
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -1,6 +1,5 @@
 package PantryPal.client;
 
-
 import javafx.application.Application;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -20,16 +19,10 @@ import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
-
-
-
 import java.io.File;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Scanner;
-
-
-
 
 import javafx.scene.layout.Region;
 import java.io.PrintWriter;
@@ -39,27 +32,14 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
-
-
 import java.util.Comparator;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
-
-
-
-
-
-
-
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputControl;
-
-
-
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -71,13 +51,7 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
-
-
 import java.util.prefs.Preferences;
-
-
-
 
 class Constants {
     public static final String PRIMARY_COLOR = "#2E4053";
@@ -88,8 +62,6 @@ class Constants {
 }
 
 
-
-
 class RecipeList extends VBox {
     public String username;
     private List<RecipeItem> allRecipes;
@@ -98,10 +70,6 @@ class RecipeList extends VBox {
     private List<RecipeItem> dinnerRecipes;
    
     //private List<Node> originalRecipeList;
-
-
-
-
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);
@@ -114,9 +82,6 @@ class RecipeList extends VBox {
         loadRecipes();
     }
 
-
-
-
     public JSONObject buildRecipeJSON(RecipeItem recipeItem, JSONObject jsonObject) {
         jsonObject.put("title", recipeItem.getFullRecipeTitle());
         jsonObject.put("description", recipeItem.getFullRecipeDescription());
@@ -126,39 +91,33 @@ class RecipeList extends VBox {
         return jsonObject;
     }
        
-
-
-
-
     public void removeRecipe(RecipeItem recipeItem) {
-        //remove from the UI
-        this.getChildren().remove(recipeItem);
+            //remove from all lists
+            allRecipes.remove(recipeItem);
+            breakfastRecipes.remove(recipeItem);
+            lunchRecipes.remove(recipeItem);
+            dinnerRecipes.remove(recipeItem);
 
+            //remove from the UI
+            this.getChildren().remove(recipeItem);
 
+            //prep the request for server
+            JSONObject json = new JSONObject();
+            json = buildRecipeJSON(recipeItem, json);
 
+            RequestSender request = new RequestSender();
+            System.out.println("Calling DELETE request");
+            String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
 
-        JSONObject json = new JSONObject();
-        json = buildRecipeJSON(recipeItem, json);
-
-
-
-
-        RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
-
-
-
-
-        //TODO: working code below!!! port to server!!!
-        //remove from database
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
-        Bson filter = Filters.and(
-                Filters.eq("username", username),
-                Filters.eq("title", recipeItem.getFullRecipeTitle()),
-                Filters.eq("description", recipeItem.getFullRecipeDescription())
-        );
-        recipesCollection.deleteOne(filter);
-    }
+            // TODO: working code below!!! port to server!!!
+            // MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+            // Bson filter = Filters.and(
+            //         Filters.eq("username", username),
+            //         Filters.eq("title", recipeItem.getFullRecipeTitle()),
+            //         Filters.eq("description", recipeItem.getFullRecipeDescription())
+            // );
+            // recipesCollection.deleteOne(filter);
+        }
 
 
     public void addThenCategorizeRecipe(RecipeItem recipe) {
@@ -186,8 +145,6 @@ class RecipeList extends VBox {
         }
         this.getChildren().addAll(allRecipes);
     }
-
-
 
 
     private void categorizeRecipe(RecipeItem recipe) {
