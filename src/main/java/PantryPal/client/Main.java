@@ -482,6 +482,9 @@ public class Main extends Application {
         primaryStage.setTitle("Pantry Pal Login");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        primaryStage.setMinWidth(600);
+        primaryStage.setMinHeight(800);
     }
 
 
