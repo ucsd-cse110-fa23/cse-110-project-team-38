@@ -93,7 +93,10 @@ public class LoginPage extends VBox {
                   });
               })
               .exceptionally(e -> {
-                  return null;
+                //shows connection errors when server is down
+                Platform.runLater(() -> showAlert("Connection Error", "Unable to connect to the server."));
+                e.printStackTrace();
+                return null;
               });
     }
 
@@ -132,7 +135,10 @@ public class LoginPage extends VBox {
                   });
               })
               .exceptionally(e -> {
-                  return null;
+                //shows connection errors when server is down
+                Platform.runLater(() -> showAlert("Connection Error", "Unable to connect to the server."));
+                e.printStackTrace();
+                return null;
               });
     }
     
