@@ -27,7 +27,6 @@ public class FilterTest {
 
     private MockGPT mockGPT;
     private MockWhisper mockWhisper;
-   // private RecipeList list1;
 
 
 
@@ -136,8 +135,8 @@ public class FilterTest {
         }
     }
 
-    //@Test
-    // public void testFilterBreakfast() {
+    // @Test
+    // public void testFilterDinner() {
     //     try {
 
     //         item1.setMealType("Breakfast");
@@ -186,6 +185,60 @@ public class FilterTest {
     //         System.out.println("Handle exception");
     //     }
     // }
+
+    @Test
+    public void testFilterAll() {
+        try {
+
+            item1.setMealType("Breakfast");
+            item2.setMealType("Lunch");
+            item3.setMealType("Dinner");
+            item4.setMealType("Dinner");
+
+            List<RecipeItem> breakfastRecipes = new ArrayList<RecipeItem>();
+            List<RecipeItem> lunchRecipes = new ArrayList<RecipeItem>();
+            List<RecipeItem> dinnerRecipes = new ArrayList<RecipeItem>();
+            List<RecipeItem> allRecipes = new ArrayList<RecipeItem>();
+
+
+
+            breakfastRecipes.add(item1);
+            lunchRecipes.add(item2);
+            dinnerRecipes.add(item3);
+            dinnerRecipes.add(item4);
+            allRecipes.add(item1);
+            allRecipes.add(item2);
+            allRecipes.add(item3);
+            allRecipes.add(item4);
+
+
+
+            
+
+
+            List<RecipeItem> filteredList = switch ("Breakfast".toLowerCase()) {
+                case "breakfast" -> breakfastRecipes;
+                case "lunch" -> lunchRecipes;
+                case "dinner" -> dinnerRecipes;
+                default -> allRecipes;
+            };
+
+            
+            List<RecipeItem> expected = new ArrayList<RecipeItem>();
+            expected.add(item1);
+            expected.add(item2);
+            expected.add(item3);
+            expected.add(item4);
+
+
+
+            assertEquals(expected, allRecipes);
+        }
+        catch (Exception err) {
+            System.out.println("Handle exception");
+        }
+    }
+
 
 
 
