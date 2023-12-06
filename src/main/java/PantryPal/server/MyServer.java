@@ -40,13 +40,15 @@ public class MyServer {
 
     HttpServer server = HttpServer.create(new InetSocketAddress(SERVER_HOSTNAME,SERVER_PORT),0);
 
+    //handles recipes at path '/recipe'
     HttpContext context = server.createContext("/recipe", new RecipeRequestHandler(recipes,recipeList));
+    //handles api calls at path '/api'
     HttpContext recipeContext = server.createContext("/api",new APIRequestHandler());
-
-    //for sharing
-    Map<String,HttpContext> shareMap = new HashMap<>();
-    HttpContext shareContext = server.createContext("/share",new ShareHandler(shareMap, server));
+    //handles sharing at path 'share'
+    Map<String,HttpContext> contextMap = new HashMap<>();
+    HttpContext shareContext = server.createContext("/share",new ShareHandler(contextMap, server));
     
+
     
     server.setExecutor(threadPoolExecutor);
     server.start();
