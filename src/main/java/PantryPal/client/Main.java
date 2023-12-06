@@ -90,17 +90,17 @@ class RecipeList extends VBox {
         json = buildRecipeJSON(recipeItem, json);
 
         RequestSender request = new RequestSender();
-        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle(), username);
+        String response = request.performRequest("DELETE", null, json, recipeItem.getFullRecipeTitle().replace(" ", "+"), username);
 
         //TODO: working code below!!! port to server!!!
         //remove from database
-        MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
+        /*MongoCollection<Document> recipesCollection = DatabaseConnect.getCollection("recipes");
         Bson filter = Filters.and(
                 Filters.eq("username", username),
                 Filters.eq("title", recipeItem.getFullRecipeTitle()),
                 Filters.eq("description", recipeItem.getFullRecipeDescription())
         );
-        recipesCollection.deleteOne(filter);
+        recipesCollection.deleteOne(filter);*/
     }
 
 
@@ -117,7 +117,7 @@ class RecipeList extends VBox {
             RecipeItem item = new RecipeItem();
             item.setRecipeDescription(responseArray.getJSONObject(i).getString("description"));
             item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
-            item.setGenerated(responseArray.getJSONObject(i).getBoolean("isGenerated"));
+            item.setGenerated(true);
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
         }
@@ -165,9 +165,11 @@ class RecipeList extends VBox {
                 json.put("username", username);
                 json.put("mealType", recipe.getMealType());
 
+                recipe.setGenerated(true);
+
                 System.out.println(json.toString());
 
-                String response = request.performRequest("POST", null, json, null, null); //perform a save post given json and no query
+                String response = request.performRequest("POST", null, json, null, username); //perform a save post given json and no query
 
                 //TODO: working DB save code below! port to server!!!
                 // Document recipeDoc = new Document("username", username)
