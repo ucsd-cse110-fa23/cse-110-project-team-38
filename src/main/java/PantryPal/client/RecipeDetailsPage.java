@@ -102,6 +102,7 @@ class RecipeDetailsPage extends VBox {
                     appFrame.getRecipeList().getChildren().add(0, currentRecipeItem);
                 }
                 this.generated = false; // reset the flag after saving
+                appFrame.getRecipeList().addThenCategorizeRecipe(currentRecipeItem);
                 appFrame.getRecipeList().saveRecipes();
             } else {
                 // update the existing recipe

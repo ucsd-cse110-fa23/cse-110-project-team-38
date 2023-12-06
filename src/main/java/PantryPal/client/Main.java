@@ -63,11 +63,20 @@ class Constants {
 
 class RecipeList extends VBox {
     public String username;
+    private List<RecipeItem> allRecipes;
+    private List<RecipeItem> breakfastRecipes;
+    private List<RecipeItem> lunchRecipes;
+    private List<RecipeItem> dinnerRecipes;
+
     RecipeList(String username) {
         this.username = username;
         this.setSpacing(5);
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
+        this.allRecipes = new ArrayList<>();
+        this.breakfastRecipes = new ArrayList<>();
+        this.lunchRecipes = new ArrayList<>();
+        this.dinnerRecipes = new ArrayList<>();
         this.loadRecipes();
     }
 
@@ -82,6 +91,12 @@ class RecipeList extends VBox {
         
 
     public void removeRecipe(RecipeItem recipeItem) {
+        //remove from all List
+        allRecipes.remove(recipeItem);
+        breakfastRecipes.remove(recipeItem);
+        lunchRecipes.remove(recipeItem);
+        dinnerRecipes.remove(recipeItem);
+
         //remove from the UI
         this.getChildren().remove(recipeItem);
 
@@ -116,7 +131,7 @@ class RecipeList extends VBox {
             item.setRecipeTitle(responseArray.getJSONObject(i).getString("title"));
             item.setGenerated(true);
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
-            recipeList.add(item);
+            categorizeRecipe(item);
         }
         }
         catch (Exception err) {
@@ -124,12 +139,40 @@ class RecipeList extends VBox {
             err.printStackTrace();
         }
 
-        for(RecipeItem recipe:recipeList){
+        this.getChildren().addAll(allRecipes);
+    }
 
-
-            this.getChildren().add(recipe);
+    private void categorizeRecipe(RecipeItem recipe) {
+        allRecipes.add(recipe);
+        String mealType = recipe.getMealType().toLowerCase();
+        switch (mealType) {
+            case "breakfast":
+                breakfastRecipes.add(recipe);
+                break;
+            case "lunch":
+                lunchRecipes.add(recipe);
+                break;
+            case "dinner":
+                dinnerRecipes.add(recipe);
+                break;
         }
     }
+
+    public void filterRecipesByMealType(String mealType) {
+       this.getChildren().clear();
+       List<RecipeItem> filteredList = switch (mealType.toLowerCase()) {
+           case "breakfast" -> breakfastRecipes;
+           case "lunch" -> lunchRecipes;
+           case "dinner" -> dinnerRecipes;
+           default -> allRecipes;
+       };
+       this.getChildren().addAll(filteredList);
+   }
+
+   public void addThenCategorizeRecipe(RecipeItem recipe) {
+       categorizeRecipe(recipe);
+   }
+
 
     public void saveRecipes() {
         /*
@@ -241,9 +284,24 @@ class Header extends VBox {
             }
         });
 
-        upperRowRight.getChildren().addAll(sortByComboBox);
-
-        this.getChildren().addAll(upperRowRight);
+       ComboBox<String> mealTypeFilterComboBox = new ComboBox<>(FXCollections.observableArrayList("All", "Breakfast", "Lunch", "Dinner"));
+       mealTypeFilterComboBox.setPromptText("Filter By Meal Type");
+       mealTypeFilterComboBox.setStyle("-fx-background-color: #B0B0B0; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 12px;");
+       mealTypeFilterComboBox.setPrefSize(140, 40);
+ 
+       mealTypeFilterComboBox.setOnAction(e -> {
+           if (mealTypeFilterComboBox.getValue() != null) {
+               if (this.getParent() instanceof AppFrame) {
+                   AppFrame appFrame = (AppFrame) this.getParent();
+                   String filterByMealType = mealTypeFilterComboBox.getValue();
+                   appFrame.getRecipeList().filterRecipesByMealType(filterByMealType);
+               }
+           }
+       });
+ 
+       upperRowRight.getChildren().addAll(sortByComboBox, mealTypeFilterComboBox);
+      //upperRowRight.getChildren().addAll(sortByComboBox);
+      this.getChildren().addAll(upperRowRight);
     
     }
 
