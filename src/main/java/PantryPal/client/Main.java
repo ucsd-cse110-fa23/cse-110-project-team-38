@@ -77,10 +77,10 @@ class RecipeList extends VBox {
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: white;");
         this.loadRecipes();
-        this.allRecipes = new ArrayList<>();
-        this.breakfastRecipes = new ArrayList<>();
-        this.lunchRecipes = new ArrayList<>();
-        this.dinnerRecipes = new ArrayList<>();
+        // this.allRecipes = new ArrayList<>();
+        // this.breakfastRecipes = new ArrayList<>();
+        // this.lunchRecipes = new ArrayList<>();
+        // this.dinnerRecipes = new ArrayList<>();
     
     }
 
@@ -138,27 +138,6 @@ class RecipeList extends VBox {
             item.setMealType(responseArray.getJSONObject(i).getString("mealType"));
             recipeList.add(item);
             }
-
-
-            //  // Add the recipe to the appropriate list based on meal type
-            //  allRecipes.add(item);
-            //  switch (item.getMealType().toLowerCase()) {
-            //      case "breakfast":
-            //          breakfastRecipes.add(item);
-            //          break;
-            //      case "lunch":
-            //          lunchRecipes.add(item);
-            //          break;
-            //      case "dinner":
-            //          dinnerRecipes.add(item);
-            //          break;
-            //      default:
-            //          break;
-
-            
-            //  }
-           
-            // }
 
         for (RecipeItem item : recipeList) {
             allRecipes.add(item);
